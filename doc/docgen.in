@@ -1,0 +1,49 @@
+#!/usr/bin/perl 
+
+require "document.pl";
+
+$time = localtime;
+
+(@ARGV == 1) or die "usage: docgen.pl directory\n";
+
+$html = shift;
+
+# now generate individual command documentation.
+
+foreach $file ('visualise.cc', 'levmarq.cc', 'lroche.cc', 'lprofile.cc', 'picture.cc', 'simplex.cc'){
+    document("../src/$file",$html,"html","html","");
+}
+
+# generate overall index file
+
+open(INDEX, ">$html/index.html") or die "Could not open index file\n";
+print INDEX <<END1;
+<html>
+<head>
+<title>Light curve software</title>
+<link rel=stylesheet href="style.css" type="text/css">
+</head>
+<body>
+<h1>Light Curve Software, Version ZzZzZ</h1>
+<p>
+To get started with lcurve, have a look at the <a href="guide.html">brief guide</a>.
+
+<h2>lcurve commands</h2>
+
+<p>
+The following comands are available:
+<p><table>
+END1
+
+foreach $item (sort keys %index){
+    print INDEX 
+	"<tr><td><a href=\"$index{$item}->{file}\">$item</a>".
+	"</td><td>$index{$item}->{description}</td>\n";
+}
+
+print INDEX "</table><p><hr>\n";
+print INDEX "<address>Page generated $time</address>\n";
+print INDEX "</body></html>\n";
+close(INDEX);
+
+exit;

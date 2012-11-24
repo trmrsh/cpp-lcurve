@@ -1,0 +1,12 @@
+
+'lcurve' is for modelling of light curves.
+
+Installation order: subs --> colly, binary --> roche --> lcurve
+
+The file called 'Lcurve' that is generated in this directory defines
+aliases (csh-style) and prints a help message when sourced.
+
+See www.astro.warwick.ac.uk/people/marsh/software for further info.
+
+
+

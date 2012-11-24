@@ -1,0 +1,63 @@
+<html>
+<head>
+<title>Rough guide to lcurve</title>
+<link rel=stylesheet href="lcurve.css" type="text/css">
+</head>
+<body>
+<h1>Rough guide to lcurve</h1>
+
+<p>
+Quick start: run the command <a href="lroche.html">lroche</a> using the
+<a href="example_model_file">example model</a>
+and <a href="example_data_file">example data</a>.
+Change one of the values (first number after an equals sign). Run again see
+what happens.
+
+<p>
+This is a very brief starter guide for using 'lcurve'. Basically the idea is to
+specify a model with a text file (<a href="example_model_file">example</a>). 
+See <a href="lroche.html">lroche</a> for a detailed description of the format of this
+file. It basically consists of shed loads of parameters. One tries to optimise these given some data
+(see <a href="example_data_file">example data</a>) which has 6 columns;
+see  <a href="lroche.html">lroche</a> for the specification of this as well. I have
+tried several alternative optimisation methods; the only ones worth bothering 
+with are coded in the routines <a href="simplex.html">simplex</a> and 
+<a href="levmarq.html">levmarq</a> (you won't be confused as I have removed
+the others). Ultimately <a href="levmarq.html">levmarq</a> is
+probably the one you want, but if it seems to be struggling at first then
+<a href="simplex.html">simplex</a> may do better. The advantage of 
+<a href="levmarq.html">levmarq</a> is that it returns uncertainties, but always 
+beware degeneracy which can lead to invalid results (including spurious minima)
+from either routine. This leads me to the following warning: <strong>Be
+  afraid, be very afraid of degeneracy in light curve fitting!</strong>
+Although I said that only <a href="simplex.html">simplex</a> and 
+<a href="levmarq.html">levmarq</a> are worth bothering with, they can easily
+be led astray by degeneracy, typically stopping at a "minimum" that is in fact
+far from it. In fact nowadays, I rarely use either of them but prefer MCMC
+runs (which I implement using a Python wrapper independent of lcurve which
+essentially just runs <a href="lroche.html">lroche</a>) as by far the best 
+way to approach things. Its great advantage is that it makes it clear where
+models are degenerate.
+
+<p>
+When starting off, use <a href="lroche.html">lroche</a> to see if you are
+anywhere near right by explicitly specifying a device to plot to as in
+"device=/xs" on the command line. <a href="lroche.html">lroche</a> is really
+the heart of lcurve and playing around with it can teach you a lot. All
+fitting parameters are documented in <a href="lroche.html">lroche</a>
+so it is very much the first port of call.
+
+<p>
+The lcurve routines are not particularly clever, but just brute force
+sub-divide the various components. When starting it is worth using relatively 
+few grid points, and once you are close to the right solution, then up the
+number. The command <a href="visualise.html">visualise</a> can be helpful
+to show the grids.
+
+<address>
+Tom Marsh, Warwick
+</address>
+
+</body>
+</html>
+

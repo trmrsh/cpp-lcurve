@@ -1,0 +1,118 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png}
+\renewcommand{\d}{\mathrm{d}}
+\setlength{\textwidth}{160mm}
+\setlength{\oddsidemargin}{0mm}
+\setlength{\evensidemargin}{0mm}
+
+\begin{document}
+
+\begin{center}
+{\bf\large Geometry of the fine latitude strip in lcurve}\\
+\end{center}
+
+\section{The problem}
+
+In order to speed the computation of transits with extreme radius ratios, it
+helps to finely space points only along the path of the small star across the
+big star. This avoids spending too long computing a million or more points in
+places the transit does not affect. In lcurve, owing to the difficulties in
+specifying arbitrarily distributed points, a slightly simpler approach is
+taken of finely spacing points along the range of latitudes that the small
+star affects. This overcooks it somewhat for inclinations below 90, but is
+still a big improvement upon simply fine-gridding the entire star. This
+document summarises the important equations for this problem.
+
+I work in units of the separation. The large star is denoted number 2, 
+while the small star is star 1. This is because generally lcurve is set
+up to expect the small star to be the primary. The following quantities are 
+defined:
+\begin{enumerate}
+\item[$r_1$] scaled radius of small star
+\item[$r_2$] scaled radius of large star
+\item[$x$, $y$] coordinates projected on the sky with 
+centre of large star as the origin
+\item[$i$] orbital inclination
+\item[$\phi$] azimuthal coordinate for spherical polar description of surface
+  of large star, defined to be zero along the meridian that runs straight down the
+  visible face of the star (i.e. it moves with binary phase relative to the
+  star but is fixed relative to the observer).
+\item[$\theta$] latitude coordinate on large star, starting from 0 at the
+  visible pole, ending at $\pi$ at the invisible pole. Poles lined up with
+  orbital axis.
+\item[$\lambda$] the binary phase, defined to be zero at the mid-transit point.
+\end{enumerate}
+
+Both stars are assumed spherical here. I have not tried to work out
+non-spherical corrections and instead have allowed the user to supply a fudge
+factor by which the latitude range can be extended if need be.
+
+\section{Large star results}
+
+This section gives results for latitudes and positions on the large star.
+
+\subsection{Lines of equal latitude}
+Lines of equal latitude on the large star obey the parametric equations:
+\begin{eqnarray*}
+x &=& r_2 \sin \theta \sin \phi,\\
+y &=& r_2 \left(\sin i \cos \theta - \cos i \sin \theta \cos \phi\right),\\
+\end{eqnarray*}
+where the azimuthal coordinate $\phi$ is the controlling parameter.
+For $\theta < \pi/2 - i$, one can see the entire line of equal latitude
+so $\phi$ runs from $-\pi$ to $+\pi$, otherwise it runs from $-\phi_c$ to
+$+\phi_c$ where
+\begin{equation}
+\cos \phi_c = - \frac{\cos \theta \cos i}{\sin \theta \sin i} .
+\end{equation}
+
+\subsection{Latitude for a given $x$, $y$ position}
+The latitudes corresponding to a particular $x$, $y$ project sky position 
+are given by
+\begin{equation}
+\cos \theta = \frac{y}{r_2} \sin i \pm \frac{\sqrt{r_2^2 - x^2 - y^2}}{r_2}
+\cos i .
+\end{equation}
+The visible latitude corresponds to the positive root of this expression.
+
+\section{Small star results}
+
+For circular orbits, the small star executes an ellipse centred upon 
+the large star with the projected coordinates of the centre of the small star
+given by
+\begin{eqnarray*}
+x_0 &=& \sin \lambda,\\
+y_0 &=& -\cos i \cos \lambda.
+\end{eqnarray*}
+As it sweeps around its orbit it maps out a swathe across the sky
+with inner and outer envelopes defined by the following parametric 
+equations in $\lambda$:
+\begin{eqnarray*}
+x &=& \sin \lambda \mp \frac{r_1 \cos i \sin \lambda}{\sqrt{\cos^2 i + \sin^2
+    i \cos^2 \lambda}},\\
+y &=& -\cos i \cos \lambda \pm \frac{r_1 \cos \lambda}{\sqrt{\cos^2 i + \sin^2
+    i \cos^2 \lambda}}.
+\end{eqnarray*}
+The upper of the signs corresponds to the inner envelope (which is the upper
+of the two for phases of interest to us here). The latitude of
+the point where the lower/outer envelope cuts the edge of the large star defines the 
+lowest latitude that needs to be finely gridded. The latitude of the upper/inner
+envelope at $\lambda = 0$ defines the uppermost latitude to consider; see the figure.
+\begin{figure}
+\includegraphics[width=0.95\textwidth]{vlat}
+\caption{Small star transiting a larger one showing lines of equal latitude on the large
+star, and the envelopes of the region occulted by the small one. The upper
+envelope reaches its highest latitude as it crosses the centre of the large
+star while the lower envelope reaches the lowest latitude at the edge of the
+large star.}
+\end{figure}
+
+\section{Implementation in lcurve}
+In lcurve a binary chop is used along with the parametric equation of the
+outer envelope to work out where it cuts the large star's edge. A fudge factor
+is allowed to increase the upper and lower bounds derived from this procedure
+to allow for possible corrections due to non-spherical effects.
+
+\end{document}
+
+
