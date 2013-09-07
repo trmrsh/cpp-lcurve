@@ -26,19 +26,19 @@ AC_PROG_LIBTOOL
 
 dnl Check for my software
 
-AC_CHECK_HEADERS([trm_subs.h trm_position.h trm_constants.h trm_array1d.h],[],AC_MSG_ERROR(cannot find headers associated with subs))
+AC_CHECK_HEADERS([trm/subs.h trm/position.h trm/constants.h trm/array1d.h],[],AC_MSG_ERROR(cannot find headers associated with subs))
 
 AC_CHECK_LIB([subs], [main], [], [AC_MSG_ERROR(cannot find the subs library)])
 
-AC_CHECK_HEADERS([trm_colly.h],[],AC_MSG_ERROR(cannot find colly header))
+AC_CHECK_HEADERS([trm/colly.h],[],AC_MSG_ERROR(cannot find colly header))
 
 AC_CHECK_LIB([colly], [main], [],    AC_MSG_ERROR(cannot find the colly library))
 
-AC_CHECK_HEADERS([trm_binary.h],[],AC_MSG_ERROR(cannot find binary header))
+AC_CHECK_HEADERS([trm/binary.h],[],AC_MSG_ERROR(cannot find binary header))
 
 AC_CHECK_LIB([binary], [main], [],    AC_MSG_ERROR(cannot find the binary library))
 
-AC_CHECK_HEADERS([trm_roche.h],[],AC_MSG_ERROR(cannot find roche header))
+AC_CHECK_HEADERS([trm/roche.h],[],AC_MSG_ERROR(cannot find roche header))
 
 AC_CHECK_LIB([roche], [main], [],    AC_MSG_ERROR(cannot find the roche library))
 

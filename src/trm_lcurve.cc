@@ -1,8 +1,8 @@
 #include <map>
-#include "trm_array1d.h"
-#include "trm_lcurve.h"
-#include "trm_roche.h"
-#include "trm_format.h"
+#include "trm/array1d.h"
+#include "trm/lcurve.h"
+#include "trm/roche.h"
+#include "trm/format.h"
 
 /** Outputs the value and step size of a physical parameter
  */

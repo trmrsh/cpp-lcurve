@@ -1,7 +1,7 @@
 #include <map>
-#include "trm_lcurve.h"
-#include "trm_roche.h"
-#include "trm_format.h"
+#include "trm/lcurve.h"
+#include "trm/roche.h"
+#include "trm/format.h"
 
 using Subs::operator+;
 

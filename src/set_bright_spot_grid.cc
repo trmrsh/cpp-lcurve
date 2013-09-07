@@ -1,10 +1,10 @@
 #include <cstdlib>
 #include <iostream>
-#include "trm_subs.h"
-#include "trm_constants.h"
-#include "trm_vec3.h"
-#include "trm_roche.h"
-#include "trm_lcurve.h"
+#include "trm/subs.h"
+#include "trm/constants.h"
+#include "trm/vec3.h"
+#include "trm/roche.h"
+#include "trm/lcurve.h"
 
 /**
  * set_bright_spot_grid sets up the elements needed to define the bright spot at the edge of the disc. This is modelled

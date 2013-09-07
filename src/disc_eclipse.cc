@@ -1,5 +1,5 @@
-#include "trm_lcurve.h"
-#include "trm_roche.h"
+#include "trm/lcurve.h"
+#include "trm/roche.h"
 
 /** 
  * Checks for eclipse by flared disc.

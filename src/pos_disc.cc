@@ -1,4 +1,4 @@
-#include "trm_lcurve.h"
+#include "trm/lcurve.h"
 
 /** 
  * Computes position vector and direction cosine of point on upper surface of

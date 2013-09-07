@@ -44,11 +44,11 @@ negative errors ro mask.}
 #include <cfloat>
 #include <cstdlib>
 #include <iostream>
-#include "trm_subs.h"
-#include "trm_format.h"
-#include "trm_input.h"
+#include "trm/subs.h"
+#include "trm/format.h"
+#include "trm/input.h"
 #include "amoeba.h"
-#include "trm_lcurve.h"
+#include "trm/lcurve.h"
 
 using Subs::operator+;
 

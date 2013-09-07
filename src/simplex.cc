@@ -48,11 +48,11 @@ negative errors ro mask.}
 #include <cfloat>
 #include <cstdlib>
 #include <iostream>
-#include "trm_subs.h"
-#include "trm_array1d.h"
-#include "trm_format.h"
-#include "trm_input.h"
-#include "trm_lcurve.h"
+#include "trm/subs.h"
+#include "trm/array1d.h"
+#include "trm/format.h"
+#include "trm/input.h"
+#include "trm/lcurve.h"
 
 int    Lcurve::Fobj::neval = 0;
 double Lcurve::Fobj::chisq_min;

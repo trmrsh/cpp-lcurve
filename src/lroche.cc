@@ -282,13 +282,13 @@ include any secondary star component. You can do this by setting t2 < 0.}
 #include <cstdlib>
 #include <iostream>
 #include "cpgplot.h"
-#include "trm_subs.h"
-#include "trm_plot.h"
-#include "trm_vec3.h"
-#include "trm_input.h"
-#include "trm_format.h"
-#include "trm_roche.h"
-#include "trm_lcurve.h"
+#include "trm/subs.h"
+#include "trm/plot.h"
+#include "trm/vec3.h"
+#include "trm/input.h"
+#include "trm/format.h"
+#include "trm/roche.h"
+#include "trm/lcurve.h"
 
 int Lcurve::Fobj::neval = 0;
 double Lcurve::Fobj::chisq_min;

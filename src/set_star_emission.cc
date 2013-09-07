@@ -1,8 +1,8 @@
 #include <cstdlib>
 #include <iostream>
-#include "trm_subs.h"
-#include "trm_vec3.h"
-#include "trm_lcurve.h"
+#include "trm/subs.h"
+#include "trm/vec3.h"
+#include "trm/lcurve.h"
 
 /** set_star_emission computes the emission line face-on brightness of elements over the 
  * secondary star assuming proportionality to intensity of flux from primary.

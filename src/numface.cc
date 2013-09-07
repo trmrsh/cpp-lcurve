@@ -1,6 +1,6 @@
-#include "trm_constants.h"
-#include "trm_subs.h"
-#include "trm_lcurve.h"
+#include "trm/constants.h"
+#include "trm/subs.h"
+#include "trm/lcurve.h"
 
 /** Calculates the number of elements needed given the number of latititude elements etc. See set_grid for
  * information on how the grid is defined.

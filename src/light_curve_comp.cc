@@ -1,6 +1,6 @@
-#include "trm_lcurve.h"
-#include "trm_buffer2d.h"
-#include "trm_constants.h"
+#include "trm/lcurve.h"
+#include "trm/buffer2d.h"
+#include "trm/constants.h"
 
 #ifdef _OPENMP
   #include <omp.h>

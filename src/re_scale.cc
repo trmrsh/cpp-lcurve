@@ -1,5 +1,5 @@
-#include "trm_subs.h"
-#include "trm_lcurve.h"
+#include "trm/subs.h"
+#include "trm/lcurve.h"
 
 /** This routine scales a given fit to obtain a minimum chi**2 (equivalent to assuming complete
  *  uncertainty in the distance and/or absolute scale of the system. It returns the optimum scaling 

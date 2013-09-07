@@ -63,12 +63,12 @@ value of lambda is multiplied or divided by 10 each step according to progress.}
 #include <cfloat>
 #include <cstdlib>
 #include <iostream>
-#include "trm_subs.h"
-#include "trm_array1d.h"
-#include "trm_buffer2d.h"
-#include "trm_format.h"
-#include "trm_input.h"
-#include "trm_lcurve.h"
+#include "trm/subs.h"
+#include "trm/array1d.h"
+#include "trm/buffer2d.h"
+#include "trm/format.h"
+#include "trm/input.h"
+#include "trm/lcurve.h"
 
 // Class to store the data and calculate the Levenberg-Marquardt stuff
 

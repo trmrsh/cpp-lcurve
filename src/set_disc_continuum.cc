@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <iostream>
-#include "trm_subs.h"
-#include "trm_constants.h"
-#include "trm_vec3.h"
-#include "trm_lcurve.h"
+#include "trm/subs.h"
+#include "trm/constants.h"
+#include "trm/vec3.h"
+#include "trm/lcurve.h"
 
 /** set_disc_continuum computes the face-on brightness of each element of the disc assuming a power
  * law with radius.

@@ -45,12 +45,12 @@ visualise model nphase nphase (phase)/(phase1 phase2) device x1 x2 y1 y2
 #include <cstdlib>
 #include <iostream>
 #include "cpgplot.h"
-#include "trm_subs.h"
-#include "trm_plot.h"
-#include "trm_vec3.h"
-#include "trm_input.h"
-#include "trm_roche.h"
-#include "trm_lcurve.h"
+#include "trm/subs.h"
+#include "trm/plot.h"
+#include "trm/vec3.h"
+#include "trm/input.h"
+#include "trm/roche.h"
+#include "trm/lcurve.h"
 
 int    Lcurve::Fobj::neval = 0;
 double Lcurve::Fobj::chisq_min;

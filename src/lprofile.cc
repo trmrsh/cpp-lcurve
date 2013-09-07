@@ -51,13 +51,13 @@ profiles to be compared more easily although not necessarily directly with data.
 #include <cstdlib>
 #include <cfloat>
 #include <iostream>
-#include "trm_subs.h"
-#include "trm_format.h"
-#include "trm_vec3.h"
-#include "trm_input.h"
-#include "trm_roche.h"
-#include "trm_colly.h"
-#include "trm_lcurve.h"
+#include "trm/subs.h"
+#include "trm/format.h"
+#include "trm/vec3.h"
+#include "trm/input.h"
+#include "trm/roche.h"
+#include "trm/colly.h"
+#include "trm/lcurve.h"
 
 int Lcurve::Fobj::neval = 0;
 double Lcurve::Fobj::chisq_min;

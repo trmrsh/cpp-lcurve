@@ -1,6 +1,6 @@
 #include <cstdlib>
-#include "trm_roche.h"
-#include "trm_lcurve.h"
+#include "trm/roche.h"
+#include "trm/lcurve.h"
 
 /** Covenience routine which wraps up the code to compute a star eclipse allowing for roche-dirstortion or not.
  * \param q mass ratio
