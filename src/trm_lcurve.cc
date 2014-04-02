@@ -75,18 +75,33 @@ Lcurve::Model::Model(const std::string& file) {
     names["tilt_spot"]      = false;
     names["cfrac_spot"]     = false;
 
+    // Star spots:
+    //
+    // 11 = star 1, spot 1
+    // 21 = star 2, spot 1
+    //
+    names["stsp11_long"]    = false;
+    names["stsp11_lat"]     = false;
+    names["stsp11_fwhm"]    = false;
+    names["stsp11_tcen"]    = false;
+
+    names["stsp21_long"]    = false;
+    names["stsp21_lat"]     = false;
+    names["stsp21_fwhm"]    = false;
+    names["stsp21_tcen"]    = false;
+
     // Computational
     names["delta_phase"]    = false;
     names["nlat1f"]         = false;
     names["nlat2f"]         = false;
     names["nlat1c"]         = false;
-    names["nlat2c"]         = false; 
+    names["nlat2c"]         = false;
     names["npole"]          = false;
-    names["nlatfill"]       = false; 
-    names["nlngfill"]       = false; 
-    names["lfudge"]         = false; 
-    names["llo"]            = false; 
-    names["lhi"]            = false; 
+    names["nlatfill"]       = false;
+    names["nlngfill"]       = false;
+    names["lfudge"]         = false;
+    names["llo"]            = false;
+    names["lhi"]            = false;
     names["phase1"]         = false;
     names["phase2"]         = false;
     names["wavelength"]     = false;
@@ -110,128 +125,78 @@ Lcurve::Model::Model(const std::string& file) {
     names["add_spot"]       = false;
     names["nspot"]          = false;
     names["iscale"]         = false;
-    
+
     // Parameter value pairs
     std::map<std::string, std::string> pv;
-    
+
     // Read in the parameter values
     std::ifstream fin(file.c_str());
     if(!fin) throw Lcurve_Error("Failed to open " + file + " for starting parameters.");
-    
+
     const int MAX_LINE = 5000;
     int n = 0;
     char ch;
     std::string param, value;
     while(fin && !fin.eof()){
-	n++;
-	ch = fin.peek();
-	if(fin.eof()){
-	    std::cerr << "End of file reached." << std::endl;
-	}else if(ch == '#' || ch == ' ' || ch == '\t' || ch == '\n'){
-	    fin.ignore(MAX_LINE, '\n'); // skip to next line
-	}else{
-	
-	    if(fin >> param){
-	  
-		NIT nit = names.find(param);
-		if(nit == names.end())
-		    throw Lcurve_Error("Parameter: " + param + " from line " + Subs::str(n) + " was not recognised.");
-		nit->second = true;
-		
-		while(fin.get(ch) && ch != '='); // skips up to = sign
-		if(!fin) 
-		    throw Lcurve_Error("Line " + Subs::str(n) + " starting: " + param + " is invalid");
-		
-		getline(fin,value);
-		
-		// Work out end of value string defined by first hash
-		std::string::size_type ntemp, nhash = 0;
-		while((ntemp = value.find('#',nhash)) != std::string::npos && 
-		      ntemp > 0 && value[ntemp-1] == '\\'){
-		    nhash = ntemp + 1;
-		}
-		if(ntemp != std::string::npos) value.erase(ntemp);
-		
-		// Chop off any space at start and end
-		std::string::size_type n1 = value.find_first_not_of(" \t");
-		std::string::size_type n2 = value.find_last_not_of(" \t");
-		
-		if(n1 != std::string::npos)
-		    pv[param] = value.substr(n1,n2-n1+1);
-		else
-		    throw Lcurve_Error("Line " + Subs::str(n) + " starting: " + param + " has no values");
-	    }else if(fin.eof()){
-		std::cerr << "End of parameter file reached." << std::endl;
-	    }else{
-		throw Lcurve_Error("Parameter input failure on line " + Subs::str(n));
-	    }
-	}
+        n++;
+        ch = fin.peek();
+        if(fin.eof()){
+            std::cerr << "End of file reached." << std::endl;
+        }else if(ch == '#' || ch == ' ' || ch == '\t' || ch == '\n'){
+            fin.ignore(MAX_LINE, '\n'); // skip to next line
+        }else{
+
+            if(fin >> param){
+
+                NIT nit = names.find(param);
+                if(nit == names.end())
+                    throw Lcurve_Error("Parameter: " + param + " from line " + Subs::str(n) +
+                                       " was not recognised.");
+                nit->second = true;
+
+                while(fin.get(ch) && ch != '='); // skips up to = sign
+                if(!fin)
+                    throw Lcurve_Error("Line " + Subs::str(n) + " starting: " + param + " is invalid");
+
+                getline(fin,value);
+
+                // Work out end of value string defined by first hash
+                std::string::size_type ntemp, nhash = 0;
+                while((ntemp = value.find('#',nhash)) != std::string::npos &&
+                      ntemp > 0 && value[ntemp-1] == '\\'){
+                    nhash = ntemp + 1;
+                }
+                if(ntemp != std::string::npos) value.erase(ntemp);
+
+                // Chop off any space at start and end
+                std::string::size_type n1 = value.find_first_not_of(" \t");
+                std::string::size_type n2 = value.find_last_not_of(" \t");
+
+                if(n1 != std::string::npos)
+                    pv[param] = value.substr(n1,n2-n1+1);
+                else
+                    throw Lcurve_Error("Line " + Subs::str(n) + " starting: " + param + " has no values");
+            }else if(fin.eof()){
+                std::cerr << "End of parameter file reached." << std::endl;
+            }else{
+                throw Lcurve_Error("Parameter input failure on line " + Subs::str(n));
+            }
+        }
     }
     fin.close();
 
     std::cerr << n << " lines read from " << file << std::endl;
 
-    // Check that everything has been initialised, with a few checks for 
-    // legacy models
+    // Check that everything has been initialised, except for the star spots
+    // that do not have to be defined
     bool ok = true;
     for(NIT nit=names.begin(); nit!=names.end(); nit++){
-	if(!nit->second){
-	    std::cerr << nit->first << " was not defined " << std::endl;
-	    if(nit->first == "epow_spot"){
-		std::cerr << nit->first << " will be fixed at 1, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "1 0.01 0.01 0"; 
-	    }else if(nit->first == "iscale"){
-		std::cerr << nit->first << " will be set to 0 (false), but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0";
-	    }else if(nit->first == "npole"){
-		std::cerr << nit->first << " will be set to 0 (false), but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0";
-	    }else if(nit->first == "nlatfill" || nit->first == "nlngfill"){
-		std::cerr << nit->first << " will be set to 0, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0";
-	    }else if(nit->first == "glens1"){
-		std::cerr << nit->first << " will be set to 0 (false), but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0";
-	    }else if(nit->first == "lfudge"){
-		std::cerr << nit->first << " will be set to 0, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0";
-	    }else if(nit->first == "llo"){
-		std::cerr << nit->first << " will be set to 90, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "90";
-	    }else if(nit->first == "lhi"){
-		std::cerr << nit->first << " will be set to -90, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "-90";
-	    }else if(nit->first == "cphi3"){
-		std::cerr << nit->first << " will be set to 0.015, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0.015 0.01 0.01 0"; 
-	    }else if(nit->first == "cphi4"){
-		std::cerr << nit->first << " will be set to 0.018, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0.018 0.01 0.01 0";
-	    }else if(nit->first == "use_radii"){
-		std::cerr << nit->first << " will be set to 1 (true), but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "1"; 
-	    }else if(nit->first == "gravity_dark1" || nit->first == "gravity_dark2" || nit->first == "gdark_bolom1" || nit->first == "gdark_bolom2"){
-		throw Lcurve_Error("There are now two values of " + nit->first + ", one for each star. Please update your model file");
-	    }else if(nit->first == "beam_factor1" || nit->first == "beam_factor2"){
-		std::cerr << nit->first << " will be fixed at 0, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0 0.01 0.01 0"; 
-	    }else if(nit->first == "mucrit1" || nit->first == "mucrit2"){
-		std::cerr << nit->first << " will be fixed at 0, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0.0"; 
-	    }else if(nit->first == "deltat"){
-		std::cerr << nit->first << " will be set to 0., but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0.0 0.0001 0.0001 0";
-	    }else if(nit->first == "spin1" || nit->first == "spin2"){
-		std::cerr << nit->first << " will be set to 1.0, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "1.0 0.01 0.01 0";
-	    }else if(nit->first == "quad" || nit->first == "cube"){
-		std::cerr << nit->first << " will be set to 0.0, but you may want to add it to your model file to avoid this message" << std::endl;
-		pv[nit->first] = "0.0 0.01 0.01 0";
-	    }else{
-		ok = false;
-	    }
-	    nit->second = true;
-	}
+        if(!nit->second){
+            if(nit->first.substr(0,4) != "stsp"){
+                std::cerr << nit->first << " was not defined " << std::endl;
+                ok = false;
+            }
+        }
     }
     if(!ok) throw Lcurve_Error("One or more parameters were not initialised");
 
@@ -285,6 +250,26 @@ Lcurve::Model::Model(const std::string& file) {
     tilt_spot        = Pparam(pv["tilt_spot"]);
     cfrac_spot       = Pparam(pv["cfrac_spot"]);
 
+    // star-spot parameters need not have been defined, but if one of a group
+    // has, then all of them should be
+    if(names["stsp11_long"] || names["stsp11_lat"] || names["stsp11_fwhm"] || names["stsp11_tcen"]){
+        if(!(names["stsp11_long"] && names["stsp11_lat"] && names["stsp11_fwhm"] && names["stsp11_tcen"]))
+            throw Lcurve_Error("One or more of the star spot 11 parameters were not initialised");
+        stsp11_long = Pparam(pv["stsp11_long"]);
+        stsp11_lat  = Pparam(pv["stsp11_lat"]);
+        stsp11_fwhm = Pparam(pv["stsp11_fwhm"]);
+        stsp11_tcen = Pparam(pv["stsp11_tcen"]);
+    }
+
+    if(names["stsp21_long"] || names["stsp21_lat"] || names["stsp21_fwhm"] || names["stsp21_tcen"]){
+        if(!(names["stsp21_long"] && names["stsp21_lat"] && names["stsp21_fwhm"] && names["stsp21_tcen"]))
+            throw Lcurve_Error("One or more of the star spot 11 parameters were not initialised");
+        stsp21_long = Pparam(pv["stsp21_long"]);
+        stsp21_lat  = Pparam(pv["stsp21_lat"]);
+        stsp21_fwhm = Pparam(pv["stsp21_fwhm"]);
+        stsp21_tcen = Pparam(pv["stsp21_tcen"]);
+    }
+
     delta_phase      = Subs::string_to_double(pv["delta_phase"]);
     nlat1f           = Subs::string_to_int(pv["nlat1f"]);
     nlat2f           = Subs::string_to_int(pv["nlat2f"]);
@@ -314,18 +299,18 @@ Lcurve::Model::Model(const std::string& file) {
     mucrit2          = Subs::string_to_double(pv["mucrit2"]);
 
     if(pv["limb1"] == "Poly"){
-	limb1 = LDC::POLY;
+        limb1 = LDC::POLY;
     }else if(pv["limb1"] == "Claret"){
-	limb1 = LDC::CLARET;
+        limb1 = LDC::CLARET;
     }else{
-	throw Lcurve_Error("Could not recognize the value of limb1 = " + pv["limb1"] + "; should be 'Poly' or 'Claret'");
+        throw Lcurve_Error("Could not recognize the value of limb1 = " + pv["limb1"] + "; should be 'Poly' or 'Claret'");
     }
     if(pv["limb2"] == "Poly"){
-	limb2 = LDC::POLY;
+        limb2 = LDC::POLY;
     }else if(pv["limb2"] == "Claret"){
-	limb2 = LDC::CLARET;
+        limb2 = LDC::CLARET;
     }else{
-	throw Lcurve_Error("Could not recognize the value of limb2 = " + pv["limb2"] + "; should be 'Poly' or 'Claret'");
+        throw Lcurve_Error("Could not recognize the value of limb2 = " + pv["limb2"] + "; should be 'Poly' or 'Claret'");
     }
 
     mirror           = Subs::string_to_bool(pv["mirror"]);
@@ -345,11 +330,11 @@ int Lcurve::Model::nvary() const {
     if(q.vary) n++;
     if(iangle.vary) n++;
     if(use_radii){
-	if(r1.vary) n++;
-	if(r2.vary) n++;
+        if(r1.vary) n++;
+        if(r2.vary) n++;
     }else{
-	if(cphi3.vary) n++;
-	if(cphi4.vary) n++;
+        if(cphi3.vary) n++;
+        if(cphi4.vary) n++;
     }
     if(spin1.vary) n++;
     if(spin2.vary) n++;
@@ -377,27 +362,27 @@ int Lcurve::Model::nvary() const {
     if(cube.vary) n++;
 
     if(add_disc){
-	if(rdisc1.vary) n++;
-	if(rdisc2.vary) n++;
-	if(height_disc.vary) n++;
-	if(beta_disc.vary) n++;
-	if(temp_disc.vary) n++;
-	if(texp_disc.vary) n++;
-	if(lin_limb_disc.vary) n++;
-	if(quad_limb_disc.vary) n++;
+        if(rdisc1.vary) n++;
+        if(rdisc2.vary) n++;
+        if(height_disc.vary) n++;
+        if(beta_disc.vary) n++;
+        if(temp_disc.vary) n++;
+        if(texp_disc.vary) n++;
+        if(lin_limb_disc.vary) n++;
+        if(quad_limb_disc.vary) n++;
     }
-    
+
     if(add_spot){
-	if(radius_spot.vary) n++;
-	if(length_spot.vary) n++;
-	if(height_spot.vary) n++;
-	if(expon_spot.vary) n++;
-	if(epow_spot.vary) n++;
-	if(angle_spot.vary) n++;
-	if(yaw_spot.vary) n++;
-	if(temp_spot.vary) n++;
-	if(tilt_spot.vary) n++;
-	if(cfrac_spot.vary) n++;
+        if(radius_spot.vary) n++;
+        if(length_spot.vary) n++;
+        if(height_spot.vary) n++;
+        if(expon_spot.vary) n++;
+        if(epow_spot.vary) n++;
+        if(angle_spot.vary) n++;
+        if(yaw_spot.vary) n++;
+        if(temp_spot.vary) n++;
+        if(tilt_spot.vary) n++;
+        if(cfrac_spot.vary) n++;
     }
 
     return n;
@@ -405,17 +390,17 @@ int Lcurve::Model::nvary() const {
 
 void Lcurve::Model::set_param(const Subs::Array1D<double>& vpar) {
     if(nvary() != vpar.size())
-	throw Lcurve_Error("Lcurve::Model::set_param: conflicting numbers of variable parameters");
+        throw Lcurve_Error("Lcurve::Model::set_param: conflicting numbers of variable parameters");
     int n = 0;
-  
+
     if(q.vary)         q.value                   = vpar[n++];
     if(iangle.vary)    iangle.value              = vpar[n++];
     if(use_radii){
-	if(r1.vary)        r1.value                  = vpar[n++];
-	if(r2.vary)        r2.value                  = vpar[n++];
+        if(r1.vary)        r1.value                  = vpar[n++];
+        if(r2.vary)        r2.value                  = vpar[n++];
     }else{
-	if(cphi3.vary)     cphi3.value               = vpar[n++];
-	if(cphi4.vary)     cphi4.value               = vpar[n++];
+        if(cphi3.vary)     cphi3.value               = vpar[n++];
+        if(cphi4.vary)     cphi4.value               = vpar[n++];
     }
     if(spin1.vary)     spin1.value               = vpar[n++];
     if(spin2.vary)     spin2.value               = vpar[n++];
@@ -429,8 +414,8 @@ void Lcurve::Model::set_param(const Subs::Array1D<double>& vpar) {
     if(ldc2_2.vary)    ldc2_2.value              = vpar[n++];
     if(ldc2_3.vary)    ldc2_3.value              = vpar[n++];
     if(ldc2_4.vary)    ldc2_4.value              = vpar[n++];
-    if(beam_factor1.vary) beam_factor1.value     = vpar[n++]; 
-    if(beam_factor2.vary) beam_factor2.value     = vpar[n++]; 
+    if(beam_factor1.vary) beam_factor1.value     = vpar[n++];
+    if(beam_factor2.vary) beam_factor2.value     = vpar[n++];
 
     if(t0.vary)        t0.value                  = vpar[n++];
     if(period.vary)    period.value              = vpar[n++];
@@ -443,33 +428,34 @@ void Lcurve::Model::set_param(const Subs::Array1D<double>& vpar) {
     if(cube.vary) cube.value                     = vpar[n++];
 
     if(add_disc){
-	if(rdisc1.vary) rdisc1.value                 = vpar[n++];
-	if(rdisc2.vary) rdisc2.value                 = vpar[n++];
-	if(height_disc.vary) height_disc.value       = vpar[n++];
-	if(beta_disc.vary) beta_disc.value           = vpar[n++];
-	if(temp_disc.vary) temp_disc.value           = vpar[n++];
-	if(texp_disc.vary) texp_disc.value           = vpar[n++];
-	if(lin_limb_disc.vary) lin_limb_disc.value   = vpar[n++];
-	if(quad_limb_disc.vary) quad_limb_disc.value = vpar[n++];
+        if(rdisc1.vary) rdisc1.value                 = vpar[n++];
+        if(rdisc2.vary) rdisc2.value                 = vpar[n++];
+        if(height_disc.vary) height_disc.value       = vpar[n++];
+        if(beta_disc.vary) beta_disc.value           = vpar[n++];
+        if(temp_disc.vary) temp_disc.value           = vpar[n++];
+        if(texp_disc.vary) texp_disc.value           = vpar[n++];
+        if(lin_limb_disc.vary) lin_limb_disc.value   = vpar[n++];
+        if(quad_limb_disc.vary) quad_limb_disc.value = vpar[n++];
     }
 
     if(add_spot){
-	if(radius_spot.vary) radius_spot.value       = vpar[n++];
-	if(length_spot.vary) length_spot.value       = vpar[n++];
-	if(height_spot.vary) height_spot.value       = vpar[n++];
-	if(expon_spot.vary) expon_spot.value         = vpar[n++];
-	if(epow_spot.vary) epow_spot.value           = vpar[n++];
-	if(angle_spot.vary) angle_spot.value         = vpar[n++];
-	if(yaw_spot.vary) yaw_spot.value             = vpar[n++];
-	if(temp_spot.vary) temp_spot.value           = vpar[n++]; 
-	if(tilt_spot.vary) tilt_spot.value           = vpar[n++]; 
-	if(cfrac_spot.vary) cfrac_spot.value         = vpar[n++]; 
+        if(radius_spot.vary) radius_spot.value       = vpar[n++];
+        if(length_spot.vary) length_spot.value       = vpar[n++];
+        if(height_spot.vary) height_spot.value       = vpar[n++];
+        if(expon_spot.vary) expon_spot.value         = vpar[n++];
+        if(epow_spot.vary) epow_spot.value           = vpar[n++];
+        if(angle_spot.vary) angle_spot.value         = vpar[n++];
+        if(yaw_spot.vary) yaw_spot.value             = vpar[n++];
+        if(temp_spot.vary) temp_spot.value           = vpar[n++];
+        if(tilt_spot.vary) tilt_spot.value           = vpar[n++];
+        if(cfrac_spot.vary) cfrac_spot.value         = vpar[n++];
     }
 }
 
 std::string Lcurve::Model::get_name(int i) const {
     if(i >= nvary())
-	throw Lcurve_Error("Lcurve::Model::get_name: parameter index = " + Subs::str(i) + " is out of range 0 to " + Subs::str(nvary()));
+        throw Lcurve_Error("Lcurve::Model::get_name: parameter index = " +
+                           Subs::str(i) + " is out of range 0 to " + Subs::str(nvary()));
 
     int n = -1;
     if(q.vary) n++;
@@ -479,17 +465,17 @@ std::string Lcurve::Model::get_name(int i) const {
     if(n == i) return "iangle";
 
     if(use_radii){
-	if(r1.vary) n++;
-	if(n == i) return "r1";
+        if(r1.vary) n++;
+        if(n == i) return "r1";
 
-	if(r2.vary) n++;
-	if(n == i) return "r2";
+        if(r2.vary) n++;
+        if(n == i) return "r2";
     }else{
-	if(cphi3.vary) n++;
-	if(n == i) return "cphi3";
+        if(cphi3.vary) n++;
+        if(n == i) return "cphi3";
 
-	if(cphi4.vary) n++;
-	if(n == i) return "cphi4";
+        if(cphi4.vary) n++;
+        if(n == i) return "cphi4";
     }
 
     if(spin1.vary) n++;
@@ -528,10 +514,10 @@ std::string Lcurve::Model::get_name(int i) const {
     if(ldc2_4.vary) n++;
     if(n == i) return "ldc2_4";
 
-    if(beam_factor1.vary)   n++; 
+    if(beam_factor1.vary)   n++;
     if(n == i) return "beam_factor1";
 
-    if(beam_factor2.vary)   n++; 
+    if(beam_factor2.vary)   n++;
     if(n == i) return "beam_factor2";
 
     if(t0.vary)        n++;
@@ -562,61 +548,61 @@ std::string Lcurve::Model::get_name(int i) const {
     if(n == i) return "cube";
 
     if(add_disc){
-	if(rdisc1.vary) n++;
-	if(n == i) return "rdisc1";
+        if(rdisc1.vary) n++;
+        if(n == i) return "rdisc1";
 
-	if(rdisc2.vary) n++;
-	if(n == i) return "rdisc2";
-	
-	if(height_disc.vary) n++;
-	if(n == i) return "height_disc";
-	
-	if(beta_disc.vary) n++;
-	if(n == i) return "beta_disc";
-	
-	if(temp_disc.vary) n++;
-	if(n == i) return "temp_disc";
-	
-	if(texp_disc.vary) n++;
-	if(n == i) return "texp_disc";
-	
-	if(lin_limb_disc.vary) n++;
-	if(n == i) return "lin_limb_disc";
+        if(rdisc2.vary) n++;
+        if(n == i) return "rdisc2";
 
-	if(quad_limb_disc.vary) n++;
-	if(n == i) return "quad_limb_disc";
+        if(height_disc.vary) n++;
+        if(n == i) return "height_disc";
+
+        if(beta_disc.vary) n++;
+        if(n == i) return "beta_disc";
+
+        if(temp_disc.vary) n++;
+        if(n == i) return "temp_disc";
+
+        if(texp_disc.vary) n++;
+        if(n == i) return "texp_disc";
+
+        if(lin_limb_disc.vary) n++;
+        if(n == i) return "lin_limb_disc";
+
+        if(quad_limb_disc.vary) n++;
+        if(n == i) return "quad_limb_disc";
     }
 
     if(add_spot){
-	if(radius_spot.vary) n++;
-	if(n == i) return "radius_spot";
-	
-	if(length_spot.vary) n++;
-	if(n == i) return "length_spot";
-	
-	if(height_spot.vary) n++;
-	if(n == i) return "height_spot";
-	
-	if(expon_spot.vary)  n++;
-	if(n == i) return "expon_spot";
-	
-	if(epow_spot.vary)  n++;
-	if(n == i) return "epow_spot";
+        if(radius_spot.vary) n++;
+        if(n == i) return "radius_spot";
 
-	if(angle_spot.vary)  n++;
-	if(n == i) return "angle_spot";
-	
-	if(yaw_spot.vary)  n++;
-	if(n == i) return "yaw_spot";
-	
-	if(temp_spot.vary)   n++; 
-	if(n == i) return "temp_spot";
-	
-	if(tilt_spot.vary)   n++; 
-	if(n == i) return "tilt_spot";
-	
-	if(cfrac_spot.vary)   n++; 
-	if(n == i) return "cfrac_spot";
+        if(length_spot.vary) n++;
+        if(n == i) return "length_spot";
+
+        if(height_spot.vary) n++;
+        if(n == i) return "height_spot";
+
+        if(expon_spot.vary)  n++;
+        if(n == i) return "expon_spot";
+
+        if(epow_spot.vary)  n++;
+        if(n == i) return "epow_spot";
+
+        if(angle_spot.vary)  n++;
+        if(n == i) return "angle_spot";
+
+        if(yaw_spot.vary)  n++;
+        if(n == i) return "yaw_spot";
+
+        if(temp_spot.vary)   n++;
+        if(n == i) return "temp_spot";
+
+        if(tilt_spot.vary)   n++;
+        if(n == i) return "tilt_spot";
+
+        if(cfrac_spot.vary)   n++;
+        if(n == i) return "cfrac_spot";
 
     }
 
@@ -630,104 +616,104 @@ std::string Lcurve::Model::get_name(int i) const {
  */
 bool Lcurve::Model::is_not_legal(const Subs::Array1D<double>& vpar) const {
     if(nvary() != int(vpar.size()))
-	throw Lcurve_Error("are_legal: conflicting numbers of variable parameters");
+        throw Lcurve_Error("are_legal: conflicting numbers of variable parameters");
     int n = 0;
-  
+
     if(q.vary) {
-	if(vpar[n] <= 0. || vpar[n] > 100.) return true;
-	n++;
+        if(vpar[n] <= 0. || vpar[n] > 100.) return true;
+        n++;
     }
     double xl11 = Roche::xl11(q.value, spin1.value);
     double xl12 = 1.-Roche::xl12(q.value, spin2.value);
 
     if(iangle.vary) {
-	if(vpar[n] < 0. || vpar[n] > 90.) return true;
-	n++;
+        if(vpar[n] < 0. || vpar[n] > 90.) return true;
+        n++;
     }
 
     if(use_radii){
 
-	if(r1.vary) {
-	    if(vpar[n] <= 0. || vpar[n] >= xl11) return true;
-	    n++;
-	}
+        if(r1.vary) {
+            if(vpar[n] <= 0. || vpar[n] >= xl11) return true;
+            n++;
+        }
 
-	if(r2.vary) {
-	    if(vpar[n] <= 0. || vpar[n] > xl12) return true;
-	    n++;
-	}
+        if(r2.vary) {
+            if(vpar[n] <= 0. || vpar[n] > xl12) return true;
+            n++;
+        }
 
     }else{
 
-	if(cphi3.vary) {
-	    if(vpar[n] <= 0. || vpar[n] > 0.25) return true;
-	    n++;
-	}
+        if(cphi3.vary) {
+            if(vpar[n] <= 0. || vpar[n] > 0.25) return true;
+            n++;
+        }
 
-	if(cphi4.vary) {
-	    if(vpar[n] <= 0. || vpar[n] > 0.25) return true;
-	    n++;
-	}
+        if(cphi4.vary) {
+            if(vpar[n] <= 0. || vpar[n] > 0.25) return true;
+            n++;
+        }
     }
 
     if(spin1.vary) {
-	if(vpar[n] <= 0. || vpar[n] > 1000.) return true;
-	n++;
+        if(vpar[n] <= 0. || vpar[n] > 1000.) return true;
+        n++;
     }
 
     if(spin2.vary) {
-	if(vpar[n] <= 0. || vpar[n] > 1000.) return true;
-	n++;
+        if(vpar[n] <= 0. || vpar[n] > 1000.) return true;
+        n++;
     }
 
     if(t1.vary) {
-	if(vpar[n] <= 500. || vpar[n] > 1.e6) return true;
-	n++;
+        if(vpar[n] <= 500. || vpar[n] > 1.e6) return true;
+        n++;
     }
 
     if(t2.vary) {
-	if(vpar[n] <= 500. || vpar[n] > 1.e6) return true;
-	n++;
+        if(vpar[n] <= 500. || vpar[n] > 1.e6) return true;
+        n++;
     }
 
     if(ldc1_1.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(ldc1_2.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(ldc1_3.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(ldc1_4.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(ldc2_1.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(ldc2_2.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(ldc2_3.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(ldc2_4.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(beam_factor1.vary) n++;
@@ -737,142 +723,142 @@ bool Lcurve::Model::is_not_legal(const Subs::Array1D<double>& vpar) const {
     if(t0.vary) n++;
 
     if(period.vary) {
-	if(vpar[n] <= 1.e-3 || vpar[n] > 100.) return true;
-	n++;
+        if(vpar[n] <= 1.e-3 || vpar[n] > 100.) return true;
+        n++;
     }
 
     if(deltat.vary) {
-	if(vpar[n] <= -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] <= -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(gravity_dark1.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(gravity_dark2.vary){
-	if(vpar[n] < -1. || vpar[n] > 1.) return true;
-	n++;
+        if(vpar[n] < -1. || vpar[n] > 1.) return true;
+        n++;
     }
 
     if(absorb.vary){
-	if(vpar[n] < 0. || vpar[n] > 10.) return true;
-	n++;
+        if(vpar[n] < 0. || vpar[n] > 10.) return true;
+        n++;
     }
 
     if(slope.vary){
-	if(vpar[n] < -2. || vpar[n] > 2.) return true;
-	n++;
+        if(vpar[n] < -2. || vpar[n] > 2.) return true;
+        n++;
     }
 
     if(quad.vary){
-	if(vpar[n] < -2. || vpar[n] > 2.) return true;
-	n++;
+        if(vpar[n] < -2. || vpar[n] > 2.) return true;
+        n++;
     }
 
     if(cube.vary){
-	if(vpar[n] < -2. || vpar[n] > 2.) return true;
-	n++;
+        if(vpar[n] < -2. || vpar[n] > 2.) return true;
+        n++;
     }
 
     if(add_disc){
 
-	if(rdisc1.vary){
-	    if(vpar[n] < 0. || vpar[n] > 1) return true;
-	    n++;
-	}
-	
-	if(rdisc2.vary){
-	    if(vpar[n] < 0 || vpar[n] > 1) return true;
-	    n++;
-	}
-	
-	if(height_disc.vary){
-	    if(vpar[n] < 0) return true;
-	    n++;
-	}
-	
-	if(beta_disc.vary){
-	    if(vpar[n] < 1 || vpar[n] > 100) return true;
-	    n++;
-	}
-	
-	if(temp_disc.vary){
-	    if(vpar[n] < 500 || vpar[n] > 1.e6) return true;
-	    n++;
-	}
-	
-	if(texp_disc.vary){
-	    if(vpar[n] < -100 || vpar[n] > 100) return true;
-	    n++;
-	}
-	
-	if(lin_limb_disc.vary){
-	    if(vpar[n] < 0. || vpar[n] > 1.) return true;
-	    n++;
-	}
-	
-	if(quad_limb_disc.vary){
-	    if(vpar[n] < 0. || vpar[n] > 1.) return true;
-	    n++;
-	}
+        if(rdisc1.vary){
+            if(vpar[n] < 0. || vpar[n] > 1) return true;
+            n++;
+        }
+
+        if(rdisc2.vary){
+            if(vpar[n] < 0 || vpar[n] > 1) return true;
+            n++;
+        }
+
+        if(height_disc.vary){
+            if(vpar[n] < 0) return true;
+            n++;
+        }
+
+        if(beta_disc.vary){
+            if(vpar[n] < 1 || vpar[n] > 100) return true;
+            n++;
+        }
+
+        if(temp_disc.vary){
+            if(vpar[n] < 500 || vpar[n] > 1.e6) return true;
+            n++;
+        }
+
+        if(texp_disc.vary){
+            if(vpar[n] < -100 || vpar[n] > 100) return true;
+            n++;
+        }
+
+        if(lin_limb_disc.vary){
+            if(vpar[n] < 0. || vpar[n] > 1.) return true;
+            n++;
+        }
+
+        if(quad_limb_disc.vary){
+            if(vpar[n] < 0. || vpar[n] > 1.) return true;
+            n++;
+        }
     }
 
     if(add_spot){
 
-	if(radius_spot.vary){
-	    if(vpar[n] < 0. || vpar[n] > 1.) return true;
-	    n++;
-	}
-	
-	if(length_spot.vary){
-	    if(vpar[n] < 0. || vpar[n] > 1.) return true;
-	    n++;
-	}
-	
-	if(height_spot.vary){
-	    if(vpar[n] < 0. || vpar[n] > 1.) return true;
-	    n++;
-	}
-	
-	if(expon_spot.vary){
-	    if(vpar[n] <= 0. || vpar[n] > 100.) return true;
-	    n++;
-	}
-	
-	if(epow_spot.vary){
-	    if(vpar[n] <= 0. || vpar[n] > 10.) return true;
-	    n++;
-	}
-	
-	if(angle_spot.vary){
-	    if(vpar[n] < -1000. || vpar[n] > 1000.) return true;
-	    n++;
-	}
-	
-	if(yaw_spot.vary){
-	    if(vpar[n] < -1000. || vpar[n] > 1000.) return true;
-	    n++;
-	}
-	
-	if(temp_spot.vary){
-	    if(vpar[n] < 0. || vpar[n] > 1.e10) return true;
-	    n++;
-	}
-	
-	if(tilt_spot.vary){
-	    if(vpar[n] < -1000. || vpar[n] > 1000.) return true;
-	    n++;
-	}
-	
-	if(cfrac_spot.vary){
-	    if(vpar[n] < 0. || vpar[n] > 1.) return true;
-	    n++;
-	}
+        if(radius_spot.vary){
+            if(vpar[n] < 0. || vpar[n] > 1.) return true;
+            n++;
+        }
+
+        if(length_spot.vary){
+            if(vpar[n] < 0. || vpar[n] > 1.) return true;
+            n++;
+        }
+
+        if(height_spot.vary){
+            if(vpar[n] < 0. || vpar[n] > 1.) return true;
+            n++;
+        }
+
+        if(expon_spot.vary){
+            if(vpar[n] <= 0. || vpar[n] > 100.) return true;
+            n++;
+        }
+
+        if(epow_spot.vary){
+            if(vpar[n] <= 0. || vpar[n] > 10.) return true;
+            n++;
+        }
+
+        if(angle_spot.vary){
+            if(vpar[n] < -1000. || vpar[n] > 1000.) return true;
+            n++;
+        }
+
+        if(yaw_spot.vary){
+            if(vpar[n] < -1000. || vpar[n] > 1000.) return true;
+            n++;
+        }
+
+        if(temp_spot.vary){
+            if(vpar[n] < 0. || vpar[n] > 1.e10) return true;
+            n++;
+        }
+
+        if(tilt_spot.vary){
+            if(vpar[n] < -1000. || vpar[n] > 1000.) return true;
+            n++;
+        }
+
+        if(cfrac_spot.vary){
+            if(vpar[n] < 0. || vpar[n] > 1.) return true;
+            n++;
+        }
 
     }
-	
+
     return false;
 
 }
@@ -889,11 +875,11 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
     if(q.vary) temp.push_back(q.value);
     if(iangle.vary) temp.push_back(iangle.value);
     if(use_radii){
-	if(r1.vary)     temp.push_back(r1.value);
-	if(r2.vary)     temp.push_back(r2.value);
+        if(r1.vary)     temp.push_back(r1.value);
+        if(r2.vary)     temp.push_back(r2.value);
     }else{
-	if(cphi3.vary)  temp.push_back(cphi3.value);
-	if(cphi4.vary)  temp.push_back(cphi4.value);
+        if(cphi3.vary)  temp.push_back(cphi3.value);
+        if(cphi4.vary)  temp.push_back(cphi4.value);
     }
     if(spin1.vary)  temp.push_back(spin1.value);
     if(spin2.vary)  temp.push_back(spin2.value);
@@ -907,8 +893,8 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
     if(ldc2_2.vary) temp.push_back(ldc2_2.value);
     if(ldc2_3.vary) temp.push_back(ldc2_3.value);
     if(ldc2_4.vary) temp.push_back(ldc2_4.value);
-    if(beam_factor1.vary) temp.push_back(beam_factor1.value); 
-    if(beam_factor2.vary) temp.push_back(beam_factor2.value); 
+    if(beam_factor1.vary) temp.push_back(beam_factor1.value);
+    if(beam_factor2.vary) temp.push_back(beam_factor2.value);
 
     if(t0.vary) temp.push_back(t0.value);
     if(period.vary) temp.push_back(period.value);
@@ -921,33 +907,33 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
     if(cube.vary) temp.push_back(cube.value);
 
     if(add_disc){
-	if(rdisc1.vary) temp.push_back(rdisc1.value);
-	if(rdisc2.vary) temp.push_back(rdisc2.value);
-	if(height_disc.vary) temp.push_back(height_disc.value);
-	if(beta_disc.vary) temp.push_back(beta_disc.value);
-	if(temp_disc.vary) temp.push_back(temp_disc.value);
-	if(texp_disc.vary) temp.push_back(texp_disc.value);
-	if(lin_limb_disc.vary) temp.push_back(lin_limb_disc.value);
-	if(quad_limb_disc.vary) temp.push_back(quad_limb_disc.value);
+        if(rdisc1.vary) temp.push_back(rdisc1.value);
+        if(rdisc2.vary) temp.push_back(rdisc2.value);
+        if(height_disc.vary) temp.push_back(height_disc.value);
+        if(beta_disc.vary) temp.push_back(beta_disc.value);
+        if(temp_disc.vary) temp.push_back(temp_disc.value);
+        if(texp_disc.vary) temp.push_back(texp_disc.value);
+        if(lin_limb_disc.vary) temp.push_back(lin_limb_disc.value);
+        if(quad_limb_disc.vary) temp.push_back(quad_limb_disc.value);
     }
 
     if(add_spot){
-	if(radius_spot.vary) temp.push_back(radius_spot.value);
-	if(length_spot.vary) temp.push_back(length_spot.value);
-	if(height_spot.vary) temp.push_back(height_spot.value);
-	if(expon_spot.vary)  temp.push_back(expon_spot.value);
-	if(epow_spot.vary)   temp.push_back(epow_spot.value);
-	if(angle_spot.vary)  temp.push_back(angle_spot.value);
-	if(yaw_spot.vary)    temp.push_back(yaw_spot.value);
-	if(temp_spot.vary)   temp.push_back(temp_spot.value); 
-	if(tilt_spot.vary)   temp.push_back(tilt_spot.value); 
-	if(cfrac_spot.vary)  temp.push_back(cfrac_spot.value); 
+        if(radius_spot.vary) temp.push_back(radius_spot.value);
+        if(length_spot.vary) temp.push_back(length_spot.value);
+        if(height_spot.vary) temp.push_back(height_spot.value);
+        if(expon_spot.vary)  temp.push_back(expon_spot.value);
+        if(epow_spot.vary)   temp.push_back(epow_spot.value);
+        if(angle_spot.vary)  temp.push_back(angle_spot.value);
+        if(yaw_spot.vary)    temp.push_back(yaw_spot.value);
+        if(temp_spot.vary)   temp.push_back(temp_spot.value);
+        if(tilt_spot.vary)   temp.push_back(tilt_spot.value);
+        if(cfrac_spot.vary)  temp.push_back(cfrac_spot.value);
     }
 
     return temp;
 }
 
-/** This routine returns the values of all the ranges of the variable 
+/** This routine returns the values of all the ranges of the variable
  * parameters.
  * \return an Array1D of the range of the variable parameters only. They come in a standard order
  * q, iangle, r1, r2, etc.
@@ -959,11 +945,11 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
     if(q.vary) temp.push_back(q.range);
     if(iangle.vary) temp.push_back(iangle.range);
     if(use_radii){
-	if(r1.vary)     temp.push_back(r1.range);
-	if(r2.vary)     temp.push_back(r2.range);
+        if(r1.vary)     temp.push_back(r1.range);
+        if(r2.vary)     temp.push_back(r2.range);
     }else{
-	if(cphi3.vary)  temp.push_back(cphi3.range);
-	if(cphi4.vary)  temp.push_back(cphi4.range);
+        if(cphi3.vary)  temp.push_back(cphi3.range);
+        if(cphi4.vary)  temp.push_back(cphi4.range);
     }
     if(spin1.vary)  temp.push_back(spin1.range);
     if(spin2.vary)  temp.push_back(spin2.range);
@@ -977,8 +963,8 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
     if(ldc2_2.vary) temp.push_back(ldc2_2.range);
     if(ldc2_3.vary) temp.push_back(ldc2_3.range);
     if(ldc2_4.vary) temp.push_back(ldc2_4.range);
-    if(beam_factor1.vary) temp.push_back(beam_factor1.range); 
-    if(beam_factor2.vary) temp.push_back(beam_factor2.range); 
+    if(beam_factor1.vary) temp.push_back(beam_factor1.range);
+    if(beam_factor2.vary) temp.push_back(beam_factor2.range);
 
     if(t0.vary) temp.push_back(t0.range);
     if(period.vary) temp.push_back(period.range);
@@ -991,27 +977,27 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
     if(cube.vary) temp.push_back(cube.range);
 
     if(add_disc){
-	if(rdisc1.vary) temp.push_back(rdisc1.range);
-	if(rdisc2.vary) temp.push_back(rdisc2.range);
-	if(height_disc.vary) temp.push_back(height_disc.range);
-	if(beta_disc.vary) temp.push_back(beta_disc.range);
-	if(temp_disc.vary) temp.push_back(temp_disc.range);
-	if(texp_disc.vary) temp.push_back(texp_disc.range);
-	if(lin_limb_disc.vary) temp.push_back(lin_limb_disc.range);
-	if(quad_limb_disc.vary) temp.push_back(quad_limb_disc.range);
+        if(rdisc1.vary) temp.push_back(rdisc1.range);
+        if(rdisc2.vary) temp.push_back(rdisc2.range);
+        if(height_disc.vary) temp.push_back(height_disc.range);
+        if(beta_disc.vary) temp.push_back(beta_disc.range);
+        if(temp_disc.vary) temp.push_back(temp_disc.range);
+        if(texp_disc.vary) temp.push_back(texp_disc.range);
+        if(lin_limb_disc.vary) temp.push_back(lin_limb_disc.range);
+        if(quad_limb_disc.vary) temp.push_back(quad_limb_disc.range);
     }
 
     if(add_spot){
-	if(radius_spot.vary) temp.push_back(radius_spot.range);
-	if(length_spot.vary) temp.push_back(length_spot.range);
-	if(height_spot.vary) temp.push_back(height_spot.range);
-	if(expon_spot.vary)  temp.push_back(expon_spot.range);
-	if(epow_spot.vary)   temp.push_back(epow_spot.range);
-	if(angle_spot.vary)  temp.push_back(angle_spot.range);
-	if(yaw_spot.vary)    temp.push_back(yaw_spot.range);
-	if(temp_spot.vary)   temp.push_back(temp_spot.range); 
-	if(tilt_spot.vary)   temp.push_back(tilt_spot.range); 
-	if(cfrac_spot.vary)  temp.push_back(cfrac_spot.range); 
+        if(radius_spot.vary) temp.push_back(radius_spot.range);
+        if(length_spot.vary) temp.push_back(length_spot.range);
+        if(height_spot.vary) temp.push_back(height_spot.range);
+        if(expon_spot.vary)  temp.push_back(expon_spot.range);
+        if(epow_spot.vary)   temp.push_back(epow_spot.range);
+        if(angle_spot.vary)  temp.push_back(angle_spot.range);
+        if(yaw_spot.vary)    temp.push_back(yaw_spot.range);
+        if(temp_spot.vary)   temp.push_back(temp_spot.range);
+        if(tilt_spot.vary)   temp.push_back(tilt_spot.range);
+        if(cfrac_spot.vary)  temp.push_back(cfrac_spot.range);
     }
 
     return temp;
@@ -1029,11 +1015,11 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
     if(q.vary) temp.push_back(q.dstep);
     if(iangle.vary) temp.push_back(iangle.dstep);
     if(use_radii){
-	if(r1.vary)     temp.push_back(r1.dstep);
-	if(r2.vary)     temp.push_back(r2.dstep);
+        if(r1.vary)     temp.push_back(r1.dstep);
+        if(r2.vary)     temp.push_back(r2.dstep);
     }else{
-	if(cphi3.vary)  temp.push_back(cphi3.dstep);
-	if(cphi4.vary)  temp.push_back(cphi4.dstep);
+        if(cphi3.vary)  temp.push_back(cphi3.dstep);
+        if(cphi4.vary)  temp.push_back(cphi4.dstep);
     }
     if(spin1.vary)  temp.push_back(spin1.dstep);
     if(spin2.vary)  temp.push_back(spin2.dstep);
@@ -1047,8 +1033,8 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
     if(ldc2_2.vary) temp.push_back(ldc2_2.dstep);
     if(ldc2_3.vary) temp.push_back(ldc2_3.dstep);
     if(ldc2_4.vary) temp.push_back(ldc2_4.dstep);
-    if(beam_factor1.vary) temp.push_back(beam_factor1.dstep); 
-    if(beam_factor2.vary) temp.push_back(beam_factor2.dstep); 
+    if(beam_factor1.vary) temp.push_back(beam_factor1.dstep);
+    if(beam_factor2.vary) temp.push_back(beam_factor2.dstep);
 
     if(t0.vary) temp.push_back(t0.dstep);
     if(period.vary) temp.push_back(period.dstep);
@@ -1061,27 +1047,27 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
     if(cube.vary) temp.push_back(cube.dstep);
 
     if(add_disc){
-	if(rdisc1.vary) temp.push_back(rdisc1.dstep);
-	if(rdisc2.vary) temp.push_back(rdisc2.dstep);
-	if(height_disc.vary) temp.push_back(height_disc.dstep);
-	if(beta_disc.vary) temp.push_back(beta_disc.dstep);
-	if(temp_disc.vary) temp.push_back(temp_disc.dstep);
-	if(texp_disc.vary) temp.push_back(texp_disc.dstep);
-	if(lin_limb_disc.vary) temp.push_back(lin_limb_disc.dstep);
-	if(quad_limb_disc.vary) temp.push_back(quad_limb_disc.dstep);
+        if(rdisc1.vary) temp.push_back(rdisc1.dstep);
+        if(rdisc2.vary) temp.push_back(rdisc2.dstep);
+        if(height_disc.vary) temp.push_back(height_disc.dstep);
+        if(beta_disc.vary) temp.push_back(beta_disc.dstep);
+        if(temp_disc.vary) temp.push_back(temp_disc.dstep);
+        if(texp_disc.vary) temp.push_back(texp_disc.dstep);
+        if(lin_limb_disc.vary) temp.push_back(lin_limb_disc.dstep);
+        if(quad_limb_disc.vary) temp.push_back(quad_limb_disc.dstep);
     }
-    
+
     if(add_spot){
-	if(radius_spot.vary) temp.push_back(radius_spot.dstep);
-	if(length_spot.vary) temp.push_back(length_spot.dstep);
-	if(height_spot.vary) temp.push_back(height_spot.dstep);
-	if(expon_spot.vary)  temp.push_back(expon_spot.dstep);
-	if(epow_spot.vary)   temp.push_back(epow_spot.dstep);
-	if(angle_spot.vary)  temp.push_back(angle_spot.dstep);
-	if(yaw_spot.vary)    temp.push_back(yaw_spot.dstep);
-	if(temp_spot.vary)   temp.push_back(temp_spot.dstep); 
-	if(tilt_spot.vary)   temp.push_back(tilt_spot.dstep); 
-	if(cfrac_spot.vary)  temp.push_back(cfrac_spot.dstep); 
+        if(radius_spot.vary) temp.push_back(radius_spot.dstep);
+        if(length_spot.vary) temp.push_back(length_spot.dstep);
+        if(height_spot.vary) temp.push_back(height_spot.dstep);
+        if(expon_spot.vary)  temp.push_back(expon_spot.dstep);
+        if(epow_spot.vary)   temp.push_back(epow_spot.dstep);
+        if(angle_spot.vary)  temp.push_back(angle_spot.dstep);
+        if(yaw_spot.vary)    temp.push_back(yaw_spot.dstep);
+        if(temp_spot.vary)   temp.push_back(temp_spot.dstep);
+        if(tilt_spot.vary)   temp.push_back(tilt_spot.dstep);
+        if(cfrac_spot.vary)  temp.push_back(cfrac_spot.dstep);
     }
 
     return temp;
@@ -1169,14 +1155,14 @@ std::ostream& Lcurve::operator<<(std::ostream& s, const Model& model){
     s << "mucrit1        = " << model.mucrit1        << "\n";
     s << "mucrit2        = " << model.mucrit2        << "\n";
     if(model.limb1 == LDC::POLY){
-	s << "limb1          = Poly\n";
+        s << "limb1          = Poly\n";
     }else if(model.limb1 == LDC::CLARET){
-	s << "limb1          = Claret\n";
+        s << "limb1          = Claret\n";
     }
     if(model.limb2 == LDC::POLY){
-	s << "limb2          = Poly\n";
+        s << "limb2          = Poly\n";
     }else if(model.limb2 == LDC::CLARET){
-	s << "limb2          = Claret\n";
+        s << "limb2          = Claret\n";
     }
     s << "mirror         = " << model.mirror         << "\n";
     s << "add_disc       = " << model.add_disc       << "\n";
@@ -1188,20 +1174,20 @@ std::ostream& Lcurve::operator<<(std::ostream& s, const Model& model){
     return s;
 }
 
-/** Writes model out to an ASCII file 
+/** Writes model out to an ASCII file
  */
 void Lcurve::Model::wrasc(const std::string& file) const {
 
     std::ofstream fout(file.c_str());
     if(!fout)
-	throw Lcurve_Error("Lcurve::Model::wrasc: failed to open " + file + " for output.");
+        throw Lcurve_Error("Lcurve::Model::wrasc: failed to open " + file + " for output.");
 
     fout << *this;
     fout.close();
 }
 
 /** ASCII input of a Datum. This expects the entries time,
- * exposure length, flux, error on flux, weight factor and ndiv 
+ * exposure length, flux, error on flux, weight factor and ndiv
  * separated by spaces.
  */
 std::istream& Lcurve::operator>>(std::istream& s, Datum& datum){
@@ -1210,26 +1196,27 @@ std::istream& Lcurve::operator>>(std::istream& s, Datum& datum){
     std::istringstream istr(buff);
     istr >> datum.time >> datum.expose >> datum.flux >> datum.ferr >> datum.weight >> datum.ndiv;
     if(!istr)
-	throw Lcurve_Error("Lcurve::operator>>: failed to read t,e,f,fe,wgt,ndiv of a Datum");
+        throw Lcurve_Error("Lcurve::operator>>: failed to read t,e,f,fe,wgt,ndiv of a Datum");
     if(datum.ferr < 0.){
-	datum.ferr -= datum.ferr;
-	datum.weight = 0.;
+        datum.ferr -= datum.ferr;
+        datum.weight = 0.;
     }
     return s;
 }
 
 
-/** ASCII output of a Datum. 
+/** ASCII output of a Datum.
  */
 std::ostream& Lcurve::operator<<(std::ostream& s, const Datum& datum) {
     static Subs::Format tform(17), dform(10);
-    s << tform(datum.time) << " " << datum.expose << " " << dform(datum.flux) << " " << datum.ferr << " " << datum.weight << " " << datum.ndiv;
+    s << tform(datum.time) << " " << datum.expose << " " << dform(datum.flux) << " " <<
+        datum.ferr << " " << datum.weight << " " << datum.ndiv;
     return s;
 }
 
 /** Reads in data from a file in the form of a series of lines
  * specifying each 'Datum'. Lines starting with # or blank are ignored
- * \param file the ASCII file to load. 
+ * \param file the ASCII file to load.
  */
 Lcurve::Data::Data(const std::string& file) : std::vector<Datum>() {
 
@@ -1239,15 +1226,15 @@ Lcurve::Data::Data(const std::string& file) : std::vector<Datum>() {
 
 /** Reads in data from a file in the form of a series of lines
  * specifying each 'Datum'. Lines starting with # or blank are ignored
- * \param file the ASCII file to load. 
+ * \param file the ASCII file to load.
  */
 void Lcurve::Data::rasc(const std::string& file) {
-  
+
     // Read in the parameter values
     std::ifstream fin(file.c_str());
     if(!fin)
-	throw Lcurve_Error("Lcurve::Data::Data: failed to open " + file + " for data.");
-  
+        throw Lcurve_Error("Lcurve::Data::Data: failed to open " + file + " for data.");
+
     this->clear();
 
     const int MAX_LINE = 5000;
@@ -1255,24 +1242,24 @@ void Lcurve::Data::rasc(const std::string& file) {
     char ch;
     Datum datum;
     while(fin && !fin.eof()){
-	n++;
-	ch = fin.peek();
-	if(fin.eof()){
-	    std::cout << "End of file reached." << std::endl;
-	}else if(ch == '#' || ch == ' ' || ch == '\t' || ch == '\n'){
-	    fin.ignore(MAX_LINE, '\n'); // skip to next line
-	}else{
-	    if(fin >> datum){
-		this->push_back(datum);
-	    }else if(fin.eof()){
-		std::cout << "End of data file reached." << std::endl;
-	    }else{
-		throw Lcurve_Error("Data file input failure on line " + Subs::str(n));
-	    }
-	}
+        n++;
+        ch = fin.peek();
+        if(fin.eof()){
+            std::cout << "End of file reached." << std::endl;
+        }else if(ch == '#' || ch == ' ' || ch == '\t' || ch == '\n'){
+            fin.ignore(MAX_LINE, '\n'); // skip to next line
+        }else{
+            if(fin >> datum){
+                this->push_back(datum);
+            }else if(fin.eof()){
+                std::cout << "End of data file reached." << std::endl;
+            }else{
+                throw Lcurve_Error("Data file input failure on line " + Subs::str(n));
+            }
+        }
     }
     fin.close();
-  
+
     std::cout << this->size() << " lines of data read from " << file << "\n" << std::endl;
 
 }
@@ -1284,14 +1271,14 @@ void Lcurve::Data::wrasc(const std::string& file) const {
 
     std::ofstream fout(file.c_str());
     if(!fout)
-	throw Lcurve_Error("Lcurve::Data::wrasc: failed to open " + file + " for output.");
+        throw Lcurve_Error("Lcurve::Data::wrasc: failed to open " + file + " for output.");
 
     for(size_t i=0; i<this->size(); i++)
-	fout << (*this)[i] << std::endl;
+        fout << (*this)[i] << std::endl;
 
 }
 
-/** Operator of function object to allow it to be called as func(vpar). 
+/** Operator of function object to allow it to be called as func(vpar).
  * \param vpar vector of numbers of the variable parameters in the order in which
  * the parameters occur in Model
  * \return Returns chi**2
@@ -1304,13 +1291,13 @@ double Lcurve::Fobj::operator()(const Subs::Array1D<double>& vpar){
     return chisq();
 }
 
-/** Access the fit values 
+/** Access the fit values
  */
 double Lcurve::Fobj::operator[](int n) const {
     return fit[n];
 }
 
-/** Computes chisq for current model and stores fit  
+/** Computes chisq for current model and stores fit
  * \return Returns chi**2
  */
 double Lcurve::Fobj::chisq() {
@@ -1319,20 +1306,22 @@ double Lcurve::Fobj::chisq() {
     double wdwarf, chisq, wnok;
     Lcurve::light_curve_comp(model, data, true, false, sfac, fit, wdwarf, chisq, wnok);
     if(wnok == 0.0)
-	throw Lcurve::Lcurve_Error("Lcurve::Fobj::chisq: no good data");
+        throw Lcurve::Lcurve_Error("Lcurve::Fobj::chisq: no good data");
     Lcurve::Fobj::neval++;
 
     Subs::Format form(12);
     if(Lcurve::Fobj::neval == 1 || chisq < Lcurve::Fobj::chisq_min){
-	Lcurve::Fobj::chisq_min = chisq;
-	Lcurve::Fobj::scale_min = sfac;
-	if(model.iscale){
-	    std::cout << "Weighted chi**2 = " << form(chisq) << ", scale factors = ";
-	    std::cout << form(sfac[0]) << ", " <<  form(sfac[1]) << ", " <<  form(sfac[2]) << ", " <<  form(sfac[3]) << ", ";
-	    std::cout << ", neval = " << neval << ", wnok = " << form(wnok) << std::endl;
-	}else{
-	    std::cout << "Weighted chi**2 = " << form(chisq) << ", scale factor = " << form(sfac[0]) << ", neval = " << neval << ", wnok = " << form(wnok) << std::endl;
-	}
+        Lcurve::Fobj::chisq_min = chisq;
+        Lcurve::Fobj::scale_min = sfac;
+        if(model.iscale){
+            std::cout << "Weighted chi**2 = " << form(chisq) << ", scale factors = ";
+            std::cout << form(sfac[0]) << ", " <<  form(sfac[1]) << ", " <<  form(sfac[2]) << ", " <<
+                form(sfac[3]) << ", ";
+            std::cout << ", neval = " << neval << ", wnok = " << form(wnok) << std::endl;
+        }else{
+            std::cout << "Weighted chi**2 = " << form(chisq) << ", scale factor = " << form(sfac[0]) <<
+                ", neval = " << neval << ", wnok = " << form(wnok) << std::endl;
+        }
     }
     return chisq;
 }
