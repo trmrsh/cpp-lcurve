@@ -30,9 +30,9 @@ namespace Lcurve {
     Lcurve_Error() : std::string() {}
 
     //! Constructor storing a message
-    Lcurve_Error(const std::string& err) : std::string(err) {} 
+    Lcurve_Error(const std::string& err) : std::string(err) {}
   };
- 
+
   //! Structure defining a single element
   /** This defines the position, area, direction, gravity and brightness of an element
    * and also any phases during which it is eclipsed.
@@ -45,7 +45,7 @@ namespace Lcurve {
     Point() : posn(), dirn(), area(0.), gravity(1.), eclipse(), flux(0.) {}
 
     //! Constructor
-    Point(const Subs::Vec3& posn_, const Subs::Vec3& dirn_, double area_, double gravity_, const etype& eclipse) : 
+    Point(const Subs::Vec3& posn_, const Subs::Vec3& dirn_, double area_, double gravity_, const etype& eclipse) :
       posn(posn_), dirn(dirn_), area(area_), gravity(gravity_), eclipse(eclipse), flux(0.) {}
 
     //! Position vector of element (units of binary separation)
@@ -57,7 +57,7 @@ namespace Lcurve {
     //! Area of element (units of binary separation**2)
     float area;
 
-    //! Gravity of element 
+    //! Gravity of element
     float gravity;
 
     //! Ingress and egress phases of eclipses, if any
@@ -145,27 +145,31 @@ namespace Lcurve {
   std::ostream& operator<<(std::ostream& s, const Point& p);
 
   //! Physical parameter structure
-  /** Holds basic information for a physical parameter which are its value, range for varying it,
-   * step size for derivative computation and whether it is variable or not
+  /** Holds basic information for a physical parameter which are its value,
+   * range for varying it, step size for derivative computation, whether it
+   * is variable or not, and, optionally, whether it is defined or not
    */
   struct Pparam {
-    
+
     //! Default constructor
-    Pparam() : value(0), range(0), dstep(0), vary(false) {}
-    
+  Pparam() : value(0), range(0), dstep(0), vary(false), defined(false) {}
+
     //! Constructor from a string
     /** Sets the values from a string of the form "0.12405 0.001"
-     * giving the value and the step size. 0 is interpreted as holding 
+     * giving the value and the step size. 0 is interpreted as holding
      * a parameter fixed.
      */
     Pparam(const std::string& entry){
       std::istringstream istr(entry);
       istr >> value >> range >> dstep >> vary;
-      if(!istr) throw Lcurve::Lcurve_Error(std::string("Pparam: could not read entry = ") + entry);
+      if(!istr)
+        throw Lcurve::Lcurve_Error(std::string("Pparam: could not read entry = ") + entry);
+      istr >> defined;
+      if(!istr) defined = true;
     }
-    
+
     //! Implicit conversion to a double by just returning the value
-    operator double () const { return value; } 
+    operator double () const { return value; }
 
     //! The value of the parameter
     double value;
@@ -178,27 +182,30 @@ namespace Lcurve {
 
     //! Whether the parameter varies
     bool vary;
-    
+
+    //! Whether the parameter has been defined
+    bool defined;
+
   };
 
-  
+
   //! ASCII input operator for a physical parameter
   std::ostream& operator<<(std::ostream& s, const Pparam& p);
 
   //! Lim darkening class
   class LDC {
-      
+
   public:
-      
+
     enum LDCtype {POLY, CLARET};
-      
+
     //! Default. Sets all to zero.
     LDC() : ldc1(0.), ldc2(0.), ldc3(0.), ldc4(0.), mucrit(0.), ltype(POLY) {}
 
     //! Standard constructor
-    LDC(double ldc1, double ldc2, double ldc3, double ldc4, double mucrit, LDCtype ltype) : 
+    LDC(double ldc1, double ldc2, double ldc3, double ldc4, double mucrit, LDCtype ltype) :
       ldc1(ldc1), ldc2(ldc2), ldc3(ldc3), ldc4(ldc4), mucrit(mucrit), ltype(ltype) {}
-      
+
     //! Computes I(mu)
     double imu(double mu) const {
       if(mu <= 0){
@@ -216,12 +223,12 @@ namespace Lcurve {
 	return im;
       }
     }
-      
-    //! To help applying mucrit 
+
+    //! To help applying mucrit
     bool see(double mu) const {return mu > this->mucrit;}
-      
+
   private:
-      
+
     double  ldc1;
     double  ldc2;
     double  ldc3;
@@ -230,7 +237,7 @@ namespace Lcurve {
     LDCtype ltype;
 
   };
-    
+
   //! Model structure
   /** Defines the model to be used and which parameters are to be varied in the fit.
    * The order of the paremeters here defines the order in which they must occur in any
@@ -242,7 +249,7 @@ namespace Lcurve {
     //! Constructor from a file
     Model(const std::string& file);
 
-    //! Number of variable parameters 
+    //! Number of variable parameters
     int nvary() const;
 
     //! Uses a vector of numbers to update the variable parameter values
@@ -373,7 +380,7 @@ namespace Lcurve {
     //! Temperature of disc
     Pparam temp_disc;
 
-    //! Radial exponent of disc temperature 
+    //! Radial exponent of disc temperature
     Pparam texp_disc;
 
     //! Linear limb darkening of disc
@@ -397,10 +404,10 @@ namespace Lcurve {
     //! Power law exponent inside exponent of spot brightness
     Pparam epow_spot;
 
-    //! Angle of spot 
+    //! Angle of spot
     Pparam angle_spot;
 
-    //! Extra angle of spot beaming 
+    //! Extra angle of spot beaming
     Pparam yaw_spot;
 
     //! Peak spot temperature
@@ -411,6 +418,30 @@ namespace Lcurve {
 
     //! Constant fraction of spot
     Pparam cfrac_spot;
+
+    //! longitude (in direction of orbit relative to other star) of spot
+    Pparam stsp11_long;
+
+    //! latitude of spot (degrees)
+    Pparam stsp11_lat;
+
+    //! fwhm of spot (degrees)
+    Pparam stsp11_fwhm;
+
+    //! central temperature of spot
+    Pparam stsp11_tcen;
+
+    //! longitude (in direction of orbit relative to other star) of spot
+    Pparam stsp21_long;
+
+    //! latitude of spot (degrees)
+    Pparam stsp21_lat;
+
+    //! fwhm of spot (degrees)
+    Pparam stsp21_fwhm;
+
+    //! central temperature of spot
+    Pparam stsp21_tcen;
 
     // Computational ones
 
@@ -542,7 +573,7 @@ namespace Lcurve {
     }
 
   };
-  
+
   //! ASCII output operator for a Model
   std::ostream& operator<<(std::ostream& s, const Model& model);
 
@@ -551,16 +582,16 @@ namespace Lcurve {
 
     //! The time
     double time;
-      
+
     //! The exposure length in the same units as the time
     double expose;
-      
+
     //! The flux
     double flux;
-      
+
     //! The uncertainty on the flux in the same units
     double ferr;
-      
+
     //! Weight factor for calculating goodness of fit
     double weight;
 
@@ -579,7 +610,7 @@ namespace Lcurve {
   class Data : public std::vector<Datum> {
 
   public:
-    
+
     //! Default constructor
     Data() : std::vector<Datum>() {}
 
@@ -606,7 +637,7 @@ namespace Lcurve {
   class Fobj : public Subs::Afunc {
 
   public:
-    
+
     //! Total number of calls to Lcurve::chisq
     static int neval;
 
@@ -629,14 +660,13 @@ namespace Lcurve {
     double operator[](int n) const;
 
   private:
-    
+
     Model model;
     const Data&  data;
     Subs::Array1D<double> fit;
-    
+
   };
-  
-    
+
   //! Computes position and direction on a disc
   void pos_disc(double r, double theta, double beta, double height, Subs::Vec3& posn, Subs::Vec3& dirn);
 
