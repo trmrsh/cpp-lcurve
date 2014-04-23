@@ -8,7 +8,8 @@
  */
 std::ostream& Lcurve::operator<<(std::ostream& s, const Pparam& p){
     static Subs::Format vform(17), sform(8);
-    s << vform(p.value) << " " << sform(p.range) << " " << sform(p.dstep) << " " << p.vary;
+    s << vform(p.value) << " " << sform(p.range) << " " <<
+        sform(p.dstep) << " " << p.vary << " " << p.defined;
     return s;
 }
 
@@ -18,12 +19,10 @@ std::ostream& Lcurve::operator<<(std::ostream& s, const Pparam& p){
  */
 Lcurve::Model::Model(const std::string& file) {
 
-    // List of parameter names to expect, both physical and computational used for
-    // checking that we actually have read in all the one expected
+    // List of parameter names to expect, both physical and computational used
+    // for checking that we actually have read in all the one expected
     std::map<std::string,bool> names;
-    typedef std::map<std::string,bool>::const_iterator CNIT;
     typedef std::map<std::string,bool>::iterator NIT;
-
 
     // Physical 
     names["q"]              = false;
@@ -131,7 +130,8 @@ Lcurve::Model::Model(const std::string& file) {
 
     // Read in the parameter values
     std::ifstream fin(file.c_str());
-    if(!fin) throw Lcurve_Error("Failed to open " + file + " for starting parameters.");
+    if(!fin) throw Lcurve_Error("Failed to open " + file +
+                                " for starting parameters.");
 
     const int MAX_LINE = 5000;
     int n = 0;
@@ -150,13 +150,14 @@ Lcurve::Model::Model(const std::string& file) {
 
                 NIT nit = names.find(param);
                 if(nit == names.end())
-                    throw Lcurve_Error("Parameter: " + param + " from line " + Subs::str(n) +
-                                       " was not recognised.");
+                    throw Lcurve_Error("Parameter: " + param + " from line "
+                                       + Subs::str(n) + " was not recognised.");
                 nit->second = true;
 
                 while(fin.get(ch) && ch != '='); // skips up to = sign
                 if(!fin)
-                    throw Lcurve_Error("Line " + Subs::str(n) + " starting: " + param + " is invalid");
+                    throw Lcurve_Error("Line " + Subs::str(n) +
+                                       " starting: " + param + " is invalid");
 
                 getline(fin,value);
 
@@ -175,11 +176,13 @@ Lcurve::Model::Model(const std::string& file) {
                 if(n1 != std::string::npos)
                     pv[param] = value.substr(n1,n2-n1+1);
                 else
-                    throw Lcurve_Error("Line " + Subs::str(n) + " starting: " + param + " has no values");
+                    throw Lcurve_Error("Line " + Subs::str(n) + " starting: "
+                                       + param + " has no values");
             }else if(fin.eof()){
                 std::cerr << "End of parameter file reached." << std::endl;
             }else{
-                throw Lcurve_Error("Parameter input failure on line " + Subs::str(n));
+                throw Lcurve_Error("Parameter input failure on line "
+                                   + Subs::str(n));
             }
         }
     }
@@ -250,10 +253,12 @@ Lcurve::Model::Model(const std::string& file) {
     tilt_spot        = Pparam(pv["tilt_spot"]);
     cfrac_spot       = Pparam(pv["cfrac_spot"]);
 
-    // star-spot parameters need not have been defined, but if one of a group
-    // has, then all of them should be
-    if(names["stsp11_long"] || names["stsp11_lat"] || names["stsp11_fwhm"] || names["stsp11_tcen"]){
-        if(!(names["stsp11_long"] && names["stsp11_lat"] && names["stsp11_fwhm"] && names["stsp11_tcen"]))
+    // star-spot parameters need not have been defined, but
+    // if one of a group has, then all of them should be
+    if(names["stsp11_long"] || names["stsp11_lat"] || names["stsp11_fwhm"] ||
+       names["stsp11_tcen"]){
+        if(!(names["stsp11_long"] && names["stsp11_lat"] &&
+             names["stsp11_fwhm"] && names["stsp11_tcen"]))
             throw Lcurve_Error("One or more of the star spot 11 parameters were not initialised");
         stsp11_long = Pparam(pv["stsp11_long"]);
         stsp11_lat  = Pparam(pv["stsp11_lat"]);
@@ -261,8 +266,10 @@ Lcurve::Model::Model(const std::string& file) {
         stsp11_tcen = Pparam(pv["stsp11_tcen"]);
     }
 
-    if(names["stsp21_long"] || names["stsp21_lat"] || names["stsp21_fwhm"] || names["stsp21_tcen"]){
-        if(!(names["stsp21_long"] && names["stsp21_lat"] && names["stsp21_fwhm"] && names["stsp21_tcen"]))
+    if(names["stsp21_long"] || names["stsp21_lat"] || names["stsp21_fwhm"] ||
+       names["stsp21_tcen"]){
+        if(!(names["stsp21_long"] && names["stsp21_lat"] &&
+             names["stsp21_fwhm"] && names["stsp21_tcen"]))
             throw Lcurve_Error("One or more of the star spot 11 parameters were not initialised");
         stsp21_long = Pparam(pv["stsp21_long"]);
         stsp21_lat  = Pparam(pv["stsp21_lat"]);
@@ -303,14 +310,16 @@ Lcurve::Model::Model(const std::string& file) {
     }else if(pv["limb1"] == "Claret"){
         limb1 = LDC::CLARET;
     }else{
-        throw Lcurve_Error("Could not recognize the value of limb1 = " + pv["limb1"] + "; should be 'Poly' or 'Claret'");
+        throw Lcurve_Error("Could not recognize the value of limb1 = " +
+                           pv["limb1"] + "; should be 'Poly' or 'Claret'");
     }
     if(pv["limb2"] == "Poly"){
         limb2 = LDC::POLY;
     }else if(pv["limb2"] == "Claret"){
         limb2 = LDC::CLARET;
     }else{
-        throw Lcurve_Error("Could not recognize the value of limb2 = " + pv["limb2"] + "; should be 'Poly' or 'Claret'");
+        throw Lcurve_Error("Could not recognize the value of limb2 = " +
+                           pv["limb2"] + "; should be 'Poly' or 'Claret'");
     }
 
     mirror           = Subs::string_to_bool(pv["mirror"]);
@@ -385,6 +394,15 @@ int Lcurve::Model::nvary() const {
         if(cfrac_spot.vary) n++;
     }
 
+    if(stsp11_long.defined && stsp11_long.vary) n++;
+    if(stsp11_lat.defined  && stsp11_lat.vary)  n++;
+    if(stsp11_fwhm.defined && stsp11_fwhm.vary) n++;
+    if(stsp11_tcen.defined && stsp11_tcen.vary) n++;
+
+    if(stsp21_long.defined && stsp21_long.vary) n++;
+    if(stsp21_lat.defined  && stsp21_lat.vary)  n++;
+    if(stsp21_fwhm.defined && stsp21_fwhm.vary) n++;
+    if(stsp21_tcen.defined && stsp21_tcen.vary) n++;
     return n;
 }
 
@@ -450,6 +468,15 @@ void Lcurve::Model::set_param(const Subs::Array1D<double>& vpar) {
         if(tilt_spot.vary) tilt_spot.value           = vpar[n++];
         if(cfrac_spot.vary) cfrac_spot.value         = vpar[n++];
     }
+    if(stsp11_long.defined && stsp11_long.vary) stsp11_long.value = vpar[n++];
+    if(stsp11_lat.defined  && stsp11_lat.vary)  stsp11_lat.value  = vpar[n++];
+    if(stsp11_fwhm.defined && stsp11_fwhm.vary) stsp11_fwhm.value = vpar[n++];
+    if(stsp11_tcen.defined && stsp11_tcen.vary) stsp11_tcen.value = vpar[n++];
+
+    if(stsp21_long.defined && stsp21_long.vary) stsp21_long.value = vpar[n++];
+    if(stsp21_lat.defined  && stsp21_lat.vary)  stsp21_lat.value  = vpar[n++];
+    if(stsp21_fwhm.defined && stsp21_fwhm.vary) stsp21_fwhm.value = vpar[n++];
+    if(stsp21_tcen.defined && stsp21_tcen.vary) stsp21_tcen.value = vpar[n++];
 }
 
 std::string Lcurve::Model::get_name(int i) const {
@@ -605,6 +632,24 @@ std::string Lcurve::Model::get_name(int i) const {
         if(n == i) return "cfrac_spot";
 
     }
+
+    if(stsp11_long.defined && stsp11_long.vary) n++;
+    if(n == i) return "stsp11_long";
+    if(stsp11_lat.defined  && stsp11_lat.vary) n++;
+    if(n == i) return "stsp11_lat";
+    if(stsp11_fwhm.defined && stsp11_fwhm.vary) n++;
+    if(n == i) return "stsp11_fwhm";
+    if(stsp11_tcen.defined && stsp11_tcen.vary) n++;
+    if(n == i) return "stsp11_tcen";
+
+    if(stsp21_long.defined && stsp21_long.vary) n++;
+    if(n == i) return "stsp21_long";
+    if(stsp21_lat.defined  && stsp21_lat.vary) n++;
+    if(n == i) return "stsp21_lat";
+    if(stsp21_fwhm.defined && stsp21_fwhm.vary) n++;
+    if(n == i) return "stsp21_fwhm";
+    if(stsp21_tcen.defined && stsp21_tcen.vary) n++;
+    if(n == i) return "stsp21_tcen";
 
     return "UNKNOWN";
 }
@@ -859,13 +904,48 @@ bool Lcurve::Model::is_not_legal(const Subs::Array1D<double>& vpar) const {
 
     }
 
+    if(stsp11_long.defined && stsp11_long.vary){
+        if(vpar[n] < -400. || vpar[n] > 400.) return true;
+        n++;
+    }
+    if(stsp11_lat.defined && stsp11_lat.vary){
+        if(vpar[n] < -90. || vpar[n] > 90.) return true;
+        n++;
+    }
+    if(stsp11_fwhm.defined  && stsp11_fwhm.vary){
+        if(vpar[n] <= 0. || vpar[n] > 180.) return true;
+        n++;
+    }
+    if(stsp11_tcen.defined  && stsp11_tcen.vary){
+        if(vpar[n] <= 0.) return true;
+        n++;
+    }
+
+    if(stsp21_long.defined && stsp21_long.vary){
+        if(vpar[n] < -400. || vpar[n] > 400.) return true;
+        n++;
+    }
+    if(stsp21_lat.defined && stsp21_lat.vary){
+        if(vpar[n] < -90. || vpar[n] > 90.) return true;
+        n++;
+    }
+    if(stsp21_fwhm.defined  && stsp21_fwhm.vary){
+        if(vpar[n] <= 0. || vpar[n] > 180.) return true;
+        n++;
+    }
+    if(stsp21_tcen.defined  && stsp21_tcen.vary){
+        if(vpar[n] <= 0.) return true;
+        n++;
+    }
+
     return false;
 
 }
 
 /** This routine returns the current values of all variable
  * parameters.
- * \return an Array1D of the variable parameters only. They come in a standard order
+ * \return an Array1D of the variable parameters only. They come
+ * in a standard order
  * q, iangle, r1, r2, etc.
  */
 Subs::Array1D<double> Lcurve::Model::get_param() const {
@@ -930,12 +1010,31 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
         if(cfrac_spot.vary)  temp.push_back(cfrac_spot.value);
     }
 
+    if(stsp11_long.defined && stsp11_long.vary)
+        temp.push_back(stsp11_long.value);
+    if(stsp11_lat.defined && stsp11_lat.vary)
+        temp.push_back(stsp11_lat.value);
+    if(stsp11_fwhm.defined && stsp11_fwhm.vary)
+        temp.push_back(stsp11_fwhm.value);
+    if(stsp11_tcen.defined && stsp11_tcen.vary)
+        temp.push_back(stsp11_tcen.value);
+
+    if(stsp21_long.defined && stsp21_long.vary)
+        temp.push_back(stsp21_long.value);
+    if(stsp21_lat.defined && stsp21_lat.vary)
+        temp.push_back(stsp21_lat.value);
+    if(stsp21_fwhm.defined && stsp21_fwhm.vary)
+        temp.push_back(stsp21_fwhm.value);
+    if(stsp21_tcen.defined && stsp21_tcen.vary)
+        temp.push_back(stsp21_tcen.value);
+
     return temp;
 }
 
 /** This routine returns the values of all the ranges of the variable
  * parameters.
- * \return an Array1D of the range of the variable parameters only. They come in a standard order
+ * \return an Array1D of the range of the variable parameters only.
+ * They come in a standard order
  * q, iangle, r1, r2, etc.
  */
 Subs::Array1D<double> Lcurve::Model::get_range() const {
@@ -1000,10 +1099,29 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
         if(cfrac_spot.vary)  temp.push_back(cfrac_spot.range);
     }
 
+    if(stsp11_long.defined && stsp11_long.vary)
+        temp.push_back(stsp11_long.range);
+    if(stsp11_lat.defined && stsp11_lat.vary)
+        temp.push_back(stsp11_lat.range);
+    if(stsp11_fwhm.defined && stsp11_fwhm.vary)
+        temp.push_back(stsp11_fwhm.range);
+    if(stsp11_tcen.defined && stsp11_tcen.vary)
+        temp.push_back(stsp11_tcen.range);
+
+    if(stsp21_long.defined && stsp21_long.vary)
+        temp.push_back(stsp21_long.range);
+    if(stsp21_lat.defined && stsp21_lat.vary)
+        temp.push_back(stsp21_lat.range);
+    if(stsp21_fwhm.defined && stsp21_fwhm.vary)
+        temp.push_back(stsp21_fwhm.range);
+    if(stsp21_tcen.defined && stsp21_tcen.vary)
+        temp.push_back(stsp21_tcen.range);
+
     return temp;
 }
 
-/** This routine returns the setp sizes for calculating derivatives of all variable
+/** This routine returns the step sizes for calculating derivatives 
+ * of all variable
  * parameters.
  * \return an Array1D of the setp sizes for variable parameters only. They come in a standard order
  * q, iangle, r1, r2, etc.
@@ -1070,6 +1188,24 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
         if(cfrac_spot.vary)  temp.push_back(cfrac_spot.dstep);
     }
 
+    if(stsp11_long.defined && stsp11_long.vary)
+        temp.push_back(stsp11_long.dstep);
+    if(stsp11_lat.defined && stsp11_lat.vary)
+        temp.push_back(stsp11_lat.dstep);
+    if(stsp11_fwhm.defined && stsp11_fwhm.vary)
+        temp.push_back(stsp11_fwhm.dstep);
+    if(stsp11_tcen.defined && stsp11_tcen.vary)
+        temp.push_back(stsp11_tcen.dstep);
+
+    if(stsp21_long.defined && stsp21_long.vary)
+        temp.push_back(stsp21_long.dstep);
+    if(stsp21_lat.defined && stsp21_lat.vary)
+        temp.push_back(stsp21_lat.dstep);
+    if(stsp21_fwhm.defined && stsp21_fwhm.vary)
+        temp.push_back(stsp21_fwhm.dstep);
+    if(stsp21_tcen.defined && stsp21_tcen.vary)
+        temp.push_back(stsp21_tcen.dstep);
+
     return temp;
 }
 
@@ -1127,6 +1263,16 @@ std::ostream& Lcurve::operator<<(std::ostream& s, const Model& model){
     s << "tilt_spot      = " << model.tilt_spot      << "\n";
     s << "cfrac_spot     = " << model.cfrac_spot     << "\n\n";
 
+    s << "stsp11_long    = " << model.stsp11_long    << "\n";
+    s << "stsp11_lat     = " << model.stsp11_lat     << "\n";
+    s << "stsp11_fwhm    = " << model.stsp11_fwhm    << "\n";
+    s << "stsp11_tcen    = " << model.stsp11_tcen    << "\n\n";
+
+    s << "stsp21_long    = " << model.stsp21_long    << "\n";
+    s << "stsp21_lat     = " << model.stsp21_lat     << "\n";
+    s << "stsp21_fwhm    = " << model.stsp21_fwhm    << "\n";
+    s << "stsp21_tcen    = " << model.stsp21_tcen    << "\n\n";
+
     s << "delta_phase    = " << model.delta_phase    << "\n";
     s << "nlat1f         = " << model.nlat1f         << "\n";
     s << "nlat2f         = " << model.nlat2f         << "\n";
@@ -1180,7 +1326,8 @@ void Lcurve::Model::wrasc(const std::string& file) const {
 
     std::ofstream fout(file.c_str());
     if(!fout)
-        throw Lcurve_Error("Lcurve::Model::wrasc: failed to open " + file + " for output.");
+        throw Lcurve_Error("Lcurve::Model::wrasc: failed to open " +
+                           file + " for output.");
 
     fout << *this;
     fout.close();
@@ -1194,7 +1341,8 @@ std::istream& Lcurve::operator>>(std::istream& s, Datum& datum){
     std::string buff;
     getline(s, buff);
     std::istringstream istr(buff);
-    istr >> datum.time >> datum.expose >> datum.flux >> datum.ferr >> datum.weight >> datum.ndiv;
+    istr >> datum.time >> datum.expose >> datum.flux >> datum.ferr >>
+        datum.weight >> datum.ndiv;
     if(!istr)
         throw Lcurve_Error("Lcurve::operator>>: failed to read t,e,f,fe,wgt,ndiv of a Datum");
     if(datum.ferr < 0.){
@@ -1209,8 +1357,8 @@ std::istream& Lcurve::operator>>(std::istream& s, Datum& datum){
  */
 std::ostream& Lcurve::operator<<(std::ostream& s, const Datum& datum) {
     static Subs::Format tform(17), dform(10);
-    s << tform(datum.time) << " " << datum.expose << " " << dform(datum.flux) << " " <<
-        datum.ferr << " " << datum.weight << " " << datum.ndiv;
+    s << tform(datum.time) << " " << datum.expose << " " << dform(datum.flux)
+      << " " << datum.ferr << " " << datum.weight << " " << datum.ndiv;
     return s;
 }
 
@@ -1219,9 +1367,7 @@ std::ostream& Lcurve::operator<<(std::ostream& s, const Datum& datum) {
  * \param file the ASCII file to load.
  */
 Lcurve::Data::Data(const std::string& file) : std::vector<Datum>() {
-
     this->rasc(file);
-
 }
 
 /** Reads in data from a file in the form of a series of lines
@@ -1233,7 +1379,8 @@ void Lcurve::Data::rasc(const std::string& file) {
     // Read in the parameter values
     std::ifstream fin(file.c_str());
     if(!fin)
-        throw Lcurve_Error("Lcurve::Data::Data: failed to open " + file + " for data.");
+        throw Lcurve_Error("Lcurve::Data::Data: failed to open " + file +
+                           " for data.");
 
     this->clear();
 
@@ -1254,13 +1401,15 @@ void Lcurve::Data::rasc(const std::string& file) {
             }else if(fin.eof()){
                 std::cout << "End of data file reached." << std::endl;
             }else{
-                throw Lcurve_Error("Data file input failure on line " + Subs::str(n));
+                throw Lcurve_Error("Data file input failure on line " +
+                                   Subs::str(n));
             }
         }
     }
     fin.close();
 
-    std::cout << this->size() << " lines of data read from " << file << "\n" << std::endl;
+    std::cout << this->size() << " lines of data read from " << file
+              << "\n" << std::endl;
 
 }
 
@@ -1271,7 +1420,8 @@ void Lcurve::Data::wrasc(const std::string& file) const {
 
     std::ofstream fout(file.c_str());
     if(!fout)
-        throw Lcurve_Error("Lcurve::Data::wrasc: failed to open " + file + " for output.");
+        throw Lcurve_Error("Lcurve::Data::wrasc: failed to open " +
+                           file + " for output.");
 
     for(size_t i=0; i<this->size(); i++)
         fout << (*this)[i] << std::endl;
@@ -1279,15 +1429,13 @@ void Lcurve::Data::wrasc(const std::string& file) const {
 }
 
 /** Operator of function object to allow it to be called as func(vpar).
- * \param vpar vector of numbers of the variable parameters in the order in which
- * the parameters occur in Model
+ * \param vpar vector of numbers of the variable parameters in the order
+ * in which the parameters occur in Model
  * \return Returns chi**2
  */
 double Lcurve::Fobj::operator()(const Subs::Array1D<double>& vpar){
-
     // Load up the variable parameters
     model.set_param(vpar);
-
     return chisq();
 }
 
@@ -1304,7 +1452,8 @@ double Lcurve::Fobj::chisq() {
 
     Subs::Buffer1D<double> sfac(4);
     double wdwarf, chisq, wnok;
-    Lcurve::light_curve_comp(model, data, true, false, sfac, fit, wdwarf, chisq, wnok);
+    Lcurve::light_curve_comp(model, data, true, false, sfac, fit, wdwarf,
+                             chisq, wnok);
     if(wnok == 0.0)
         throw Lcurve::Lcurve_Error("Lcurve::Fobj::chisq: no good data");
     Lcurve::Fobj::neval++;
@@ -1314,13 +1463,18 @@ double Lcurve::Fobj::chisq() {
         Lcurve::Fobj::chisq_min = chisq;
         Lcurve::Fobj::scale_min = sfac;
         if(model.iscale){
-            std::cout << "Weighted chi**2 = " << form(chisq) << ", scale factors = ";
-            std::cout << form(sfac[0]) << ", " <<  form(sfac[1]) << ", " <<  form(sfac[2]) << ", " <<
-                form(sfac[3]) << ", ";
-            std::cout << ", neval = " << neval << ", wnok = " << form(wnok) << std::endl;
+            std::cout << "Weighted chi**2 = " << form(chisq)
+                      << ", scale factors = ";
+            std::cout << form(sfac[0]) << ", " <<  form(sfac[1])
+                      << ", " <<  form(sfac[2]) << ", "
+                      << form(sfac[3]) << ", ";
+            std::cout << ", neval = " << neval << ", wnok = "
+                      << form(wnok) << std::endl;
         }else{
-            std::cout << "Weighted chi**2 = " << form(chisq) << ", scale factor = " << form(sfac[0]) <<
-                ", neval = " << neval << ", wnok = " << form(wnok) << std::endl;
+            std::cout << "Weighted chi**2 = " << form(chisq)
+                      << ", scale factor = " << form(sfac[0])
+                      << ", neval = " << neval << ", wnok = "
+                      << form(wnok) << std::endl;
         }
     }
     return chisq;
