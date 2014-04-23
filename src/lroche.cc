@@ -254,8 +254,8 @@ gravity to the power set by the coefficient. This is translated to flux variatio
 If False, it represents a filter-integrated value 'y' coefficient such that the flux depends upon the gravity to the power 'y'.
 This is itself an approximation and ideally should replaced by a proper function of gravity, but is probably good enough for
 most purposes. Please see gravity_dark.}
-!!arg{mucrit1}{Critical value of mu on star 1 below which intensity is assumed to be zero. This is to allow one to represent 
-Claret and Hauschildt's (2004) results where I(mu) drops steeply for mu < 0.08 or so. WARNING: this option is dangerous. I would normally 
+!!arg{mucrit1}{Critical value of mu on star 1 below which intensity is assumed to be zero. This is to allow one to represent
+Claret and Hauschildt's (2004) results where I(mu) drops steeply for mu < 0.08 or so. WARNING: this option is dangerous. I would normally
 advise setting it = 0 unless you really know what you are doing as it leads to discontinuities.}
 !!arg{mucrit2}{Critical value of mu on star 2 below which intensity is assumed to be zero. See comments on mucrit1 for more.}
 !!arg{limb1}{String, either 'Poly' or 'Claret' determining the type of limb darkening law. See comments on ldc1_1 above.}
@@ -265,11 +265,11 @@ effet of gray scattering}
 !!arg{add_disc}{Add a disc or not}
 !!arg{opaque}{Make disc opaque or not}
 !!arg{iscale}{Individually scale the separate components or not. If set the each component, star 1, star 2, disc and
-bright spot will be individually scaled to minimise chi**2. Otherwise a single overall factor will be computed. NB 
-If you set this parameter then all temperature parameters (white dwarf, secondary, disc and bright spot) must be held 
-fixed otherwise near-total degeneracy will result. The only reason it is not total is because of reflection effect from 
+bright spot will be individually scaled to minimise chi**2. Otherwise a single overall factor will be computed. NB
+If you set this parameter then all temperature parameters (white dwarf, secondary, disc and bright spot) must be held
+fixed otherwise near-total degeneracy will result. The only reason it is not total is because of reflection effect from
 irradiation of the secondary by the white dwarf, but this is often very feeble and will not help, so, you have been warned.
-Scaling should in general lead to faster convergence than not scaling. You may have some cases where you do not want to 
+Scaling should in general lead to faster convergence than not scaling. You may have some cases where you do not want to
 include any secondary star component. You can do this by setting t2 < 0.}
 !!table
 
@@ -296,250 +296,278 @@ Subs::Buffer1D<double> Lcurve::Fobj::scale_min;
 
 // Main program
 int main(int argc, char* argv[]){
-    
+
     try{
-	
-	// Construct Input object
-	Subs::Input input(argc, argv, Lcurve::LCURVE_ENV, Lcurve::LCURVE_DIR);
-	
-	// Sign-in input variables
-	input.sign_in("model",    Subs::Input::GLOBAL, Subs::Input::PROMPT);
-	input.sign_in("data",     Subs::Input::GLOBAL, Subs::Input::PROMPT);
-	input.sign_in("time1",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("time2",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("ntime",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("expose",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("ndivide",  Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("noise",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("seed",     Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("nfile",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("output",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("device",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("roff",     Subs::Input::LOCAL,  Subs::Input::NOPROMPT);
-	input.sign_in("scale",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("sstar1",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("sstar2",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("sdisc",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("sspot",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	input.sign_in("ssfac",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
-	
-	std::string smodel;
-	input.get_value("model", smodel, "model", "model file of parameter values");
-	Lcurve::Model model(smodel);
-	
-	std::string sdata;
-	input.get_value("data", sdata, "data", "data file ('none' if you want to specify regularly-spaced times");    
-	bool no_file = (Subs::toupper(sdata) == "NONE");
-	Lcurve::Data data, copy;
-	if(!no_file){
-	    data.rasc(sdata);
-	    if(data.size() == 0)
-		throw Lcurve::Lcurve_Error("No data read from file.");
-	    copy = data;
-	}
-	
-	double time1, time2, expose, noise;
-	int ntime, ndivide;
-	if(no_file){
-	    input.get_value("time1", time1, 0., -DBL_MAX, DBL_MAX, "first time to compute");
-	    input.get_value("time2", time2, 1., -DBL_MAX, DBL_MAX, "last time to compute");
-	    input.get_value("ntime", ntime, 100, 2, 1000000, "number of times to compute");
-	    input.get_value("expose", expose, 0., 0., DBL_MAX, "exposure time (same units as ephemeris)");
-	    input.get_value("ndivide", ndivide, 1, 1, INT_MAX, "ndivide factor to use");
-	    input.get_value("noise", noise, 0., 0., DBL_MAX, "RMS noise to add (after scaling)");
-	}else{
-	    input.get_value("noise", noise, 0., 0., DBL_MAX, "RMS noise multiplier");
-	}
 
-	if(no_file){
-	    // Build fake data
-	    Lcurve::Datum datum = {0., expose, 0., noise, 1., ndivide};
-	    for(int i=0; i<ntime; i++){
-		datum.time   = time1 + (time2-time1)*i/(ntime-1);
-		data.push_back(datum);
-	    }
-	}
+        // Construct Input object
+        Subs::Input input(argc, argv, Lcurve::LCURVE_ENV, Lcurve::LCURVE_DIR);
 
-	Subs::INT4 seed;
-	input.get_value("seed", seed, 57565, INT_MIN, INT_MAX, "random number seed");
-	if(seed > 0) seed = -seed;
-	int nfile;
-	input.get_value("nfile", nfile, 1, 0, 20000, "number of files to generate");
-	std::string sout;
-	if(nfile > 0)
-	    input.get_value("output", sout, "data", "file/root to save data");    
-	std::string device;
-	input.get_value("device", device, "/xs", "plot device");    
-	double roff;
-	input.get_value("roff", roff, 0., -DBL_MAX, DBL_MAX, "off to add to residuals when plotting a fit to data");
+        // Sign-in input variables
+        input.sign_in("model",    Subs::Input::GLOBAL, Subs::Input::PROMPT);
+        input.sign_in("data",     Subs::Input::GLOBAL, Subs::Input::PROMPT);
+        input.sign_in("time1",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("time2",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("ntime",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("expose",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("ndivide",  Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("noise",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("seed",     Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("nfile",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("output",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("device",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("roff",     Subs::Input::LOCAL,  Subs::Input::NOPROMPT);
+        input.sign_in("scale",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("sstar1",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("sstar2",   Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("sdisc",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("sspot",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
+        input.sign_in("ssfac",    Subs::Input::LOCAL,  Subs::Input::PROMPT);
 
-	bool scale = false;
-	if(!no_file)
-	    input.get_value("scale", scale, true, "autoscale?");
-	Subs::Buffer1D<double> sfac(4);
-	if(!scale){
-	    if(model.iscale){
-		input.get_value("sstar1", sfac[0], 1., -DBL_MAX, DBL_MAX, "star 1 scale factor");
-		input.get_value("sstar2", sfac[1], 1., -DBL_MAX, DBL_MAX, "star 2 scale factor");
-		input.get_value("sdisc",  sfac[2], 1., -DBL_MAX, DBL_MAX, "disc scale factor");
-		input.get_value("sspot",  sfac[3], 1., -DBL_MAX, DBL_MAX, "spot scale factor");
-	    }else{
-		input.get_value("ssfac", sfac[0], 1., -DBL_MAX, DBL_MAX, "global scale factor");
-	    }
-	}
-	input.save();
+        std::string smodel;
+        input.get_value("model", smodel, "model",
+                        "model file of parameter values");
+        Lcurve::Model model(smodel);
 
-	// Construct function object
-	Lcurve::Fobj func(model, data);
+        std::string sdata;
+        input.get_value("data", sdata, "data",
+                        "data file ('none' if you want to specify regularly-spaced times");
+        bool no_file = (Subs::toupper(sdata) == "NONE");
+        Lcurve::Data data, copy;
+        if(!no_file){
+            data.rasc(sdata);
+            if(data.size() == 0)
+                throw Lcurve::Lcurve_Error("No data read from file.");
+            copy = data;
+        }
 
-	// Compute light curve
-	Subs::Array1D<double> fit;
-	double wdwarf, chisq, wnok;
-	Lcurve::light_curve_comp(model, data, scale, true, sfac, fit, wdwarf, chisq, wnok);
+        double time1, time2, expose, noise;
+        int ntime, ndivide;
+        if(no_file){
+            input.get_value("time1", time1, 0.,
+                            -DBL_MAX, DBL_MAX, "first time to compute");
+            input.get_value("time2", time2, 1.,
+                            -DBL_MAX, DBL_MAX, "last time to compute");
+            input.get_value("ntime", ntime, 100, 2,
+                            1000000, "number of times to compute");
+            input.get_value("expose", expose, 0., 0.,
+                            DBL_MAX, "exposure time (same units as ephemeris)");
+            input.get_value("ndivide", ndivide, 1, 1,
+                            INT_MAX, "ndivide factor to use");
+            input.get_value("noise", noise, 0., 0.,
+                            DBL_MAX, "RMS noise to add (after scaling)");
+        }else{
+            input.get_value("noise", noise, 0., 0.,
+                            DBL_MAX, "RMS noise multiplier");
+        }
 
-	Subs::Format form(12);
+        if(no_file){
+            // Build fake data
+            Lcurve::Datum datum = {0., expose, 0., noise, 1., ndivide};
+            for(int i=0; i<ntime; i++){
+                datum.time   = time1 + (time2-time1)*i/(ntime-1);
+                data.push_back(datum);
+            }
+        }
 
-	// Save scale factors
-	if(scale){
-	    std::cout << "Weighted chi**2 = " << form(chisq) << ", wnok = " << form(wnok) << std::endl;
-	    if(model.iscale){
-		input.set_default("sstar1", sfac[0]);
-		input.set_default("sstar2", sfac[1]);
-		input.set_default("sdisc",  sfac[2]);
-		input.set_default("sspot",  sfac[3]);
-		std::cout << "Scale factors = " << form(sfac[0]) << ", " << form(sfac[1]) << ", " << form(sfac[2]) << ", " << form(sfac[3]) << std::endl;
-	    }else{
-		input.set_default("ssfac", sfac[0]);
-		std::cout << "Scale factor = " << form(sfac[0]) << std::endl;
-	    }
-	}
-	std::cout << "White dwarf's contribution = " << form(wdwarf) << std::endl;
+        Subs::INT4 seed;
+        input.get_value("seed", seed, 57565, INT_MIN, INT_MAX,
+                        "random number seed");
+        if(seed > 0) seed = -seed;
+        int nfile;
+        input.get_value("nfile", nfile, 1, 0, 20000,
+                        "number of files to generate");
+        std::string sout;
+        if(nfile > 0)
+            input.get_value("output", sout, "data", "file/root to save data");
+        std::string device;
+        input.get_value("device", device, "/xs", "plot device");
+        double roff;
+        input.get_value("roff", roff, 0., -DBL_MAX, DBL_MAX, "off to add to residuals when plotting a fit to data");
 
-	if(!no_file){
-	    // Scale error bars
-	    for(size_t i=0; i<data.size(); i++)
-		data[i].ferr *= noise;
-	}
+        bool scale = false;
+        if(!no_file)
+            input.get_value("scale", scale, true, "autoscale?");
+        Subs::Buffer1D<double> sfac(4);
+        if(!scale){
+            if(model.iscale){
+                input.get_value("sstar1", sfac[0], 1.,
+                                -DBL_MAX, DBL_MAX, "star 1 scale factor");
+                input.get_value("sstar2", sfac[1], 1.,
+                                -DBL_MAX, DBL_MAX, "star 2 scale factor");
+                input.get_value("sdisc",  sfac[2], 1.,
+                                -DBL_MAX, DBL_MAX, "disc scale factor");
+                input.get_value("sspot",  sfac[3], 1.,
+                                -DBL_MAX, DBL_MAX, "spot scale factor");
+            }else{
+                input.get_value("ssfac", sfac[0], 1.,
+                                -DBL_MAX, DBL_MAX, "global scale factor");
+            }
+        }
+        input.save();
 
-	int ndig = int(log10(double(nfile)+0.5))+1;
+        // Construct function object
+        Lcurve::Fobj func(model, data);
 
-	// Add noise
-	for(size_t i=0; i<data.size(); i++)
-	    data[i].flux = fit[i] + data[i].ferr*Subs::gauss2(seed);      
+        // Compute light curve
+        Subs::Array1D<double> fit;
+        double wdwarf, chisq, wnok;
+        Lcurve::light_curve_comp(model, data, scale, true, sfac,
+                                 fit, wdwarf, chisq, wnok);
 
-	// make plot
-	if((nfile == 0 || nfile == 1) && device != "none" && device != "null"){
+        Subs::Format form(12);
 
-	    Subs::Plot plot(device);
-	    if(device.find("/xs") != std::string::npos){
-	      cpgscr(0,1,1,1);
-	      cpgscr(1,0,0,0);
-	    }
-	    cpgscr(2,0.7,0,0);
-	    cpgscr(3,0,0.6,0);
-	    cpgscr(4,0,0,0.5);
-	    cpgscr(5,0.7,0.7,0.7);
-	    double x1, x2;
-	    float y1, y2;
-	    x1 = x2 = data[0].time;
-	    y1 = data[0].flux - data[0].ferr;
-	    y2 = data[0].flux + data[0].ferr;
-	    for(size_t i=1; i<data.size(); i++){
-		x1 = data[i].time > x1 ? x1 : data[i].time;
-		x2 = data[i].time < x2 ? x2 : data[i].time;
-		y1 = data[i].flux - data[i].ferr > y1 ? y1 : data[i].flux - data[i].ferr;
-		y2 = data[i].flux + data[i].ferr < y2 ? y2 : data[i].flux + data[i].ferr;
-		if(!no_file){
-		    y1 = copy[i].flux - copy[i].ferr > y1 ? y1 : copy[i].flux - copy[i].ferr;
-		    y2 = copy[i].flux + copy[i].ferr < y2 ? y2 : copy[i].flux + copy[i].ferr;
-		    y1 = roff + copy[i].flux - data[i].flux - copy[i].ferr > y1 ? y1 : roff + copy[i].flux - data[i].flux - copy[i].ferr;
-		    y2 = roff + copy[i].flux - data[i].flux + copy[i].ferr < y2 ? y2 : roff + copy[i].flux - data[i].flux + copy[i].ferr;
-		}
-	    }
-	    double con = 0.;
-	    if(x2-x1 < 0.01*Subs::abs((x1+x2)/2.)){
-		con = x1;
-		x1 -= con;
-		x2 -= con;
-	    }
-	    
-	    double range = x2-x1;
-	    x1   -= range/10.;
-	    x2   += range/10.;
-	    range = y2-y1;
-	    y1   -= range/10;
-	    y2   += range/10;
+        // Save scale factors
+        if(scale){
+            std::cout << "Weighted chi**2 = " << form(chisq)
+                      << ", wnok = " << form(wnok) << std::endl;
+            if(model.iscale){
+                input.set_default("sstar1", sfac[0]);
+                input.set_default("sstar2", sfac[1]);
+                input.set_default("sdisc",  sfac[2]);
+                input.set_default("sspot",  sfac[3]);
+                std::cout << "Scale factors = " << form(sfac[0]) << ", "
+                          << form(sfac[1]) << ", " << form(sfac[2])
+                          << ", " << form(sfac[3]) << std::endl;
+            }else{
+                input.set_default("ssfac", sfac[0]);
+                std::cout << "Scale factor = " << form(sfac[0]) << std::endl;
+            }
+        }
+        std::cout << "White dwarf's contribution = " << form(wdwarf)
+                  << std::endl;
 
-	    cpgsch(1.5);
-	    cpgscf(2);
-	    cpgslw(4);
-	    cpgenv(float(x1), float(x2), y1, y2, 0, 0);
-	    std::string xlab = string("T - ") + Subs::str(con);
-	    cpglab(xlab.c_str(), " ", " ");
+        if(!no_file){
+            // Scale error bars
+            for(size_t i=0; i<data.size(); i++)
+                data[i].ferr *= noise;
+        }
 
-	    if(!no_file){
-	      cpgsch(0.8);
-		for(size_t i=0; i<copy.size(); i++){
-		    cpgsci(5);
-		    cpgslw(1);
-		    cpgmove(copy[i].time-con, copy[i].flux - copy[i].ferr);
-		    cpgdraw(copy[i].time-con, copy[i].flux + copy[i].ferr);
+        int ndig = int(log10(double(nfile)+0.5))+1;
 
-		    cpgsci(3);
-		    cpgslw(3);
-		    cpgpt1(copy[i].time-con, copy[i].flux, 17);
+        // Add noise
+        for(size_t i=0; i<data.size(); i++)
+            data[i].flux = fit[i] + data[i].ferr*Subs::gauss2(seed);
 
-		    cpgsci(5);
-		    cpgslw(1);
-		    cpgmove(copy[i].time-con, roff + copy[i].flux - data[i].flux - copy[i].ferr);
-		    cpgdraw(copy[i].time-con, roff + copy[i].flux - data[i].flux + copy[i].ferr);
+        // make plot
+        if((nfile == 0 || nfile == 1) && device != "none" && device != "null"){
 
-		    cpgslw(3);
-		    cpgsci(3);
-		    cpgpt1(copy[i].time-con, roff + copy[i].flux - data[i].flux, 17);
-		}
-	    }
-	    if(noise == 0.0){
-		cpgsci(1);
-		cpgslw(5);
-		cpgmove(data[0].time-con, data[0].flux);
-		for(size_t i=1; i<data.size(); i++)
-		    cpgdraw(data[i].time-con, data[i].flux);
-	    }else{
-		for(size_t i=0; i<data.size(); i++){
-		    cpgsci(2);
-		    cpgmove(data[i].time-con, data[i].flux - data[i].ferr);
-		    cpgdraw(data[i].time-con, data[i].flux + data[i].ferr);
-		    cpgsci(3);
-		    cpgpt1(data[i].time-con, data[i].flux, 1);
-		}
-	    }
-	}
-	
-	// Write out to disk
-	if(nfile == 1){
-	    // note: noise will already have been added
-	    data.wrasc(sout);
-	    std::cout << "Written data to " << sout << std::endl;
-	}else{
-	    for(int n=0; n<nfile; n++){
-		// Add noise
-		for(size_t i=0; i<data.size(); i++)
-		    data[i].flux = fit[i] + data[i].ferr*Subs::gauss2(seed);
+            Subs::Plot plot(device);
+            if(device.find("/xs") != std::string::npos){
+                cpgscr(0,1,1,1);
+                cpgscr(1,0,0,0);
+            }
+            cpgscr(2,0.7,0,0);
+            cpgscr(3,0,0.6,0);
+            cpgscr(4,0,0,0.5);
+            cpgscr(5,0.7,0.7,0.7);
+            double x1, x2;
+            float y1, y2;
+            x1 = x2 = data[0].time;
+            y1 = data[0].flux - data[0].ferr;
+            y2 = data[0].flux + data[0].ferr;
+            for(size_t i=1; i<data.size(); i++){
+                x1 = data[i].time > x1 ? x1 : data[i].time;
+                x2 = data[i].time < x2 ? x2 : data[i].time;
+                y1 = data[i].flux - data[i].ferr > y1 ? y1 :
+                    data[i].flux - data[i].ferr;
+                y2 = data[i].flux + data[i].ferr < y2 ? y2 :
+                    data[i].flux + data[i].ferr;
+                if(!no_file){
+                    y1 = copy[i].flux - copy[i].ferr > y1 ? y1 :
+                        copy[i].flux - copy[i].ferr;
+                    y2 = copy[i].flux + copy[i].ferr < y2 ? y2 :
+                        copy[i].flux + copy[i].ferr;
+                    y1 = roff + copy[i].flux - data[i].flux - copy[i].ferr > y1 ? y1 : roff + copy[i].flux - data[i].flux - copy[i].ferr;
+                    y2 = roff + copy[i].flux - data[i].flux + copy[i].ferr < y2 ? y2 : roff + copy[i].flux - data[i].flux + copy[i].ferr;
+                }
+            }
+            double con = 0.;
+            if(x2-x1 < 0.01*Subs::abs((x1+x2)/2.)){
+                con = x1;
+                x1 -= con;
+                x2 -= con;
+            }
 
-		std::string outfile = sout + Subs::str(n+1, ndig);
-		data.wrasc(outfile);
-		std::cout << "Written data to " << outfile << std::endl;
-	    }
-	}
+            double range = x2-x1;
+            x1   -= range/10.;
+            x2   += range/10.;
+            range = y2-y1;
+            y1   -= range/10;
+            y2   += range/10;
+
+            cpgsch(1.5);
+            cpgscf(2);
+            cpgslw(4);
+            cpgenv(float(x1), float(x2), y1, y2, 0, 0);
+            std::string xlab = string("T - ") + Subs::str(con);
+            cpglab(xlab.c_str(), " ", " ");
+
+            if(!no_file){
+                cpgsch(0.8);
+                for(size_t i=0; i<copy.size(); i++){
+                    cpgsci(5);
+                    cpgslw(1);
+                    cpgmove(copy[i].time-con, copy[i].flux - copy[i].ferr);
+                    cpgdraw(copy[i].time-con, copy[i].flux + copy[i].ferr);
+
+                    cpgsci(3);
+                    cpgslw(3);
+                    cpgpt1(copy[i].time-con, copy[i].flux, 17);
+
+                    cpgsci(5);
+                    cpgslw(1);
+                    cpgmove(copy[i].time-con,
+                            roff + copy[i].flux - data[i].flux - copy[i].ferr);
+                    cpgdraw(copy[i].time-con,
+                            roff + copy[i].flux - data[i].flux + copy[i].ferr);
+
+                    cpgslw(3);
+                    cpgsci(3);
+                    cpgpt1(copy[i].time-con,
+                           roff + copy[i].flux - data[i].flux, 17);
+                }
+            }
+            if(noise == 0.0){
+                cpgsci(1);
+                cpgslw(5);
+                cpgmove(data[0].time-con, data[0].flux);
+                for(size_t i=1; i<data.size(); i++)
+                    cpgdraw(data[i].time-con, data[i].flux);
+            }else{
+                for(size_t i=0; i<data.size(); i++){
+                    cpgsci(2);
+                    cpgmove(data[i].time-con, data[i].flux - data[i].ferr);
+                    cpgdraw(data[i].time-con, data[i].flux + data[i].ferr);
+                    cpgsci(3);
+                    cpgpt1(data[i].time-con, data[i].flux, 1);
+                }
+            }
+        }
+
+        // Write out to disk
+        if(nfile == 1){
+            // note: noise will already have been added
+            data.wrasc(sout);
+            std::cout << "Written data to " << sout << std::endl;
+        }else{
+            for(int n=0; n<nfile; n++){
+                // Add noise
+                for(size_t i=0; i<data.size(); i++)
+                    data[i].flux = fit[i] + data[i].ferr*Subs::gauss2(seed);
+
+                std::string outfile = sout + Subs::str(n+1, ndig);
+                data.wrasc(outfile);
+                std::cout << "Written data to " << outfile << std::endl;
+            }
+        }
     }
     catch(const Lcurve::Lcurve_Error& err){
-	std::cerr << "Lcurve::Lcurve_Error exception thrown" << std::endl;
-	std::cerr << err << std::endl;
-	exit(EXIT_FAILURE);
+        std::cerr << "Lcurve::Lcurve_Error exception thrown" << std::endl;
+        std::cerr << err << std::endl;
+        exit(EXIT_FAILURE);
     }
     catch(const std::string& err){
-	std::cerr << err << std::endl;
-	exit(EXIT_FAILURE);
+        std::cerr << err << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
