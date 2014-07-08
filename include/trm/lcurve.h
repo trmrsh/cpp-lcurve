@@ -344,7 +344,10 @@ namespace Lcurve {
     //! Period
     Pparam period;
 
-    //! Period
+    //! Pdot term (third coeff of ephemeris)
+    Pparam pdot;
+
+    //! Roemer delay
     Pparam deltat;
 
     //! Gravity darkening coefficient 1
@@ -364,6 +367,9 @@ namespace Lcurve {
 
     //! Cubic term
     Pparam cube;
+
+    //! Third light fraction
+    Pparam third;
 
     //! Inner radius of disc
     Pparam rdisc1;

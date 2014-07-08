@@ -48,6 +48,7 @@ Lcurve::Model::Model(const std::string& file) {
     names["beam_factor2"]   = false;
     names["t0"]             = false;
     names["period"]         = false;
+    names["pdot"]           = false;
     names["deltat"]         = false;
     names["gravity_dark1"]  = false;
     names["gravity_dark2"]  = false;
@@ -55,6 +56,7 @@ Lcurve::Model::Model(const std::string& file) {
     names["slope"]          = false;
     names["quad"]           = false;
     names["cube"]           = false;
+    names["third"]          = false;
     names["rdisc1"]         = false;
     names["rdisc2"]         = false;
     names["height_disc"]    = false;
@@ -191,13 +193,17 @@ Lcurve::Model::Model(const std::string& file) {
     std::cerr << n << " lines read from " << file << std::endl;
 
     // Check that everything has been initialised, except for the star spots
-    // that do not have to be defined
+    // that do not have to be defined and a couple of recently added parameters
     bool ok = true;
     for(NIT nit=names.begin(); nit!=names.end(); nit++){
         if(!nit->second){
             if(nit->first.substr(0,4) != "stsp"){
                 std::cerr << nit->first << " was not defined " << std::endl;
                 ok = false;
+            }else if(nit->first == "pdot" || nit->first == "third"){
+                std::cerr << nit->first
+                          << " was not defined; will be set = 0" << std::endl;
+                pv[nit->first] = "0 1.e-10 1.e-10 0 0";
             }
         }
     }
@@ -227,6 +233,7 @@ Lcurve::Model::Model(const std::string& file) {
     beam_factor2     = Pparam(pv["beam_factor2"]);
     t0               = Pparam(pv["t0"]);
     period           = Pparam(pv["period"]);
+    pdot             = Pparam(pv["pdot"]);
     deltat           = Pparam(pv["deltat"]);
     gravity_dark1    = Pparam(pv["gravity_dark1"]);
     gravity_dark2    = Pparam(pv["gravity_dark2"]);
@@ -234,6 +241,7 @@ Lcurve::Model::Model(const std::string& file) {
     slope            = Pparam(pv["slope"]);
     quad             = Pparam(pv["quad"]);
     cube             = Pparam(pv["cube"]);
+    third            = Pparam(pv["third"]);
     rdisc1           = Pparam(pv["rdisc1"]);
     rdisc2           = Pparam(pv["rdisc2"]);
     height_disc      = Pparam(pv["height_disc"]);
@@ -362,6 +370,7 @@ int Lcurve::Model::nvary() const {
 
     if(t0.vary) n++;
     if(period.vary) n++;
+    if(pdot.vary) n++;
     if(deltat.vary) n++;
     if(gravity_dark1.vary) n++;
     if(gravity_dark2.vary) n++;
@@ -369,6 +378,7 @@ int Lcurve::Model::nvary() const {
     if(slope.vary) n++;
     if(quad.vary) n++;
     if(cube.vary) n++;
+    if(third.vary) n++;
 
     if(add_disc){
         if(rdisc1.vary) n++;
@@ -437,6 +447,7 @@ void Lcurve::Model::set_param(const Subs::Array1D<double>& vpar) {
 
     if(t0.vary)        t0.value                  = vpar[n++];
     if(period.vary)    period.value              = vpar[n++];
+    if(pdot.vary)      pdot.value                = vpar[n++];
     if(deltat.vary)    deltat.value              = vpar[n++];
     if(gravity_dark1.vary) gravity_dark1.value   = vpar[n++];
     if(gravity_dark2.vary) gravity_dark2.value   = vpar[n++];
@@ -444,6 +455,7 @@ void Lcurve::Model::set_param(const Subs::Array1D<double>& vpar) {
     if(slope.vary) slope.value                   = vpar[n++];
     if(quad.vary) quad.value                     = vpar[n++];
     if(cube.vary) cube.value                     = vpar[n++];
+    if(third.vary) third.value                   = vpar[n++];
 
     if(add_disc){
         if(rdisc1.vary) rdisc1.value                 = vpar[n++];
@@ -553,6 +565,9 @@ std::string Lcurve::Model::get_name(int i) const {
     if(period.vary)    n++;
     if(n == i) return "period";
 
+    if(pdot.vary)    n++;
+    if(n == i) return "pdot";
+
     if(deltat.vary)    n++;
     if(n == i) return "deltat";
 
@@ -573,6 +588,9 @@ std::string Lcurve::Model::get_name(int i) const {
 
     if(cube.vary) n++;
     if(n == i) return "cube";
+
+    if(third.vary) n++;
+    if(n == i) return "third";
 
     if(add_disc){
         if(rdisc1.vary) n++;
@@ -772,6 +790,8 @@ bool Lcurve::Model::is_not_legal(const Subs::Array1D<double>& vpar) const {
         n++;
     }
 
+    if(pdot.vary) n++;
+
     if(deltat.vary) {
         if(vpar[n] <= -1. || vpar[n] > 1.) return true;
         n++;
@@ -806,6 +826,8 @@ bool Lcurve::Model::is_not_legal(const Subs::Array1D<double>& vpar) const {
         if(vpar[n] < -2. || vpar[n] > 2.) return true;
         n++;
     }
+
+    if(third.vary) n++;
 
     if(add_disc){
 
@@ -978,6 +1000,7 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
 
     if(t0.vary) temp.push_back(t0.value);
     if(period.vary) temp.push_back(period.value);
+    if(pdot.vary) temp.push_back(pdot.value);
     if(deltat.vary) temp.push_back(deltat.value);
     if(gravity_dark1.vary) temp.push_back(gravity_dark1.value);
     if(gravity_dark2.vary) temp.push_back(gravity_dark2.value);
@@ -985,6 +1008,7 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
     if(slope.vary) temp.push_back(slope.value);
     if(quad.vary) temp.push_back(quad.value);
     if(cube.vary) temp.push_back(cube.value);
+    if(third.vary) temp.push_back(third.value);
 
     if(add_disc){
         if(rdisc1.vary) temp.push_back(rdisc1.value);
@@ -1067,6 +1091,7 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
 
     if(t0.vary) temp.push_back(t0.range);
     if(period.vary) temp.push_back(period.range);
+    if(pdot.vary) temp.push_back(pdot.range);
     if(deltat.vary) temp.push_back(deltat.range);
     if(gravity_dark1.vary) temp.push_back(gravity_dark1.range);
     if(gravity_dark2.vary) temp.push_back(gravity_dark2.range);
@@ -1074,6 +1099,7 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
     if(slope.vary) temp.push_back(slope.range);
     if(quad.vary) temp.push_back(quad.range);
     if(cube.vary) temp.push_back(cube.range);
+    if(third.vary) temp.push_back(third.range);
 
     if(add_disc){
         if(rdisc1.vary) temp.push_back(rdisc1.range);
@@ -1156,6 +1182,7 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
 
     if(t0.vary) temp.push_back(t0.dstep);
     if(period.vary) temp.push_back(period.dstep);
+    if(pdot.vary) temp.push_back(pdot.dstep);
     if(deltat.vary) temp.push_back(deltat.dstep);
     if(gravity_dark1.vary) temp.push_back(gravity_dark1.dstep);
     if(gravity_dark2.vary) temp.push_back(gravity_dark2.dstep);
@@ -1163,6 +1190,7 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
     if(slope.vary) temp.push_back(slope.dstep);
     if(quad.vary) temp.push_back(quad.dstep);
     if(cube.vary) temp.push_back(cube.dstep);
+    if(third.vary) temp.push_back(third.dstep);
 
     if(add_disc){
         if(rdisc1.vary) temp.push_back(rdisc1.dstep);
@@ -1235,6 +1263,7 @@ std::ostream& Lcurve::operator<<(std::ostream& s, const Model& model){
 
     s << "t0             = " << model.t0             << "\n";
     s << "period         = " << model.period         << "\n";
+    s << "pdot           = " << model.pdot           << "\n";
     s << "deltat         = " << model.deltat         << "\n";
     s << "gravity_dark1  = " << model.gravity_dark1  << "\n";
     s << "gravity_dark2  = " << model.gravity_dark2  << "\n";
@@ -1242,6 +1271,7 @@ std::ostream& Lcurve::operator<<(std::ostream& s, const Model& model){
     s << "slope          = " << model.slope          << "\n\n";
     s << "quad           = " << model.quad           << "\n\n";
     s << "cube           = " << model.cube           << "\n\n";
+    s << "third          = " << model.third          << "\n\n";
 
     s << "rdisc1         = " << model.rdisc1         << "\n";
     s << "rdisc2         = " << model.rdisc2         << "\n";

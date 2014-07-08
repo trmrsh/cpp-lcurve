@@ -141,8 +141,10 @@ requires the velocity_scale to be set.}
 !!head3 General
 
 !!table
-!!arg{t0}{Zero point of ephemeris, marking time of mid-eclipse (or in general superior conjunction) of star 1}
-!!arg{period}{Orbital period, same units as time.}
+!!arg{t0}{Zero point of ephemeris, marking time of mid-eclipse (or in general
+superior conjunction) of star 1, same units as times.}
+!!arg{period}{Orbital period, same units as times.}
+!!arg{pdot}{Quadratic coefficient of ephemeris, same units as times}
 !!arg{deltat}{Time shift between the primary and secondary eclipses to allow for small eccentricities and Roemer delays in the orbit. The 
 sign is defined such that deltat > 0 implies that the secondary eclipse suffers a delay compared to the primary compared to precisely 0.5 
 difference. deltat < 0 implies the secondary eclipse comes a little earlier than expected. Assuming that the "primary eclipse" is the eclipse 
@@ -162,6 +164,30 @@ as a result of e.g. airmass effects. The fit is multiplied by
 (1+x*(slope+x*(quad+x*cube))) where x is the time scaled so that it varies 
 from -1 to 1 from start to end of the data. One should expect these number
 to have absolute value << 1.}  
+!!arg{third}{Third light contribution. Simply adds to whatever flux is
+calculated and will be subject to auto-scaling like other flux. It only 
+applies if global scaling rather than individual component scaling is used.
+Third light is assumed strictly constant and is not subject to the slope, 
+quad, cube parameters.}
+!!table
+
+!!head3 Spots
+
+One spot allowed on each star (with some expectation than number may be increased if need be in the future):
+
+!!table
+!!arg{stsp11_long}{Longitude (degrees) of spot 1 on star 1, relative to
+meridian defined by line of centres}
+!!arg{stsp11_lat}{Latitude (degrees) of spot 1 on star 1}
+!!arg{stsp11_lat}{FWHM (degrees) of spot 1 on star 1, as seen from its centre
+of mass. Spot has gaussian distribution of temperature.}
+!!arg{stsp11_tcen}{Central temp (K) of spot 1 on star 1}
+!!arg{stsp21_long}{Longitude (degrees) of spot 1 on star 2, relative to
+meridian defined by line of centres}
+!!arg{stsp21_lat}{Latitude (degrees) of spot 1 on star 2}
+!!arg{stsp21_lat}{FWHM (degrees) of spot 1 on star 2, as seen from its centre
+of mass. Spot has gaussian distribution of temperature.}
+!!arg{stsp21_tcen}{Central temp (K) of spot 1 on star 2}
 !!table
 
 !!head3 Disc
@@ -264,13 +290,18 @@ advise setting it = 0 unless you really know what you are doing as it leads to d
 effet of gray scattering}
 !!arg{add_disc}{Add a disc or not}
 !!arg{opaque}{Make disc opaque or not}
-!!arg{iscale}{Individually scale the separate components or not. If set the each component, star 1, star 2, disc and
-bright spot will be individually scaled to minimise chi**2. Otherwise a single overall factor will be computed. NB
-If you set this parameter then all temperature parameters (white dwarf, secondary, disc and bright spot) must be held
-fixed otherwise near-total degeneracy will result. The only reason it is not total is because of reflection effect from
-irradiation of the secondary by the white dwarf, but this is often very feeble and will not help, so, you have been warned.
-Scaling should in general lead to faster convergence than not scaling. You may have some cases where you do not want to
-include any secondary star component. You can do this by setting t2 < 0.}
+!!arg{iscale}{Individually scale the separate components or not. If set the
+each component, star 1, star 2, disc and bright spot will be individually
+scaled to minimise chi**2. Otherwise a single overall factor will be computed.
+NB If you set this parameter then all temperature parameters (white dwarf,
+secondary, disc and bright spot) must be held fixed otherwise near-total
+degeneracy will result. The only reason it is not total is because of
+reflection effect from irradiation of the secondary by the white dwarf, but
+this is often very feeble and will not help, so, you have been warned.
+Scaling should in general lead to faster convergence than not scaling.
+You may have some cases where you do not want to include any secondary
+star component. You can do this by setting t2 < 0. Note that if this is set
+true, then the third light parameter will be ignored.}
 !!table
 
 !!end
