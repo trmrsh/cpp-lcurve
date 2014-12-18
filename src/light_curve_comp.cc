@@ -218,7 +218,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
 
       // Compute phase, accounting for quadratic term
       double phase  = (data[np].time-mdl.t0)/mdl.period;
-      phase -= mdl.pdot*phase*phase;
+      phase -= mdl.pdot*phase*phase/mdl.period;
 
       // advance/retard by time offset between primary & secondary eclipse
       phase += mdl.deltat/mdl.period/2.*(std::cos(2.*Constants::PI*phase)-1.);
