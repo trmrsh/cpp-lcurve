@@ -41,8 +41,9 @@ parser.add_argument('-d', dest='dmax', type=float, default=1,
 # OK, done with arguments.
 args = parser.parse_args()
 
-model = args.model.name
-data  = args.data.name
+model  = args.model.name
+data   = args.data.name
+
 args.model.close()
 args.data.close()
 
