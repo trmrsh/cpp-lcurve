@@ -75,26 +75,24 @@ value, a range of plausible variation and a step size for derivative computation
 be varied and just have a value. !!emph{lroche} ignores the variable/non-variable distinction which are for the fitting
 routines such as !!ref{levmarq.html}{levmarq}. The parameter file consists of a series of lines such as:
 <pre>
-q      =  0.12  0.01 0.0001 0 
-iangle =  82    2    0.01   1
-r1     =  0.17  0.05 0.001  1
+q      =  0.12  0.01 0.0001 0 1
+iangle =  82    2    0.01   1 1
+r1     =  0.17  0.05 0.001  1 1
 .
 .
 .
 etc
 
-delta_phase = 1.e-7
-.
-.
-.
-etc
-</pre>
-etc. The above would mean that q is not to be varied (0 at the end), but iangle and r1 are. For !!ref{simplex.html}{simplex}, 
-!!ref{genetic.html}{genetic}, !!ref{simann.html}{simann} and !!ref{powell.html}{powell} the second parameter specifies
-the range over which to vary the respective parameter (i.e. 0.01, 2 and 0.05 in this case), while the third parameter
-is used by !!ref{levmarq.html}{levmarq} to compute numerical derivatives using finite differences. Be careful to set this small 
-enough to give accurate derivatives but not so small that roundoff will be problematic. It should at a minimum be smaller than the
-uncertainty in any parameter.
+delta_phase = 1.e-7 .  .  .  etc </pre> etc. The above would mean that q is
+not to be varied (0 as the penultimate value), but iangle and r1 are. For
+!!ref{simplex.html}{simplex}, !!ref{genetic.html}{genetic},
+!!ref{simann.html}{simann} and !!ref{powell.html}{powell} the second parameter
+specifies the range over which to vary the respective parameter (i.e. 0.01, 2
+and 0.05 in this case), while the third parameter is used by
+!!ref{levmarq.html}{levmarq} to compute numerical derivatives using finite
+differences. Be careful to set this small enough to give accurate derivatives
+but not so small that roundoff will be problematic. It should, at a minimum, be
+smaller than the uncertainty in any parameter. The final integer is a relatively recent addition which specifies whether a given parameter is used at all and is designed for the star spot parameters.
 
 Here is the full list of parameters.
 
@@ -173,7 +171,8 @@ quad, cube parameters.}
 
 !!head3 Spots
 
-One spot allowed on each star (with some expectation than number may be increased if need be in the future):
+One spot allowed on each star (with some expectation that the
+number may be increased if need be in the future):
 
 !!table
 !!arg{stsp11_long}{Longitude (degrees) of spot 1 on star 1, relative to
