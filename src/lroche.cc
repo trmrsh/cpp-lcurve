@@ -131,7 +131,7 @@ not usually let it be free, but you might want to if you have independent K1 or 
 !!arg{beam_factor1}{The factor to use for Doppler beaming from star 1. This corresponds to the factor (3-alpha)
 that multiplies -v_r/c in the standard beaming formula where alpha is related to the spectral shape. Use of this parameter
 requires the velocity_scale to be set.}
-!!arg{beam_factor1}{The factor to use for Doppler beaming from star 2. This corresponds to the factor (3-alpha)
+!!arg{beam_factor2}{The factor to use for Doppler beaming from star 2. This corresponds to the factor (3-alpha)
 that multiplies -v_r/c in the standard beaming formula where alpha is related to the spectral shape. Use of this parameter
 requires the velocity_scale to be set.}
 !!table
@@ -220,14 +220,6 @@ Measured as an angle in the same sense as angle_spot. 0 means standard perpendic
 !!arg{tilt_spot}{Allows spot to be other than perpendicular to the disc. 90 = perpendicular. If less than 90 then the
 spot is visible for more than half a cycle.}
 !!arg{cfrac_spot}{The fraction of the spot taken to be equally visible at all phases, i.e. pointing upwards.}
-
-!!arg{beta_disc}{Exponent of power law in radius of disc. Should be >= 1 to make concave disc; convex will not eclipse
-properly.}
-!!arg{temp_disc}{Temperature of outer part of disc. This is no more than a flux normalisation parameter but it s easier to think in
-terms of temperature}
-!!arg{texp_disc}{Exponent of surface brightness over disc}
-!!arg{lin_limb_disc}{Linear limb darkening coefficient of the disc}
-!!arg{quad_limb_disc}{Quadratic limb darkening coefficient of the disc}
 !!table
 
 !!head2 Computational parameters
