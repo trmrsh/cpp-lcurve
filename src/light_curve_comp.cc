@@ -187,7 +187,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
       }
       catch(const Roche::Roche_Error& rerr){
           spot.clear();
-          std::cerr << rerr << std::endl;
+          std::cerr << rerr.what() << std::endl;
           std::cerr << "Calculation will continue with no bright-spot but you may want to fix this" << std::endl;
       }
   }
