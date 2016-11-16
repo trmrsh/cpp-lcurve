@@ -588,6 +588,11 @@ int main(int argc, char* argv[]){
         std::cerr << err << std::endl;
         exit(EXIT_FAILURE);
     }
+    catch(const Roche::Roche_Error& err){
+        std::cerr << "Roche::Roche_Error exception thrown" << std::endl;
+        std::cerr << err.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
     catch(const std::string& err){
         std::cerr << err << std::endl;
         exit(EXIT_FAILURE);
