@@ -583,18 +583,22 @@ int main(int argc, char* argv[]){
             }
         }
     }
+    catch(const Roche::Roche_Error& err){
+        std::cerr << "Roche::Roche_Error exception thrown" << std::endl;
+        std::cerr << "lroche: " << err.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
     catch(const Lcurve::Lcurve_Error& err){
         std::cerr << "Lcurve::Lcurve_Error exception thrown" << std::endl;
         std::cerr << err << std::endl;
         exit(EXIT_FAILURE);
     }
-    catch(const Roche::Roche_Error& err){
-        std::cerr << "Roche::Roche_Error exception thrown" << std::endl;
-        std::cerr << err.what() << std::endl;
-        exit(EXIT_FAILURE);
-    }
     catch(const std::string& err){
         std::cerr << err << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    catch(...){
+        std::cerr << "Unknown exception caught in lroche" << std::endl;
         exit(EXIT_FAILURE);
     }
 }
