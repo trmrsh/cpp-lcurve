@@ -43,10 +43,10 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
   // of 4 saves multiplication in the innermost loops later
   double rlens1 = 0.;
   if(mdl.glens1){
-    // Compute G(M1+M2), SI, and the separation a, SI.
-    double gm = std::pow(1000.*mdl.velocity_scale,3)*mdl.tperiod*Constants::DAY/Constants::TWOPI;
-    double a  = std::pow(gm/Subs::sqr(Constants::TWOPI/Constants::DAY/mdl.tperiod),1./3.);
-    rlens1    = 4.*gm/(1.+mdl.q)/a/Subs::sqr(Constants::C);
+      // Compute G(M1+M2), SI, and the separation a, SI.
+      double gm = std::pow(1000.*mdl.velocity_scale,3)*mdl.tperiod*Constants::DAY/Constants::TWOPI;
+      double a = std::pow(gm/Subs::sqr(Constants::TWOPI/Constants::DAY/mdl.tperiod),1./3.);
+      rlens1 = 4.*gm/(1.+mdl.q)/a/Subs::sqr(Constants::C);
   }
 
   // Generate arrays over each star's face. Fine grids first:
@@ -62,25 +62,27 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
   // Now coarse grids
   Subs::Buffer1D<Point> star1c;
   if(mdl.nlat1f == mdl.nlat1c){
-    star1c = star1f;
+      star1c = star1f;
   }else{
-    set_star_grid(mdl, Roche::PRIMARY, false, star1c);
+      set_star_grid(mdl, Roche::PRIMARY, false, star1c);
   }
   if(info) std::cerr << "Number of points for star 1 (coarse) = "
                      << star1c.size() << std::endl;
 
-  bool copy2 = mdl.nlat2f == mdl.nlat2c && (!mdl.npole || r1 >= r2 || (mdl.nlatfill == 0 && mdl.nlngfill == 0));
+  bool copy2 = mdl.nlat2f == mdl.nlat2c &&
+      (!mdl.npole || r1 >= r2 || (mdl.nlatfill == 0 && mdl.nlngfill == 0));
+
   Subs::Buffer1D<Point> star2c;
   if(copy2){
-    star2c = star2f;
+      star2c = star2f;
   }else{
-    set_star_grid(mdl, Roche::SECONDARY, false, star2c);
+      set_star_grid(mdl, Roche::SECONDARY, false, star2c);
   }
   if(info) std::cerr << "Number of points for star 2 (coarse) = "
                      << star2c.size() << std::endl;
 
   if(mdl.nlat1c != mdl.nlat1f || !copy2)
-    set_star_continuum(mdl, star1c, star2c);
+      set_star_continuum(mdl, star1c, star2c);
 
   // Work out grid switching parameters
   Ginterp gint;
@@ -181,16 +183,8 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
 
   }
 
-  if(mdl.add_spot){
-      try{
-          Lcurve::set_bright_spot_grid(mdl, spot);
-      }
-      catch(const Roche::Roche_Error& rerr){
-          spot.clear();
-          std::cerr << rerr.what() << std::endl;
-          std::cerr << "Calculation will continue with no bright-spot but you may want to fix this" << std::endl;
-      }
-  }
+  // This could raise an exception for bad parameters.
+  if(mdl.add_spot) Lcurve::set_bright_spot_grid(mdl, spot);
 
   // polynomial fudge factor stuff: slope, quad, cube
   double xmin = data[0].time, xmax = data[0].time;
@@ -224,7 +218,6 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
           phase -= (mdl.t0+phase*(mdl.period+mdl.pdot*phase)-data[np].time)/
               (mdl.period+2.*mdl.pdot*phase);
       }
-
 
       // advance/retard by time offset between primary & secondary eclipse
       phase += mdl.deltat/mdl.period/2.*(std::cos(2.*Constants::PI*phase)-1.);
