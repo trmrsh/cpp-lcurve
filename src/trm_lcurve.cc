@@ -365,6 +365,7 @@ int Lcurve::Model::nvary() const {
     if(ldc2_2.vary) n++;
     if(ldc2_3.vary) n++;
     if(ldc2_4.vary) n++;
+    if(velocity_scale.vary) n++;
     if(beam_factor1.vary) n++;
     if(beam_factor2.vary) n++;
 
@@ -442,6 +443,7 @@ void Lcurve::Model::set_param(const Subs::Array1D<double>& vpar) {
     if(ldc2_2.vary)    ldc2_2.value              = vpar[n++];
     if(ldc2_3.vary)    ldc2_3.value              = vpar[n++];
     if(ldc2_4.vary)    ldc2_4.value              = vpar[n++];
+    if(velocity_scale.vary) velocity_scale.value = vpar[n++];
     if(beam_factor1.vary) beam_factor1.value     = vpar[n++];
     if(beam_factor2.vary) beam_factor2.value     = vpar[n++];
 
@@ -552,6 +554,9 @@ std::string Lcurve::Model::get_name(int i) const {
 
     if(ldc2_4.vary) n++;
     if(n == i) return "ldc2_4";
+
+    if(velocity_scale.vary)   n++;
+    if(n == i) return "velocity_scale";
 
     if(beam_factor1.vary)   n++;
     if(n == i) return "beam_factor1";
@@ -779,6 +784,8 @@ bool Lcurve::Model::is_not_legal(const Subs::Array1D<double>& vpar) const {
         n++;
     }
 
+    if(velocity_scale.vary) n++;
+
     if(beam_factor1.vary) n++;
 
     if(beam_factor2.vary) n++;
@@ -995,6 +1002,7 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
     if(ldc2_2.vary) temp.push_back(ldc2_2.value);
     if(ldc2_3.vary) temp.push_back(ldc2_3.value);
     if(ldc2_4.vary) temp.push_back(ldc2_4.value);
+    if(velocity_scale.vary) temp.push_back(velocity_scale.value);
     if(beam_factor1.vary) temp.push_back(beam_factor1.value);
     if(beam_factor2.vary) temp.push_back(beam_factor2.value);
 
@@ -1086,6 +1094,7 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
     if(ldc2_2.vary) temp.push_back(ldc2_2.range);
     if(ldc2_3.vary) temp.push_back(ldc2_3.range);
     if(ldc2_4.vary) temp.push_back(ldc2_4.range);
+    if(velocity_scale.vary) temp.push_back(velocity_scale.range);
     if(beam_factor1.vary) temp.push_back(beam_factor1.range);
     if(beam_factor2.vary) temp.push_back(beam_factor2.range);
 
@@ -1177,6 +1186,7 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
     if(ldc2_2.vary) temp.push_back(ldc2_2.dstep);
     if(ldc2_3.vary) temp.push_back(ldc2_3.dstep);
     if(ldc2_4.vary) temp.push_back(ldc2_4.dstep);
+    if(velocity_scale.vary) temp.push_back(velocity_scale.dstep);
     if(beam_factor1.vary) temp.push_back(beam_factor1.dstep);
     if(beam_factor2.vary) temp.push_back(beam_factor2.dstep);
 
