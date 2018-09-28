@@ -263,8 +263,8 @@ Lcurve::Model::Model(const std::string& file) {
 
     // star-spot parameters need not have been defined, but
     // if one of a group has, then all of them should be
-    if(names["stsp11_long"] || names["stsp11_lat"] || names["stsp11_fwhm"] ||
-       names["stsp11_tcen"]){
+    if(names["stsp11_long"] || names["stsp11_lat"] ||
+       names["stsp11_fwhm"] || names["stsp11_tcen"]){
         if(!(names["stsp11_long"] && names["stsp11_lat"] &&
              names["stsp11_fwhm"] && names["stsp11_tcen"]))
             throw Lcurve_Error("One or more of the star spot 11 parameters were not initialised");
@@ -274,8 +274,8 @@ Lcurve::Model::Model(const std::string& file) {
         stsp11_tcen = Pparam(pv["stsp11_tcen"]);
     }
 
-    if(names["stsp21_long"] || names["stsp21_lat"] || names["stsp21_fwhm"] ||
-       names["stsp21_tcen"]){
+    if(names["stsp21_long"] || names["stsp21_lat"] ||
+       names["stsp21_fwhm"] || names["stsp21_tcen"]){
         if(!(names["stsp21_long"] && names["stsp21_lat"] &&
              names["stsp21_fwhm"] && names["stsp21_tcen"]))
             throw Lcurve_Error("One or more of the star spot 11 parameters were not initialised");
@@ -285,25 +285,27 @@ Lcurve::Model::Model(const std::string& file) {
         stsp21_tcen = Pparam(pv["stsp21_tcen"]);
     }
 
-    delta_phase      = Subs::string_to_double(pv["delta_phase"]);
-    nlat1f           = Subs::string_to_int(pv["nlat1f"]);
-    nlat2f           = Subs::string_to_int(pv["nlat2f"]);
-    nlat1c           = Subs::string_to_int(pv["nlat1c"]);
-    nlat2c           = Subs::string_to_int(pv["nlat2c"]);
-    npole            = Subs::string_to_bool(pv["npole"]);
-    nlatfill         = Subs::string_to_int(pv["nlatfill"]);
-    nlngfill         = Subs::string_to_int(pv["nlngfill"]);
-    lfudge           = Subs::string_to_double(pv["lfudge"]);
-    llo              = Subs::string_to_double(pv["llo"]);
-    lhi              = Subs::string_to_double(pv["lhi"]);
-    phase1           = Subs::string_to_double(pv["phase1"]);
-    phase2           = Subs::string_to_double(pv["phase2"]);
-    wavelength       = Subs::string_to_double(pv["wavelength"]);
-    roche1           = Subs::string_to_bool(pv["roche1"]);
-    roche2           = Subs::string_to_bool(pv["roche2"]);
-    eclipse1         = Subs::string_to_bool(pv["eclipse1"]);
-    eclipse2         = Subs::string_to_bool(pv["eclipse2"]);
-    glens1           = Subs::string_to_bool(pv["glens1"]);
+    delta_phase = Subs::string_to_double(pv["delta_phase"]);
+    nlat1f = Subs::string_to_int(pv["nlat1f"]);
+    nlat2f = Subs::string_to_int(pv["nlat2f"]);
+    nlat1c = Subs::string_to_int(pv["nlat1c"]);
+    nlat2c = Subs::string_to_int(pv["nlat2c"]);
+    npole = Subs::string_to_bool(pv["npole"]);
+
+    nlatfill = Subs::string_to_int(pv["nlatfill"]);
+    nlngfill = Subs::string_to_int(pv["nlngfill"]);
+    lfudge = Subs::string_to_double(pv["lfudge"]);
+    llo = Subs::string_to_double(pv["llo"]);
+    lhi = Subs::string_to_double(pv["lhi"]);
+    phase1 = Subs::string_to_double(pv["phase1"]);
+    phase2 = Subs::string_to_double(pv["phase2"]);
+    wavelength = Subs::string_to_double(pv["wavelength"]);
+
+    roche1 = Subs::string_to_bool(pv["roche1"]);
+    roche2 = Subs::string_to_bool(pv["roche2"]);
+    eclipse1 = Subs::string_to_bool(pv["eclipse1"]);
+    eclipse2 = Subs::string_to_bool(pv["eclipse2"]);
+    glens1 = Subs::string_to_bool(pv["glens1"]);
     if(glens1 && roche1)
       throw Lcurve_Error("For reasons of simplicity, glens1 = 1 and roche1 = 1 are not simultaneously allowed");
     use_radii        = Subs::string_to_bool(pv["use_radii"]);

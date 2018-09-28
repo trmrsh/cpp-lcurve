@@ -48,7 +48,8 @@ args.model.close()
 args.data.close()
 
 # compute lightcurve to set the scaling factor
-print '\nComputing model light curve ...\n'
+print('\nComputing model light curve ...\n')
+
 subprocess.call([lroche,model,data,'0','12345','1','junk.dat','/null','yes'])
 
 # read result
@@ -64,13 +65,13 @@ for i, line in enumerate(lines):
         tindex = i
         break
 else:
-    print 'Failed to find t0 line'
+    print('Failed to find t0 line')
     exit(1)
 
 arr = lines[tindex].split()
 
 # perturb t0 by adding delta to it
-print '\nPerturbing t0 to t0+delta ...\n'
+print('\nPerturbing t0 to t0+delta ...\n')
 lines[tindex] = '%s = %17.11f %s %s %s\n' % (arr[0],float(arr[2])+args.delta,arr[3],arr[4],arr[5])
 
 # write out
@@ -83,8 +84,9 @@ subprocess.call([lroche,'junk.mod',data,'0','12345','1','junk.dat','/null','no',
 # read in result
 lcp = np.loadtxt('junk.dat')
 
-# perturn by subtracting delta
-print '\nPerturbing t0 to t0-delta ...\n'
+# perturb by subtracting delta
+print('\nPerturbing t0 to t0-delta ...\n')
+
 lines[tindex] = '%s = %17.11f %s %s %s\n' % (arr[0],float(arr[2])-args.delta,arr[3],arr[4],arr[5])
 
 with open('junk.mod','w') as fp:
@@ -102,12 +104,12 @@ lc = np.loadtxt(data)
 
 # rcompute chi**2
 rchisq = (((lc[:,2]-mod[:,2])/lc[:,3])**2).sum()/(len(lc[:,2])-1)
-print 'Reduced chisq =',rchisq
+print('Reduced chisq =',rchisq)
 
 # compute lower limit to uncertainty on t0
 sigma = 1./np.sqrt(((deriv/lc[:,3])**2).sum())
-print '\n>> Estimated minimum uncertainty in t0  =',sigma
-print '>> and after scaling reduced chisq to 1 =',sigma*np.sqrt(rchisq)
+print('\n>> Estimated minimum uncertainty in t0  =',sigma)
+print('>> and after scaling reduced chisq to 1 =',sigma*np.sqrt(rchisq))
 
 
 deriv /= np.max(np.abs(deriv))*args.dmax
