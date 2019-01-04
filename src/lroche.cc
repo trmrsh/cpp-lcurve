@@ -521,7 +521,7 @@ int main(int argc, char* argv[]){
             cpgscf(2);
             cpgslw(4);
             cpgenv(float(x1), float(x2), y1, y2, 0, 0);
-            std::string xlab = string("T - ") + Subs::str(con);
+            std::string xlab = std::string("T - ") + Subs::str(con);
             cpglab(xlab.c_str(), " ", " ");
 
             if(!no_file){
