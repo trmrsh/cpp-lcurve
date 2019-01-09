@@ -13,7 +13,7 @@ AC_DEFUN([TRM_LIB_PGPLOT],
 
   AC_CHECK_HEADERS([cpgplot.h], [], AC_MSG_ERROR([PGPLOT header not found; please fix.]))
 
-  usual_libs="-lcpgplot -lpgplot -L/usr/X11R6/lib -lX11 -lpng -lz"
+  usual_libs="-lcpgplot -lpgplot -L/usr/X11R6/lib -lX11"
 
   save_libs="$LIBS"
 
