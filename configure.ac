@@ -46,11 +46,11 @@ dnl Third-party software
 
 AC_CHECK_HEADERS([stdlib.h float.h math.h sstream string fstream iostream], [], AC_MSG_ERROR(missing header; please fix))
 
-AC_CHECK_HEADERS([pcrecpp.h slalib.h], [], AC_MSG_ERROR(missing header; please fix))
+AC_CHECK_HEADERS([slalib.h], [], AC_MSG_ERROR(missing header; please fix))
 
 AC_CHECK_LIB([csla], [main], [], AC_MSG_ERROR(cannot find the sla C library))
 
-AC_CHECK_LIB([pcrecpp], [main], [], AC_MSG_ERROR(cannot find the pcre C++ library))
+PKG_CHECK_MODULES([PCRECPP], [libpcrecpp], [], AC_MSG_ERROR(cannot locate the pcrecpp library and / or header files))
 
 dnl PGPLOT has its own macro 'cos its a pain
 TRM_LIB_PGPLOT
@@ -60,4 +60,4 @@ AC_PROG_INSTALL
 
 dnl The Makefiles to create
 
-AC_OUTPUT([Makefile include/Makefile src/Makefile doc/Makefile]) 
+AC_OUTPUT([Makefile include/Makefile src/Makefile doc/Makefile])

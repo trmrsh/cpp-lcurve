@@ -37,7 +37,9 @@ simplex_LDFLAGS  = -fopenmp
 visualise_SOURCES = visualise.cc numface.cc set_star_grid.cc set_disc_grid.cc trm_lcurve.cc light_curve_comp.cc re_scale.cc set_star_continuum.cc \
 comp_light.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc
 
-INCLUDES = -I../include
+AM_CPPFLAGS = -I../include $(PCRECPP_CPPFLAGS)
+
+LDADD = $(PCRECPP_LIBS)
 
 DATE = $(shell date)
 
