@@ -13,12 +13,12 @@ set_star_continuum.cc re_scale.cc set_disc_grid.cc set_bright_spot_grid.cc set_d
 
 levmarq_SOURCES = levmarq.cc trm_lcurve.cc set_star_grid.cc comp_light.cc set_star_continuum.cc numface.cc light_curve_comp.cc re_scale.cc \
 set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc
-levmarq_CPPFLAGS = -fopenmp
+levmarq_CPPFLAGS = -fopenmp -I../include
 levmarq_LDFLAGS  = -fopenmp
 
 lroche_SOURCES = lroche.cc numface.cc set_star_grid.cc set_star_continuum.cc comp_light.cc trm_lcurve.cc light_curve_comp.cc re_scale.cc \
 set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc
-lroche_CPPFLAGS = -fopenmp
+lroche_CPPFLAGS = -fopenmp -I../include
 lroche_LDFLAGS  = -fopenmp
 
 lroches_SOURCES = lroche.cc numface.cc set_star_grid.cc set_star_continuum.cc comp_light.cc trm_lcurve.cc light_curve_comp.cc re_scale.cc \
@@ -31,7 +31,7 @@ comp_light.cc set_disc_grid.cc star_eclipse.cc set_disc_continuum.cc set_bright_
 
 simplex_SOURCES = simplex.cc trm_lcurve.cc set_star_grid.cc comp_light.cc set_star_continuum.cc numface.cc light_curve_comp.cc re_scale.cc \
 set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc
-simplex_CPPFLAGS = -fopenmp
+simplex_CPPFLAGS = -fopenmp -I../include
 simplex_LDFLAGS  = -fopenmp
 
 visualise_SOURCES = visualise.cc numface.cc set_star_grid.cc set_disc_grid.cc trm_lcurve.cc light_curve_comp.cc re_scale.cc set_star_continuum.cc \
