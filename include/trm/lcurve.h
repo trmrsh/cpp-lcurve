@@ -239,10 +239,11 @@ namespace Lcurve {
   };
 
   //! Model structure
-  /** Defines the model to be used and which parameters are to be varied in the fit.
-   * The order of the paremeters here defines the order in which they must occur in any
-   * parameter vector to be fed to a generic minimisation routine such as amoeba.
-   * Star 1 is taken to be spherical. Star 2 can be tidally distorted.
+  /** Defines the model to be used and which parameters are to be
+   * varied in the fit.  The order of the paremeters here defines the
+   * order in which they must occur in any parameter vector to be fed
+   * to a generic minimisation routine such as amoeba.  Star 1 is
+   * taken to be spherical. Star 2 can be tidally distorted.
    */
   struct Model {
 
@@ -394,6 +395,12 @@ namespace Lcurve {
 
     //! Quadratic limb darkening of disc
     Pparam quad_limb_disc;
+
+    //! Temperature of disc edge
+    Pparam temp_edge;
+
+    //! Reprocessing parameter at edge
+    Pparam absorb_edge;
 
     //! Distance of bright spot from white dwarf
     Pparam radius_spot;
@@ -694,59 +701,98 @@ namespace Lcurve {
   void set_bright_spot_grid(const Model& mdl, Subs::Buffer1D<Lcurve::Point>& spot);
   
   //! Computes elements at rim of disc
-  void set_disc_edge(const Model& mdl, bool outer, Subs::Buffer1D<Lcurve::Point>& edge);
+  void set_disc_edge(const Model& mdl, bool outer,
+		     Subs::Buffer1D<Lcurve::Point>& edge,
+		     bool visual=true);
 
   //! Sets the continuum element contributions
-  void set_star_continuum(const Model& mdl, Subs::Buffer1D<Lcurve::Point>& star1, Subs::Buffer1D<Lcurve::Point>& star2);
+  void set_star_continuum(const Model& mdl,
+			  Subs::Buffer1D<Lcurve::Point>& star1,
+			  Subs::Buffer1D<Lcurve::Point>& star2);
 
   //! Sets the disc continuum brightness.
-  void set_disc_continuum(double rdisc, double tdisc, double texp, double wave, Subs::Buffer1D<Lcurve::Point>& disc);
+  void set_disc_continuum(double rdisc, double tdisc, double texp,
+			  double wave, Subs::Buffer1D<Lcurve::Point>& disc);
+
+  //! Sets the disc edge continuum brightness.
+  void set_edge_continuum(double tedge, double r2, double t2,
+			  double absorb, double wave,
+			  Subs::Buffer1D<Lcurve::Point>& edge);
 
   //! Sets the emission line brightness
-  void set_star_emission(double limb2, double hbyr, const Subs::Buffer1D<Lcurve::Point>& star2, Subs::Buffer1D<float>& bright2);
+  void set_star_emission(double limb2, double hbyr,
+			 const Subs::Buffer1D<Lcurve::Point>& star2,
+			 Subs::Buffer1D<float>& bright2);
 
   //! Computes the flux at a given phase
-  double comp_light(double iangle, const LDC& ldc1, const LDC& ldc2, double lin_limb_disc, double quad_limb_disc, 
-		    double phase, double expose, int ndiv, double q, double beam_factor1, double beam_factor2, 
-		    double spin1, double spin2, float vscale, bool glens1, double rlens1, const Ginterp& gint, 
-		    const Subs::Buffer1D<Lcurve::Point>& star1f, const Subs::Buffer1D<Lcurve::Point>& star2f,
-		    const Subs::Buffer1D<Lcurve::Point>& star1c, const Subs::Buffer1D<Lcurve::Point>& star2c,
-		    const Subs::Buffer1D<Lcurve::Point>& disc, const Subs::Buffer1D<Lcurve::Point>& spot);
+  double comp_light(double iangle, const LDC& ldc1, const LDC& ldc2,
+		    double lin_limb_disc, double quad_limb_disc, 
+		    double phase, double expose, int ndiv, double q,
+		    double beam_factor1, double beam_factor2, 
+		    double spin1, double spin2, float vscale, bool glens1,
+		    double rlens1, const Ginterp& gint, 
+		    const Subs::Buffer1D<Lcurve::Point>& star1f,
+		    const Subs::Buffer1D<Lcurve::Point>& star2f,
+		    const Subs::Buffer1D<Lcurve::Point>& star1c,
+		    const Subs::Buffer1D<Lcurve::Point>& star2c,
+		    const Subs::Buffer1D<Lcurve::Point>& disc,
+		    const Subs::Buffer1D<Lcurve::Point>& edge,
+		    const Subs::Buffer1D<Lcurve::Point>& spot);
 
   //! Computes flux from star 1 only
-  double comp_star1(double iangle, const LDC& ldc1, double phase, double expose, 
-		    int ndiv, double q, double beam_factor1, float vscale,  const Ginterp& gint, 
-		    const Subs::Buffer1D<Lcurve::Point>& star1f, const Subs::Buffer1D<Lcurve::Point>& star1c);
+  double comp_star1(double iangle, const LDC& ldc1, double phase,
+		    double expose, int ndiv, double q, double beam_factor1,
+		    float vscale,  const Ginterp& gint, 
+		    const Subs::Buffer1D<Lcurve::Point>& star1f,
+		    const Subs::Buffer1D<Lcurve::Point>& star1c);
 
   //! Computes flux from star 2 only
-  double comp_star2(double iangle, const LDC& ldc2, double phase, double expose, 
-		    int ndiv, double q, double beam_factor2, float vscale, bool glens1, double rlens1, const Ginterp& gint,
-		    const Subs::Buffer1D<Lcurve::Point>& star2f, const Subs::Buffer1D<Lcurve::Point>& star2c);
+  double comp_star2(double iangle, const LDC& ldc2, double phase,
+		    double expose, int ndiv, double q, double beam_factor2,
+		    float vscale, bool glens1, double rlens1,
+		    const Ginterp& gint,
+		    const Subs::Buffer1D<Lcurve::Point>& star2f,
+		    const Subs::Buffer1D<Lcurve::Point>& star2c);
 
   //! Computes flux from disc
-  double comp_disc(double iangle, double lin_limb_disc, double quad_limb_disc, double phase, double expose, 
-		   int ndiv, double q, float vscale, const Subs::Buffer1D<Lcurve::Point>& disc);
+  double comp_disc(double iangle, double lin_limb_disc, double quad_limb_disc,
+		   double phase, double expose, int ndiv, double q,
+		   float vscale, const Subs::Buffer1D<Lcurve::Point>& disc);
+
+  //! Computes flux from disc edge
+  double comp_edge(double iangle, double lin_limb_disc, double quad_limb_disc,
+		   double phase, double expose, int ndiv, double q,
+		   float vscale, const Subs::Buffer1D<Lcurve::Point>& edge);
 
   //! Compute flux from spot
-  double comp_spot(double iangle,double phase, double expose, int ndiv, double q, float vscale,
+  double comp_spot(double iangle,double phase, double expose, int ndiv,
+		   double q, float vscale, 
 		   const Subs::Buffer1D<Lcurve::Point>& spot);
 
   //! Convenience routine 
-  void star_eclipse(double q, double r, double spin, double ffac, double iangle, const Subs::Vec3& posn, double delta, 
+  void star_eclipse(double q, double r, double spin, double ffac,
+		    double iangle, const Subs::Vec3& posn, double delta, 
 		    bool roche, Roche::STAR star, Point::etype& eclipses);
 
   //! Computes eclipse by a flared disc
-  bool disc_eclipse(double iangle, double phase, double rdisc1, double rdisc2, double beta, double height, const Subs::Vec3& posn);
+  bool disc_eclipse(double iangle, double phase, double rdisc1,
+		    double rdisc2, double beta, double height,
+		    const Subs::Vec3& posn);
 
   //! Computes eclipse by a flared disc for points 
-  bool disc_surface_eclipse(double iangle, double phase, double rdisc1, double rdisc2, double beta, double height, const Subs::Vec3& posn);
+  bool disc_surface_eclipse(double iangle, double phase, double rdisc1,
+			    double rdisc2, double beta, double height,
+			    const Subs::Vec3& posn);
   
   //! Computes an entire light curve corresponding to a given data set.
-  void light_curve_comp(const Lcurve::Model& model, const Lcurve::Data& data, bool scale, bool info, Subs::Buffer1D<double>& sfac, 
-			Subs::Array1D<double>& calc, double& wdwarf, double& chisq, double& wnok);
+  void light_curve_comp(const Lcurve::Model& model, const Lcurve::Data& data,
+			bool scale, bool info, Subs::Buffer1D<double>& sfac, 
+			Subs::Array1D<double>& calc, double& wdwarf,
+			double& chisq, double& wnok);
 
   //! Re-scales a fit to minimise chi**2
-  double re_scale(const Lcurve::Data& data, Subs::Array1D<double>& fit, double& chisq, double& wnok);
+  double re_scale(const Lcurve::Data& data, Subs::Array1D<double>& fit,
+		  double& chisq, double& wnok);
 
 };
 
