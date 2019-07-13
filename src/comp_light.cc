@@ -31,16 +31,24 @@
  * \param star1c   geometry/brightness array for star1, coarse grid
  * \param star2c   geometry/brightness array for star2, coarse grid
  * \param disc     geometry/brightness array for the disc
+ * \param edge     geometry/brightness array for the disc edge
  * \param spot     geometry/brightness array for the bright spot
  * \return the light curve value desired.
  */
 
-double Lcurve::comp_light(double iangle, const LDC& ldc1, const LDC& ldc2, double lin_limb_disc, double quad_limb_disc,
-                          double phase, double expose, int ndiv, double q, double beam_factor1, double beam_factor2,
-                          double spin1, double spin2, float vscale, bool glens1, double rlens1,
-                          const Lcurve::Ginterp& gint, const Subs::Buffer1D<Lcurve::Point>& star1f,
-                          const Subs::Buffer1D<Lcurve::Point>& star2f, const Subs::Buffer1D<Lcurve::Point>& star1c,
-                          const Subs::Buffer1D<Lcurve::Point>& star2c, const Subs::Buffer1D<Lcurve::Point>& disc,
+double Lcurve::comp_light(double iangle, const LDC& ldc1, const LDC& ldc2, 
+			  double lin_limb_disc, double quad_limb_disc,
+                          double phase, double expose, int ndiv, double q,
+			  double beam_factor1, double beam_factor2,
+                          double spin1, double spin2, float vscale,
+			  bool glens1, double rlens1,
+			  const Lcurve::Ginterp& gint,
+			  const Subs::Buffer1D<Lcurve::Point>& star1f,
+                          const Subs::Buffer1D<Lcurve::Point>& star2f,
+			  const Subs::Buffer1D<Lcurve::Point>& star1c,
+                          const Subs::Buffer1D<Lcurve::Point>& star2c,
+			  const Subs::Buffer1D<Lcurve::Point>& disc,
+			  const Subs::Buffer1D<Lcurve::Point>& edge,
                           const Subs::Buffer1D<Lcurve::Point>& spot){
 
     const double XCOFM = q/(1.+q);
@@ -69,8 +77,10 @@ double Lcurve::comp_light(double iangle, const LDC& ldc1, const LDC& ldc2, doubl
         earth = Roche::set_earth(cosi, sini, phi);
 
         ptype = gint.type(phi);
-        const Subs::Buffer1D<Lcurve::Point>& star1 = ptype == 1 ? star1f : star1c;
-        const Subs::Buffer1D<Lcurve::Point>& star2 = ptype == 3 ? star2f : star2c;
+        const Subs::Buffer1D<Lcurve::Point>& star1 = ptype == 1 ? star1f :
+	    star1c;
+        const Subs::Buffer1D<Lcurve::Point>& star2 = ptype == 3 ? star2f :
+	    star2c;
         nelem1 = star1.size();
         nelem2 = star2.size();
 
@@ -113,12 +123,17 @@ double Lcurve::comp_light(double iangle, const LDC& ldc1, const LDC& ldc2, doubl
                         // s = vector from centre of mass of star 1 to point of interest
                         s = pt.posn;
 
-                        // d = distance along line of sight from star 1 to point in question
+                        // d = distance along line of sight from star
+                        // 1 to point in question
                         d = -Subs::dot(s, earth);
                         if(d > 0.){
-                            // p  = distance in plane of sky from cofm of star 1 to point in question
-                            // pd = larger distance accounting for deflection by lensing. For p >> rlens1*d, q --> p,
-                            // mag --> 1. Try to save time by avoiding square root if possible.
+                            // p = distance in plane of sky from cofm
+                            // of star 1 to point in question pd =
+                            // larger distance accounting for
+                            // deflection by lensing. For p >>
+                            // rlens1*d, q --> p, mag --> 1. Try to
+                            // save time by avoiding square root if
+                            // possible.
                             ph   = (p = (s+d*earth).length())/2.;
                             phsq = ph*ph;
                             rd   = rlens1*d;
@@ -156,6 +171,15 @@ double Lcurve::comp_light(double iangle, const LDC& ldc1, const LDC& ldc2, doubl
             }
         }
 
+        // Disc edge
+        for(i=0; i<edge.size(); i++){
+            mu = Subs::dot(earth, edge[i].dirn);
+            if(mu > 0. && edge[i].visible(phi)){
+                ommu = 1.-mu;
+                ssum += mu*edge[i].flux*(1.-ommu*(lin_limb_disc+quad_limb_disc*ommu));
+            }
+        }
+
         // Spot
         for(i=0; i<spot.size(); i++){
             mu = Subs::dot(earth, spot[i].dirn);
@@ -189,8 +213,10 @@ double Lcurve::comp_light(double iangle, const LDC& ldc1, const LDC& ldc2, doubl
  */
 
 double Lcurve::comp_star1(double iangle, const LDC& ldc1, double phase, double expose, int ndiv,
-                          double q, double beam_factor1, float vscale, const Lcurve::Ginterp& gint,
-                          const Subs::Buffer1D<Lcurve::Point>& star1f, const Subs::Buffer1D<Lcurve::Point>& star1c){
+                          double q, double beam_factor1, float vscale,
+			  const Lcurve::Ginterp& gint,
+                          const Subs::Buffer1D<Lcurve::Point>& star1f, 
+			  const Subs::Buffer1D<Lcurve::Point>& star1c){
 
     const double XCOFM = q/(1.+q);
     double ri = Subs::deg2rad(iangle);
@@ -272,8 +298,9 @@ double Lcurve::comp_star1(double iangle, const LDC& ldc1, double phase, double e
  */
 
 double Lcurve::comp_star2(double iangle, const LDC& ldc2, double phase, double expose, int ndiv,
-                          double q, double beam_factor2, float vscale, bool glens1, double rlens1,
-                          const Lcurve::Ginterp& gint, const Subs::Buffer1D<Lcurve::Point>& star2f,
+                          double q, double beam_factor2, float vscale, bool glens1,
+			  double rlens1, const Lcurve::Ginterp& gint,
+			  const Subs::Buffer1D<Lcurve::Point>& star2f,
                           const Subs::Buffer1D<Lcurve::Point>& star2c){
 
     const double XCOFM = q/(1.+q);
@@ -323,9 +350,12 @@ double Lcurve::comp_star2(double iangle, const LDC& ldc2, double phase, double e
                         // d = distance along line of sight from star 1 to point in question
                         d = -Subs::dot(s, earth);
                         if(d > 0.){
-                            // p  = distance in plane of sky from cofm of star 1 to point in question
-                            // pd = larger distance accounting for lensing deflection. For p >> rlens1*d, pd --> p,
-                            // mag --> 1. Try to save time by avoiding square root if possible.
+                            // p = distance in plane of sky from cofm
+                            // of star 1 to point in question pd =
+                            // larger distance accounting for lensing
+                            // deflection. For p >> rlens1*d, pd -->
+                            // p, mag --> 1. Try to save time by
+                            // avoiding square root if possible.
                             ph   = (p = (s+d*earth).length())/2.;
                             phsq = ph*ph;
                             rd   = rlens1*d;
@@ -375,8 +405,9 @@ double Lcurve::comp_star2(double iangle, const LDC& ldc2, double phase, double e
  * \return the light curve value desired.
  */
 
-double Lcurve::comp_disc(double iangle, double lin_limb_disc, double quad_limb_disc, double phase, double expose, 
-                         int ndiv, double q, float vscale, const Subs::Buffer1D<Lcurve::Point>& disc){
+double Lcurve::comp_disc(double iangle, double lin_limb_disc, double quad_limb_disc,
+			 double phase, double expose, int ndiv, double q, float vscale,
+			 const Subs::Buffer1D<Lcurve::Point>& disc){
 
     const Subs::Vec3 COFM(q/(1.+q),0.,0.), SPIN(0.,0.,1.);
     double ri = Subs::deg2rad(iangle);
@@ -416,6 +447,62 @@ double Lcurve::comp_disc(double iangle, double lin_limb_disc, double quad_limb_d
 }
 
 /**
+ * comp_edge computes the flux from the disc edge at a particular phase. It can
+ * allow for finite exposures by trapezoidal integration.
+ * \param iangle   orbital inclination
+ * \param lin_limb_disc linear limb darkening coefficient for the disc
+ * \param quad_limb_disc quadratic limb darkening for the disc
+ * \param phase    orbital phase at centre of exposure
+ * \param expose   length of exposure in terms of phase
+ * \param ndiv     number of sub-divisions for exposure smearing using trapezoidal integration
+ * \param q         mass ratio
+ * \param vscale   the velocity scale V1+V2 (unprojected) for computation of Doppler beaming
+ * \param edge     geometry/brightness array for the disc
+ * \return the light curve value desired.
+ */
+
+double Lcurve::comp_edge(double iangle, double lin_limb_disc, double quad_limb_disc,
+			 double phase, double expose, int ndiv, double q, float vscale,
+			 const Subs::Buffer1D<Lcurve::Point>& edge){
+
+    const Subs::Vec3 COFM(q/(1.+q),0.,0.), SPIN(0.,0.,1.);
+    double ri = Subs::deg2rad(iangle);
+    const double cosi = cos(ri);
+    const double sini = sin(ri);
+
+    Subs::Vec3 earth;
+    double phi, sum=0., ssum, mu, wgt;
+    for(int nd=0; nd<ndiv; nd++){
+
+        if(ndiv == 1){
+            phi = phase;
+            wgt = 1.;
+        }else{
+            phi = phase + expose*(nd-double(ndiv-1)/2.)/(ndiv-1);
+            if(nd == 0 || nd == ndiv-1)
+                wgt = 0.5;
+            else
+                wgt = 1.;
+        }
+
+        earth = Roche::set_earth(cosi, sini, phi);
+
+        ssum = 0.;
+        // Disc edge
+        for(int i=0; i<edge.size(); i++){
+            mu = Subs::dot(earth, edge[i].dirn);
+            if(mu > 0. && edge[i].visible(phi))
+                ssum += mu*edge[i].flux*(1.-(1.-mu)*(lin_limb_disc+quad_limb_disc*(1.-mu)));
+        }
+
+        sum += wgt*ssum;
+    }
+
+    return sum/std::max(1, ndiv-1);
+
+}
+
+/**
  * comp_spot computes a light curve point for a particular phase. It can
  * allow for finite exposures by trapezoidal integration.
  * \param iangle   orbital inclination
@@ -428,8 +515,8 @@ double Lcurve::comp_disc(double iangle, double lin_limb_disc, double quad_limb_d
  * \return the light curve value desired.
  */
 
-double Lcurve::comp_spot(double iangle,double phase, double expose, int ndiv, double q, float vscale,
-                         const Subs::Buffer1D<Lcurve::Point>& spot){
+double Lcurve::comp_spot(double iangle,double phase, double expose, int ndiv, double q,
+			 float vscale, const Subs::Buffer1D<Lcurve::Point>& spot){
 
     const Subs::Vec3 COFM(q/(1.+q),0.,0.), SPIN(0.,0.,1.);
     double ri = Subs::deg2rad(iangle);

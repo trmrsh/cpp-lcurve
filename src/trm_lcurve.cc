@@ -65,6 +65,8 @@ Lcurve::Model::Model(const std::string& file) {
     names["texp_disc"]      = false;
     names["lin_limb_disc"]  = false;
     names["quad_limb_disc"] = false;
+    names["temp_edge"]      = false;
+    names["absorb_edge"]    = false;
     names["radius_spot"]    = false;
     names["length_spot"]    = false;
     names["height_spot"]    = false;
@@ -193,17 +195,18 @@ Lcurve::Model::Model(const std::string& file) {
     std::cerr << n << " lines read from " << file << std::endl;
 
     // Check that everything has been initialised, except for the star spots
-    // that do not have to be defined and a couple of recently added parameters
+    // that do not have to be defined and some recently added parameters
     bool ok = true;
     for(NIT nit=names.begin(); nit!=names.end(); nit++){
         if(!nit->second){
-            if(nit->first.substr(0,4) != "stsp"){
-                std::cerr << nit->first << " was not defined " << std::endl;
-                ok = false;
-            }else if(nit->first == "pdot" || nit->first == "third"){
+            if(nit->first == "pdot" || nit->first == "third" ||
+	       nit->first == "temp_edge" || nit->first == "absorb_edge"){
                 std::cerr << nit->first
                           << " was not defined; will be set = 0" << std::endl;
                 pv[nit->first] = "0 1.e-10 1.e-10 0 0";
+            }else if(nit->first.substr(0,4) != "stsp"){
+                std::cerr << nit->first << " was not defined " << std::endl;
+                ok = false;
             }
         }
     }
@@ -250,6 +253,8 @@ Lcurve::Model::Model(const std::string& file) {
     texp_disc        = Pparam(pv["texp_disc"]);
     lin_limb_disc    = Pparam(pv["lin_limb_disc"]);
     quad_limb_disc   = Pparam(pv["quad_limb_disc"]);
+    temp_edge        = Pparam(pv["temp_edge"]);
+    absorb_edge      = Pparam(pv["absorb_edge"]);
     radius_spot      = Pparam(pv["radius_spot"]);
     length_spot      = Pparam(pv["length_spot"]);
     height_spot      = Pparam(pv["height_spot"]);
@@ -392,6 +397,8 @@ int Lcurve::Model::nvary() const {
         if(texp_disc.vary) n++;
         if(lin_limb_disc.vary) n++;
         if(quad_limb_disc.vary) n++;
+        if(temp_edge.vary) n++;
+        if(absorb_edge.vary) n++;
     }
 
     if(add_spot){
@@ -470,6 +477,8 @@ void Lcurve::Model::set_param(const Subs::Array1D<double>& vpar) {
         if(texp_disc.vary) texp_disc.value           = vpar[n++];
         if(lin_limb_disc.vary) lin_limb_disc.value   = vpar[n++];
         if(quad_limb_disc.vary) quad_limb_disc.value = vpar[n++];
+        if(temp_edge.vary) temp_edge.value           = vpar[n++];
+        if(absorb_edge.vary) absorb_edge.value       = vpar[n++];
     }
 
     if(add_spot){
@@ -623,6 +632,12 @@ std::string Lcurve::Model::get_name(int i) const {
 
         if(quad_limb_disc.vary) n++;
         if(n == i) return "quad_limb_disc";
+
+        if(temp_edge.vary) n++;
+        if(n == i) return "temp_edge";
+
+        if(absorb_edge.vary) n++;
+        if(n == i) return "absorb_edge";
     }
 
     if(add_spot){
@@ -879,6 +894,16 @@ bool Lcurve::Model::is_not_legal(const Subs::Array1D<double>& vpar) const {
             if(vpar[n] < 0. || vpar[n] > 1.) return true;
             n++;
         }
+
+        if(temp_edge.vary){
+            if(vpar[n] <= 0 || vpar[n] > 1.e6) return true;
+            n++;
+        }
+
+        if(absorb_edge.vary){
+            if(vpar[n] < 0 || vpar[n] > 1000) return true;
+            n++;
+        }
     }
 
     if(add_spot){
@@ -1029,6 +1054,8 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
         if(texp_disc.vary) temp.push_back(texp_disc.value);
         if(lin_limb_disc.vary) temp.push_back(lin_limb_disc.value);
         if(quad_limb_disc.vary) temp.push_back(quad_limb_disc.value);
+        if(temp_edge.vary) temp.push_back(temp_edge.value);
+        if(absorb_edge.vary) temp.push_back(absorb_edge.value);
     }
 
     if(add_spot){
@@ -1121,6 +1148,8 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
         if(texp_disc.vary) temp.push_back(texp_disc.range);
         if(lin_limb_disc.vary) temp.push_back(lin_limb_disc.range);
         if(quad_limb_disc.vary) temp.push_back(quad_limb_disc.range);
+        if(temp_edge.vary) temp.push_back(temp_edge.range);
+        if(absorb_edge.vary) temp.push_back(absorb_edge.range);
     }
 
     if(add_spot){
@@ -1213,6 +1242,8 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
         if(texp_disc.vary) temp.push_back(texp_disc.dstep);
         if(lin_limb_disc.vary) temp.push_back(lin_limb_disc.dstep);
         if(quad_limb_disc.vary) temp.push_back(quad_limb_disc.dstep);
+        if(temp_edge.vary) temp.push_back(temp_edge.dstep);
+        if(absorb_edge.vary) temp.push_back(absorb_edge.dstep);
     }
 
     if(add_spot){
@@ -1292,7 +1323,9 @@ std::ostream& Lcurve::operator<<(std::ostream& s, const Model& model){
     s << "temp_disc      = " << model.temp_disc      << "\n";
     s << "texp_disc      = " << model.texp_disc      << "\n";
     s << "lin_limb_disc  = " << model.lin_limb_disc  << "\n";
-    s << "quad_limb_disc = " << model.quad_limb_disc << "\n\n";
+    s << "quad_limb_disc = " << model.quad_limb_disc << "\n";
+    s << "temp_edge      = " << model.temp_edge      << "\n";
+    s << "absorb_edge    = " << model.absorb_edge    << "\n\n";
 
     s << "radius_spot    = " << model.radius_spot    << "\n";
     s << "length_spot    = " << model.length_spot    << "\n";

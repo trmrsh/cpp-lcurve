@@ -202,6 +202,12 @@ it is easier to think in terms of temperature}
 !!arg{texp_disc}{Exponent of surface brightness (NB: not temperature) over disc}
 !!arg{lin_limb_disc}{Linear limb darkening coefficient of the disc}
 !!arg{quad_limb_disc}{Quadratic limb darkening coefficient of the disc}
+!!arg{temp_edge}{Temperature at perpendicular edge of disc. Irradiation from the secondary is allowed so you should think of a bright rim at primary eclipse. Limb darkeining parameters of the 
+disc are applied}
+!!arg{absorb_edge}{Amount of secondary flux absorbed and reprocessed. This effect should lead 
+to a sinusoidal variation with flux maximum at orbital phase 0.5. It was introduced to model
+a possible accreting sdO/WD system discovered by Thomas Kupfer}
+
 !!table
 
 !!head3 Bright-spot

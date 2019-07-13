@@ -35,6 +35,11 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
 
   double r1, r2;
   mdl.get_r1r2(r1, r2);
+  double rl2 = 1.- Roche::xl12(mdl.q, mdl.spin2);
+  if(r2 < 0)
+      r2 = rl2;
+  else if(r2 > rl2)
+      throw Lcurve_Error("light_curve_comp: the secondary star is larger than its Roche lobe!");
 
   LDC ldc1 = mdl.get_ldc1();
   LDC ldc2 = mdl.get_ldc2();
@@ -50,7 +55,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
   }
 
   // Generate arrays over each star's face. Fine grids first:
-  Subs::Buffer1D<Point> star1f, star2f, disc, spot;
+  Subs::Buffer1D<Point> star1f, star2f, disc, edge, spot;
   set_star_grid(mdl, Roche::PRIMARY, true, star1f);
   if(info) std::cerr << "Number of points for star 1 (fine) = " << star1f.size() << std::endl;
 
@@ -69,7 +74,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
   if(info) std::cerr << "Number of points for star 1 (coarse) = "
                      << star1c.size() << std::endl;
 
-  bool copy2 = mdl.nlat2f == mdl.nlat2c &&
+  bool copy2 = (mdl.nlat2f == mdl.nlat2c) &&
       (!mdl.npole || r1 >= r2 || (mdl.nlatfill == 0 && mdl.nlngfill == 0));
 
   Subs::Buffer1D<Point> star2c;
@@ -128,7 +133,9 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
 
   if(mdl.add_disc){
 
+      // set disc upper surface and outer edge
       Lcurve::set_disc_grid(mdl, disc);
+      Lcurve::set_disc_edge(mdl, true, edge, false);
 
       if(info)
           std::cerr << "Number of points for the disc = " << disc.size()
@@ -181,6 +188,11 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
       set_disc_continuum(rdisc2, mdl.temp_disc, mdl.texp_disc,
                          mdl.wavelength, disc);
 
+      // Set the surface brightness of outer edge, accounting for
+      // irradiation by star 2
+      set_edge_continuum(mdl.temp_edge, r2, std::abs(mdl.t2), 
+			 mdl.absorb_edge, mdl.wavelength, edge);
+
   }
 
   // This could raise an exception for bad parameters.
@@ -195,7 +207,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
   double middle = (xmin+xmax)/2., range = (xmax-xmin)/2.;
 
   // Compute light curve
-  Subs::Buffer2D<double> fcomp(data.size(), mdl.t2 > 0 ? 4 : 3);
+  Subs::Buffer2D<double> fcomp(data.size(), mdl.t2 > 0 ? 5 : 4);
 
   // Next use a dynamically-scheduled openmp section to speed the loop over the
   // data. Dynamic scheduling allows for variability in the time per point.
@@ -230,15 +242,23 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
                                           data[np].ndiv, mdl.q,
                                           mdl.beam_factor1, mdl.velocity_scale,
                                           gint, star1f, star1c);
+
           fcomp[np][1] = slfac*comp_disc(mdl.iangle, mdl.lin_limb_disc,
                                          mdl.quad_limb_disc, phase, expose,
                                          data[np].ndiv, mdl.q,
                                          mdl.velocity_scale, disc);
-          fcomp[np][2] = slfac*comp_spot(mdl.iangle, phase, expose,
+
+          fcomp[np][2] = slfac*comp_edge(mdl.iangle, mdl.lin_limb_disc,
+                                         mdl.quad_limb_disc, phase, expose,
+                                         data[np].ndiv, mdl.q,
+                                         mdl.velocity_scale, edge);
+
+          fcomp[np][3] = slfac*comp_spot(mdl.iangle, phase, expose,
                                          data[np].ndiv, mdl.q,
                                          mdl.velocity_scale, spot);
+
           if(mdl.t2 > 0)
-              fcomp[np][3] = slfac*comp_star2(mdl.iangle, ldc2, phase, expose,
+              fcomp[np][4] = slfac*comp_star2(mdl.iangle, ldc2, phase, expose,
                                               data[np].ndiv, mdl.q,
                                               mdl.beam_factor2,
                                               mdl.velocity_scale,
@@ -252,7 +272,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
                                       mdl.q, mdl.beam_factor1, mdl.beam_factor2,
                                       mdl.spin1, mdl.spin2, mdl.velocity_scale,
                                       mdl.glens1, rlens1, gint, star1f, star2f,
-                                      star1c, star2c, disc, spot) + mdl.third;
+                                      star1c, star2c, disc, edge, spot) + mdl.third;
       }
   }
 
@@ -278,25 +298,26 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
           }
 
           // Compute scaling factors
-          sfac.resize(mdl.t2 > 0 ? 4 : 3);
+          sfac.resize(mdl.t2 > 0 ? 5 : 4);
 
           Subs::svdfit(svd, sfac, fcomp, u, v, w);
           wdwarf *= sfac[0];
           if(mdl.t2 <= 0.){
-              Subs::Buffer1D<double> tfac(3);
+              Subs::Buffer1D<double> tfac(4);
               tfac = sfac;
-              sfac.resize(4);
+              sfac.resize(5);
               sfac[0] = tfac[0];
               sfac[1] = tfac[1];
               sfac[2] = tfac[2];
-              sfac[3] = 0.;
+              sfac[3] = tfac[3];
+              sfac[4] = 0.;
           }
 
           // Calculate fit
           for(size_t np=0; np<data.size(); np++){
               calc[np] = sfac[0]*fcomp[np][0]+sfac[1]*fcomp[np][1]+
-                  sfac[2]*fcomp[np][2];
-              if(mdl.t2 > 0.) calc[np] += sfac[3]*fcomp[np][3];
+                  sfac[2]*fcomp[np][2]+sfac[3]*fcomp[np][3];
+              if(mdl.t2 > 0.) calc[np] += sfac[4]*fcomp[np][4];
           }
 
           wnok  = 0.;
@@ -312,7 +333,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
       }else{
           double ssfac = re_scale(data, calc, chisq, wnok);
           wdwarf *= ssfac;
-          sfac[0] = sfac[1] = sfac[2] = sfac[3] = ssfac;
+          sfac[0] = sfac[1] = sfac[2] = sfac[3] = sfac[4] = ssfac;
       }
 
   }else{
@@ -321,8 +342,8 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
       if(mdl.iscale){
           for(size_t np=0; np<data.size(); np++){
               calc[np] = sfac[0]*fcomp[np][0]+sfac[1]*fcomp[np][1]+
-                  sfac[2]*fcomp[np][2];
-              if(mdl.t2 > 0.) calc[np] += sfac[3]*fcomp[np][3];
+                  sfac[2]*fcomp[np][2]+sfac[3]*fcomp[np][3];
+              if(mdl.t2 > 0.) calc[np] += sfac[4]*fcomp[np][4];
           }
       }else{
           for(size_t np=0; np<data.size(); np++)
