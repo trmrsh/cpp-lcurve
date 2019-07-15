@@ -438,9 +438,9 @@ int main(int argc, char* argv[]){
 
         // Compute light curve
         Subs::Array1D<double> fit;
-        double wdwarf, chisq, wnok;
+        double wdwarf, chisq, wnok, logg2;
         Lcurve::light_curve_comp(model, data, scale, true, sfac,
-                                 fit, wdwarf, chisq, wnok);
+                                 fit, wdwarf, chisq, wnok, logg2);
 
         Subs::Format form(12);
 
@@ -463,6 +463,7 @@ int main(int argc, char* argv[]){
         }
         std::cout << "White dwarf's contribution = " << form(wdwarf)
                   << std::endl;
+        std::cout << "log10(g2 [cgs]) = " << form(logg2) << std::endl;
 
         if(!no_file){
             // Scale error bars

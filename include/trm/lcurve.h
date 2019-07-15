@@ -769,6 +769,10 @@ namespace Lcurve {
 		   double q, float vscale, 
 		   const Subs::Buffer1D<Lcurve::Point>& spot);
 
+  //! Compute flux-weighted gravity of star 2
+  double comp_gravity2(const Model& mdl,
+		       const Subs::Buffer1D<Lcurve::Point>& star2);
+
   //! Convenience routine 
   void star_eclipse(double q, double r, double spin, double ffac,
 		    double iangle, const Subs::Vec3& posn, double delta, 
@@ -788,7 +792,7 @@ namespace Lcurve {
   void light_curve_comp(const Lcurve::Model& model, const Lcurve::Data& data,
 			bool scale, bool info, Subs::Buffer1D<double>& sfac, 
 			Subs::Array1D<double>& calc, double& wdwarf,
-			double& chisq, double& wnok);
+			double& chisq, double& wnok, double& logg2);
 
   //! Re-scales a fit to minimise chi**2
   double re_scale(const Lcurve::Data& data, Subs::Array1D<double>& fit,

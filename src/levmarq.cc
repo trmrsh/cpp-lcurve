@@ -267,9 +267,10 @@ void Lmfunc::lmcomp(Subs::Buffer2D<double>& alpha, Subs::Buffer1D<double>& beta,
     // Compute the fit
     Subs::Buffer1D<double> sfac(4), tsfac(4);
     Subs::Array1D<double> fit;
-    double wdwarf, wnok;
+    double wdwarf, wnok, logg2;
 
-    Lcurve::light_curve_comp(model, data, true, false, sfac, fit, wdwarf, chisq, wnok);
+    Lcurve::light_curve_comp(model, data, true, false, sfac, fit, wdwarf,
+			     chisq, wnok, logg2);
     if(wnok == 0.0)
 	throw Lcurve::Lcurve_Error("void Lmfunc::lmcomp: no good data!");
     Lmfunc::neval++;
@@ -285,7 +286,8 @@ void Lmfunc::lmcomp(Subs::Buffer2D<double>& alpha, Subs::Buffer1D<double>& beta,
 	tparam     = centre;
 	tparam[i] += dstep[i];
 	model.set_param(tparam);
-	Lcurve::light_curve_comp(model, data, true, false, tsfac, deriv[i], wdwarf, tchisq, wnok);
+	Lcurve::light_curve_comp(model, data, true, false, tsfac, deriv[i],
+				 wdwarf, tchisq, wnok, logg2);
 	Lmfunc::neval++;
 	
 	// Next four lines are an attempt to reduce round-off error
@@ -296,7 +298,8 @@ void Lmfunc::lmcomp(Subs::Buffer2D<double>& alpha, Subs::Buffer1D<double>& beta,
 	tparam[i]   = temp - h;
 
 	model.set_param(tparam);
-	Lcurve::light_curve_comp(model, data, true, false, tsfac, buff, wdwarf, tchisq, wnok);
+	Lcurve::light_curve_comp(model, data, true, false, tsfac, buff,
+				 wdwarf, tchisq, wnok, logg2);
 	Lmfunc::neval++;
 
 	deriv[i] -= buff;

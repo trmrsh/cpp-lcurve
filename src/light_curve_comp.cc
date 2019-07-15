@@ -21,14 +21,14 @@
  * \param wdwarf contribution of the white at phase 0.5
  * \param chisq  chi**2 value
  * \param wnok   weighted number of data points
- * \return This returns the white dwarf's contribution at phase 0.5
+ * \param logg2  flux-weighted logg for star 2, CGS units
  */
 
 void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
                               const Lcurve::Data& data, bool scale, bool info,
                               Subs::Buffer1D<double>& sfac,
                               Subs::Array1D<double>& calc, double& wdwarf,
-                              double& chisq, double& wnok){
+                              double& chisq, double& wnok, double& logg2){
 
   // Get the size right
   calc.resize(data.size());
@@ -350,5 +350,9 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
               calc[np] *= sfac[0];
       }
   }
+
+  // calculate flux-weighted logg for star2
+  logg2 = comp_gravity2(mdl, star2f); 
+
   return;
 }
