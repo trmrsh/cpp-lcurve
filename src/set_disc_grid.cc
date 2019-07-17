@@ -63,9 +63,12 @@ void Lcurve::set_disc_grid(const Model& mdl,
     const Subs::Vec3 cofm1(0.,0.,0.), cofm2(1.,0.,0.);
 
     int nface = 0, ntheta = 0;
-    double drad = (rdisc2-rdisc1)/mdl.nrad;
+
+    // drrad here introduced to avoid ntheta getting silly if rdisc1 and rdisc2 
+    // are close to each other.
+    double drad = (rdisc2-rdisc1)/mdl.nrad, drrad = rdisc2/mdl.nrad;
     for(int i=0; i<mdl.nrad; i++){
-        ntheta = int(ceil(Constants::TWOPI*(rdisc1 + (rdisc2-rdisc1)*(i+0.5)/mdl.nrad)/drad));
+        ntheta = int(ceil(Constants::TWOPI*(rdisc1 + (rdisc2-rdisc1)*(i+0.5)/mdl.nrad)/drrad));
         ntheta = ntheta > 8 ? ntheta : 8;
         nface += ntheta;
     }
@@ -79,7 +82,7 @@ void Lcurve::set_disc_grid(const Model& mdl,
     Lcurve::Point::etype eclipses;
     for(i=0, nface=0; i<mdl.nrad; i++){
         rad     = rdisc1 + (rdisc2-rdisc1)*(i+0.5)/mdl.nrad;
-        ntheta  = int(ceil(Constants::TWOPI*rad/drad));
+        ntheta  = int(ceil(Constants::TWOPI*rad/drrad));
         ntheta  = ntheta > 8 ? ntheta : 8;
         h       = EFAC*mdl.height_disc*pow(rad, mdl.beta_disc);
         tanp    = mdl.beta_disc*h/rad; // tan of tilt angle of element
@@ -166,7 +169,7 @@ void Lcurve::set_disc_edge(const Model& mdl, bool outer,
     // while the outer disc is set equal to the spot radius
     double rdisc1 = mdl.rdisc1 > 0. ? mdl.rdisc1 : r1;
     double rdisc2 = mdl.rdisc2 > 0. ? mdl.rdisc2 : mdl.radius_spot;
-    double size = (rdisc2-rdisc1)/mdl.nrad;
+    double size = rdisc2/mdl.nrad;
 
     // Calculate a reference radius and potential for the two stars
     double rref1, pref1, ffac1 = r1/rl1;
