@@ -52,7 +52,6 @@ void Lcurve::set_edge_continuum(double tedge, double r2, double t2,
     Subs::Vec3 vec;
     const Subs::Vec3 cofm2(1.,0.,0.);
     double temp, geom, mu, r;
-    std::cerr << "r2 = " << r2 << std::endl;
 
     for(int i=0; i<edge.size(); i++){
         vec = cofm2 - edge[i].posn;
@@ -85,7 +84,6 @@ void Lcurve::set_edge_continuum(double tedge, double r2, double t2,
             temp = tedge;
 
         }
-	//	std::cerr << i << " " << edge[i].posn << " " << temp << std::endl;
         edge[i].flux = edge[i].area*Subs::planck(wave, temp);
     }
 }    
