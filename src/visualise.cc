@@ -80,6 +80,7 @@ int main(int argc, char* argv[]){
         input.sign_in("y2",       Subs::Input::LOCAL,  Subs::Input::PROMPT);
         input.sign_in("width",    Subs::Input::LOCAL,  Subs::Input::NOPROMPT);
         input.sign_in("reverse",  Subs::Input::LOCAL,  Subs::Input::NOPROMPT);
+        input.sign_in("sdOB",     Subs::Input::LOCAL,  Subs::Input::NOPROMPT);
     
         std::string smodel;
         input.get_value("model", smodel, "model", "model file of parameter values");
@@ -109,6 +110,8 @@ int main(int argc, char* argv[]){
         input.get_value("width", width,  8.f, 0.f, 100.f, "width of the plot (inches)");
         bool reverse;
         input.get_value("reverse", reverse, true, "reverse black and white?");
+        bool sdOB;
+        input.get_value("sdOB", sdOB, false, "sdOB colours?");
 
         input.save();
 
@@ -200,13 +203,26 @@ int main(int argc, char* argv[]){
         Subs::Plot plot(device);
 
         cpgpap(width, (y2-y1)/(x2-x1));
+
+	// set up colours. sdOB means we swap blue and red for primary and secondary
         if(reverse){
-            cpgscr(0,1,1,1);
-            cpgscr(1,0,0,0);
-            cpgscr(2,0.4,0,0);
-            cpgscr(3,0,0.3,0);
-            cpgscr(4,0,0,0.5);
-        }
+	    cpgscr(0,1,1,1);
+	    cpgscr(1,0,0,0);
+	    if(sdOB){
+		cpgscr(2,0,0,0.5);
+		cpgscr(3,0,0.3,0);
+		cpgscr(4,0.4,0,0);
+	    }else{
+		cpgscr(2,0.4,0,0);
+		cpgscr(3,0,0.3,0);
+		cpgscr(4,0,0,0.5);
+	    }
+	}else{
+	    if(sdOB){
+		cpgscr(2,0,0,1);
+		cpgscr(4,1,0,0);
+	    }
+	}
 
         // Make stars orbit around centre of mass of system
         const Subs::Vec3 cofm(model.q/(1.+model.q),0.,0.);
