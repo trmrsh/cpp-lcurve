@@ -190,8 +190,8 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
 
       // Set the surface brightness of outer edge, accounting for
       // irradiation by star 2
-      set_edge_continuum(mdl.temp_edge, r2, std::abs(mdl.t2), 
-			 mdl.absorb_edge, mdl.wavelength, edge);
+      set_edge_continuum(mdl.temp_edge, r2, std::abs(mdl.t2),
+                         mdl.absorb_edge, mdl.wavelength, edge);
 
   }
 
