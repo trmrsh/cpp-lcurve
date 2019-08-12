@@ -9,33 +9,34 @@ progdir = @bindir@/@PACKAGE@
 prog_PROGRAMS   = lprofile visualise picture simplex lroche levmarq rotprof lroches
 
 lprofile_SOURCES = lprofile.cc numface.cc set_star_grid.cc set_star_emission.cc light_curve_comp.cc comp_light.cc trm_lcurve.cc \
-set_star_continuum.cc re_scale.cc set_disc_grid.cc set_bright_spot_grid.cc set_disc_continuum.cc star_eclipse.cc comp_gravity.cc
+set_star_continuum.cc re_scale.cc set_disc_grid.cc set_bright_spot_grid.cc set_disc_continuum.cc star_eclipse.cc comp_gravity.cc \
+comp_radius.cc
 
 levmarq_SOURCES = levmarq.cc trm_lcurve.cc set_star_grid.cc comp_light.cc set_star_continuum.cc numface.cc light_curve_comp.cc re_scale.cc \
-set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc
+set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc comp_radius.cc
 levmarq_CPPFLAGS = -fopenmp -I../include
 levmarq_LDFLAGS  = -fopenmp
 
 lroche_SOURCES = lroche.cc numface.cc set_star_grid.cc set_star_continuum.cc comp_light.cc trm_lcurve.cc light_curve_comp.cc re_scale.cc \
-set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc
+set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc comp_radius.cc
 lroche_CPPFLAGS = -fopenmp -I../include
 lroche_LDFLAGS  = -fopenmp
 
 lroches_SOURCES = lroche.cc numface.cc set_star_grid.cc set_star_continuum.cc comp_light.cc trm_lcurve.cc light_curve_comp.cc re_scale.cc \
-set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc
+set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc comp_radius.cc
 
 picture_SOURCES = picture.cc pos_disc.cc disc_eclipse.cc
 
 rotprof_SOURCES = rotprof.cc trm_lcurve.cc set_star_grid.cc light_curve_comp.cc re_scale.cc numface.cc set_star_continuum.cc \
-comp_light.cc set_disc_grid.cc star_eclipse.cc set_disc_continuum.cc set_bright_spot_grid.cc comp_gravity.cc
+comp_light.cc set_disc_grid.cc star_eclipse.cc set_disc_continuum.cc set_bright_spot_grid.cc comp_gravity.cc  comp_radius.cc
 
 simplex_SOURCES = simplex.cc trm_lcurve.cc set_star_grid.cc comp_light.cc set_star_continuum.cc numface.cc light_curve_comp.cc re_scale.cc \
-set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc
+set_disc_grid.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc  comp_radius.cc
 simplex_CPPFLAGS = -fopenmp -I../include
 simplex_LDFLAGS  = -fopenmp
 
 visualise_SOURCES = visualise.cc numface.cc set_star_grid.cc set_disc_grid.cc trm_lcurve.cc light_curve_comp.cc re_scale.cc set_star_continuum.cc \
-comp_light.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc
+comp_light.cc set_disc_continuum.cc set_bright_spot_grid.cc star_eclipse.cc comp_gravity.cc  comp_radius.cc
 
 AM_CPPFLAGS = -I../include
 

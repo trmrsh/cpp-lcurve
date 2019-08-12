@@ -1526,9 +1526,9 @@ double Lcurve::Fobj::operator[](int n) const {
 double Lcurve::Fobj::chisq() {
 
     Subs::Buffer1D<double> sfac(4);
-    double wdwarf, chisq, wnok, logg2;
+    double wdwarf, chisq, wnok, logg1, logg2, rv1, rv2;
     Lcurve::light_curve_comp(model, data, true, false, sfac, fit, wdwarf,
-                             chisq, wnok, logg2);
+                             chisq, wnok, logg1, logg2, rv1, rv2);
     if(wnok == 0.0)
         throw Lcurve::Lcurve_Error("Lcurve::Fobj::chisq: no good data");
     Lcurve::Fobj::neval++;

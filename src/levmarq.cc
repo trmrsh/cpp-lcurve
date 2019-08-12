@@ -267,12 +267,12 @@ void Lmfunc::lmcomp(Subs::Buffer2D<double>& alpha, Subs::Buffer1D<double>& beta,
     // Compute the fit
     Subs::Buffer1D<double> sfac(4), tsfac(4);
     Subs::Array1D<double> fit;
-    double wdwarf, wnok, logg2;
+    double wdwarf, wnok, logg1, logg2, rv1, rv2;
 
     Lcurve::light_curve_comp(model, data, true, false, sfac, fit, wdwarf,
-			     chisq, wnok, logg2);
+                             chisq, wnok, logg1, logg2, rv1, rv2);
     if(wnok == 0.0)
-	throw Lcurve::Lcurve_Error("void Lmfunc::lmcomp: no good data!");
+        throw Lcurve::Lcurve_Error("void Lmfunc::lmcomp: no good data!");
     Lmfunc::neval++;
 
     // Compute derivatives using finite differences centred on the
@@ -283,27 +283,27 @@ void Lmfunc::lmcomp(Subs::Buffer2D<double>& alpha, Subs::Buffer1D<double>& beta,
     double tchisq;
 
     for(int i=0; i<centre.size(); i++){
-	tparam     = centre;
-	tparam[i] += dstep[i];
-	model.set_param(tparam);
-	Lcurve::light_curve_comp(model, data, true, false, tsfac, deriv[i],
-				 wdwarf, tchisq, wnok, logg2);
-	Lmfunc::neval++;
-	
-	// Next four lines are an attempt to reduce round-off error
-	// in the finite difference. 
-	double temp = tparam[i];
-	tparam[i]  -= 2.*dstep[i];
-	double h    = temp - tparam[i];
-	tparam[i]   = temp - h;
+        tparam     = centre;
+        tparam[i] += dstep[i];
+        model.set_param(tparam);
+        Lcurve::light_curve_comp(model, data, true, false, tsfac, deriv[i],
+                                 wdwarf, tchisq, wnok, logg1, logg2, rv1, rv2);
+        Lmfunc::neval++;
 
-	model.set_param(tparam);
-	Lcurve::light_curve_comp(model, data, true, false, tsfac, buff,
-				 wdwarf, tchisq, wnok, logg2);
-	Lmfunc::neval++;
+        // Next four lines are an attempt to reduce round-off error
+        // in the finite difference.
+        double temp = tparam[i];
+        tparam[i] -= 2.*dstep[i];
+        double h = temp - tparam[i];
+        tparam[i] = temp - h;
 
-	deriv[i] -= buff;
-	deriv[i] /= h;
+        model.set_param(tparam);
+        Lcurve::light_curve_comp(model, data, true, false, tsfac, buff,
+                                 wdwarf, tchisq, wnok, logg1, logg2, rv1, rv2);
+        Lmfunc::neval++;
+
+        deriv[i] -= buff;
+        deriv[i] /= h;
 
     }
 

@@ -28,7 +28,8 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
                               const Lcurve::Data& data, bool scale, bool info,
                               Subs::Buffer1D<double>& sfac,
                               Subs::Array1D<double>& calc, double& wdwarf,
-                              double& chisq, double& wnok, double& logg2){
+                              double& chisq, double& wnok,
+                              double& logg1, double& logg2, double& rv1, double& rv2){
 
   // Get the size right
   calc.resize(data.size());
@@ -351,8 +352,11 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
       }
   }
 
-  // calculate flux-weighted logg for star2
-  logg2 = comp_gravity2(mdl, star2f); 
+  // calculate flux-weighted loggs and volume-averaged radii
+  logg1 = comp_gravity1(mdl, star1f);
+  logg2 = comp_gravity2(mdl, star2f);
+  rv1 = comp_radius1(star1f);
+  rv2 = comp_radius2(star2f);
 
   return;
 }
