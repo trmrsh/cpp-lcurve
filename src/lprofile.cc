@@ -239,7 +239,7 @@ int main(int argc, char* argv[]){
                 phase = phase1 + (phase2-phase1)*np/double(nphase-1);
             head.set("UTC",   new Subs::Hdouble(phase));
             head.set("Dwell", new Subs::Hfloat(expose));
-            head.set("Orbital_phase", new Subs::Hdouble(phase));
+            head.set("Orbital phase", new Subs::Hdouble(phase));
 
             double ommu = 1.-model.q/(1.+model.q);
             if(align){
