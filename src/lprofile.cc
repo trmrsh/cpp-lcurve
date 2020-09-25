@@ -193,8 +193,7 @@ int main(int argc, char* argv[]){
         for(int k=0; k< nbtot; k++)
             blurr[k] /= sum;
 
-        // Make stars orbit around centre of mass of system
-        const Subs::Vec3 cofm(model.q/(1.+model.q),0.,0.);
+        const Subs::Vec3 cofm2(1.,0.,0.);
         Subs::Vec3 r, earth;
         float amount;
         double veloc, phi, wgt, mu, vk;
@@ -239,7 +238,7 @@ int main(int argc, char* argv[]){
                 phase = phase1 + (phase2-phase1)*np/double(nphase-1);
             head.set("UTC",   new Subs::Hdouble(phase));
             head.set("Dwell", new Subs::Hfloat(expose));
-            head.set("Orbital phase", new Subs::Hdouble(phase));
+            head.set("Orbital_phase", new Subs::Hdouble(phase));
 
             double ommu = 1.-model.q/(1.+model.q);
             if(align){
@@ -272,9 +271,9 @@ int main(int argc, char* argv[]){
                     mu = Subs::dot(earth, star2[i].dirn);
 
                     if(mu > 0. && star2[i].visible(phi)){
-                        r = star2[i].posn - cofm;
+                        r = star2[i].posn - cofm2;
                         amount =  wgt*mu*star2[i].area*(emm2[i]*(1.-exp((befac-1./mu)*tau))/(1.-befac*mu)-abs2[i]*ldc2.imu(mu));
-                        veloc = vscale*(model.spin2*(cosp*r.y() + sinp*r.x()) + ommu*(1.-model.spin2)*sinp - vk);
+                        veloc = vscale*(model.spin2*(cosp*r.y() + sinp*r.x()) + ommu*sinp - vk);
                         wmean += amount;
                         vwmean += amount*veloc;
                         iadd = int(floor(NFINE*(veloc-v1)/(v2-v1)));
