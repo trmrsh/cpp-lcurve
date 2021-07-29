@@ -60,7 +60,9 @@ will have a number added, as in data001}
 !!arg{roff}{Offset to add to the residuals when plotting a fit to data}
 !!arg{scale}{Autoscale or not. If true, then the scale factors will be determined by minimisation of chi**2 using
 linear scaling factors.}
-!!arg{ssfac}{If scale=false, and a single global scaling factor is set, this is its value.}
+!!arg{ssfac}{If scale=false, and a single global scaling factor is set, this is its value. Depending on the units of the fluxes, ssfac has the following interpretation. If ssfac is set =
+(a/d)^2 (a = semi-major axis, d = distance), the result returned will be the flux density at Earth (fnu) in SI units (W/m^2/Hz). A milliJansky = 10^-29 W/m^2/Hz, so if you are fitting mJy
+fluxes, the value of ssfac returned = 10^29 (a/d)^2. If you express a in solar radii and d in parsecs, and fit mJy fluxes, then ssfac = 5.0875 x 10^13 (a/d)^2.}
 !!arg{sstar1}{If scale=false, scale factor for star 1}
 !!arg{sstar2}{If scale=false, scale factor for star 2}
 !!arg{sdisc}{If scale=false, scale factor for disc}
@@ -445,10 +447,11 @@ int main(int argc, char* argv[]){
 
         Subs::Format form(12);
 
-        // Save scale factors
-        if(scale){
+        if(!no_file){
+
             std::cout << "Weighted chi**2 = " << form(chisq)
                       << ", wnok = " << form(wnok) << std::endl;
+            // Save scale factors
             if(model.iscale){
                 input.set_default("sstar1", sfac[0]);
                 input.set_default("sstar2", sfac[1]);

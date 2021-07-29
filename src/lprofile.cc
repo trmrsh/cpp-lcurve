@@ -278,7 +278,7 @@ int main(int argc, char* argv[]){
                         vwmean += amount*veloc;
                         iadd = int(floor(NFINE*(veloc-v1)/(v2-v1)));
                         if(iadd >= 0 && iadd < NFINE)
-                            fine[iadd] += amount;
+			  fine[iadd] += amount;
                     }
                 }
             }
