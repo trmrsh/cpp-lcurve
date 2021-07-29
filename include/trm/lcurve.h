@@ -801,7 +801,7 @@ namespace Lcurve {
 
   //! Computes an entire light curve corresponding to a given data set.
   void light_curve_comp(const Lcurve::Model& model, const Lcurve::Data& data,
-                        bool scale, bool info, Subs::Buffer1D<double>& sfac,
+                        bool scale, bool rdata, bool info, Subs::Buffer1D<double>& sfac,
                         Subs::Array1D<double>& calc, double& wdwarf,
                         double& chisq, double& wnok,
                         double& logg1, double& logg2, double& rv1, double& rv2);

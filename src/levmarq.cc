@@ -269,7 +269,7 @@ void Lmfunc::lmcomp(Subs::Buffer2D<double>& alpha, Subs::Buffer1D<double>& beta,
     Subs::Array1D<double> fit;
     double wdwarf, wnok, logg1, logg2, rv1, rv2;
 
-    Lcurve::light_curve_comp(model, data, true, false, sfac, fit, wdwarf,
+    Lcurve::light_curve_comp(model, data, true, true, false, sfac, fit, wdwarf,
                              chisq, wnok, logg1, logg2, rv1, rv2);
     if(wnok == 0.0)
         throw Lcurve::Lcurve_Error("void Lmfunc::lmcomp: no good data!");
@@ -286,7 +286,7 @@ void Lmfunc::lmcomp(Subs::Buffer2D<double>& alpha, Subs::Buffer1D<double>& beta,
         tparam     = centre;
         tparam[i] += dstep[i];
         model.set_param(tparam);
-        Lcurve::light_curve_comp(model, data, true, false, tsfac, deriv[i],
+        Lcurve::light_curve_comp(model, data, true, true, false, tsfac, deriv[i],
                                  wdwarf, tchisq, wnok, logg1, logg2, rv1, rv2);
         Lmfunc::neval++;
 
@@ -298,7 +298,7 @@ void Lmfunc::lmcomp(Subs::Buffer2D<double>& alpha, Subs::Buffer1D<double>& beta,
         tparam[i] = temp - h;
 
         model.set_param(tparam);
-        Lcurve::light_curve_comp(model, data, true, false, tsfac, buff,
+        Lcurve::light_curve_comp(model, data, true, true, false, tsfac, buff,
                                  wdwarf, tchisq, wnok, logg1, logg2, rv1, rv2);
         Lmfunc::neval++;
 

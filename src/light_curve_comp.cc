@@ -13,6 +13,7 @@
  * \param data  the data defining the times
  * \param scale work out linear scale factors by svd or not. This will either be a single number for all components
  *              or a different one for each, depending upon the modle parameter iscale.
+ * \param rdata true if real data (then chi**2 will be computed)
  * \param info  if true, it prints out array sizes to stderr
  * \param sfac  scaling factors of each of the components star1, star2, disc spot. Will be determined by
  *              svd if scale=true, otherwise values on entry are used. Only sfac[0] will be used if
@@ -25,7 +26,8 @@
  */
 
 void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
-                              const Lcurve::Data& data, bool scale, bool info,
+                              const Lcurve::Data& data, bool scale,
+                              bool rdata, bool info,
                               Subs::Buffer1D<double>& sfac,
                               Subs::Array1D<double>& calc, double& wdwarf,
                               double& chisq, double& wnok,
@@ -349,6 +351,18 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
       }else{
           for(size_t np=0; np<data.size(); np++)
               calc[np] *= sfac[0];
+      }
+      if(rdata){
+          // real data so compute chi**2
+          wnok  = 0.;
+          chisq = 0.;
+          for(size_t i=0; i<data.size(); i++){
+              if(data[i].weight > 0.){
+                  wnok  += data[i].weight;
+                  chisq += data[i].weight*Subs::sqr((data[i].flux -
+                                                     calc[i])/data[i].ferr);
+              }
+          }
       }
   }
 

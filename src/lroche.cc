@@ -441,7 +441,7 @@ int main(int argc, char* argv[]){
         // Compute light curve
         Subs::Array1D<double> fit;
         double wdwarf, chisq, wnok, logg1, logg2, rv1, rv2;
-        Lcurve::light_curve_comp(model, data, scale, true, sfac,
+        Lcurve::light_curve_comp(model, data, scale, !no_file, true, sfac,
                                  fit, wdwarf, chisq, wnok,
                                  logg1, logg2, rv1, rv2);
 
