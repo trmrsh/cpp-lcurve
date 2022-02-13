@@ -173,8 +173,9 @@ quad, cube parameters.}
 
 !!head3 Spots
 
-One spot allowed on each star (with some expectation that the
-number may be increased if need be in the future):
+Three gaussian spots allowed on the primary, one on the secondary,
+one uniform equatorial spot on the primary allowed.
+
 
 !!table
 !!arg{stsp11_long}{Longitude (degrees) of spot 1 on star 1, relative to
@@ -183,12 +184,38 @@ meridian defined by line of centres}
 !!arg{stsp11_lat}{FWHM (degrees) of spot 1 on star 1, as seen from its centre
 of mass. Spot has gaussian distribution of temperature.}
 !!arg{stsp11_tcen}{Central temp (K) of spot 1 on star 1}
+
+!!arg{stsp12_long}{Longitude (degrees) of spot 2 on star 1, relative to
+meridian defined by line of centres}
+!!arg{stsp12_lat}{Latitude (degrees) of spot 2 on star 1}
+!!arg{stsp12_lat}{FWHM (degrees) of spot 2 on star 1, as seen from its centre
+of mass. Spot has gaussian distribution of temperature.}
+!!arg{stsp12_tcen}{Central temp (K) of spot 2 on star 1}
+
+!!arg{stsp13_long}{Longitude (degrees) of spot 3 on star 1, relative to
+meridian defined by line of centres}
+!!arg{stsp13_lat}{Latitude (degrees) of spot 3 on star 1}
+!!arg{stsp13_lat}{FWHM (degrees) of spot 3 on star 1, as seen from its centre
+of mass. Spot has gaussian distribution of temperature.}
+!!arg{stsp13_tcen}{Central temp (K) of spot 3 on star 1}
+
 !!arg{stsp21_long}{Longitude (degrees) of spot 1 on star 2, relative to
 meridian defined by line of centres}
 !!arg{stsp21_lat}{Latitude (degrees) of spot 1 on star 2}
 !!arg{stsp21_lat}{FWHM (degrees) of spot 1 on star 2, as seen from its centre
 of mass. Spot has gaussian distribution of temperature.}
 !!arg{stsp21_tcen}{Central temp (K) of spot 1 on star 2}
+
+!!arg{uesp_long1}{Start longitude (degrees) of uniform equatorial
+spot on star 1, relative to meridian defined by line of centres}
+!!arg{uesp_long2}{End longitude (degrees) of uniform equatorial
+spot on star 1, relative to meridian defined by line of centres}
+!!arg{uesp_lathw}{Half with in latitude (degrees) of uniform equatorial
+spot on star 2}
+!!arg{uesp_taper}{At the edges of the spot, the temperature decays
+exponentially to the surrounding photosphere over this number (in degrees)}
+!!arg{uesp_temp}{Temp (K) of uniform equatorial spot on star 1}
+
 !!table
 
 !!head3 Disc
@@ -434,9 +461,6 @@ int main(int argc, char* argv[]){
             }
         }
         input.save();
-
-        // Construct function object
-        Lcurve::Fobj func(model, data);
 
         // Compute light curve
         Subs::Array1D<double> fit;

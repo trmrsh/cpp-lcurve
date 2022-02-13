@@ -245,7 +245,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
                                           data[np].ndiv, mdl.q,
                                           mdl.beam_factor1, mdl.velocity_scale,
                                           gint, star1f, star1c);
-
+	  
           fcomp[np][1] = slfac*comp_disc(mdl.iangle, mdl.lin_limb_disc,
                                          mdl.quad_limb_disc, phase, expose,
                                          data[np].ndiv, mdl.q,
@@ -269,6 +269,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
                                               gint, star2f, star2c);
 
       }else{
+	
           calc[np] = slfac*comp_light(mdl.iangle, ldc1, ldc2,
                                       mdl.lin_limb_disc, mdl.quad_limb_disc,
                                       phase, expose, data[np].ndiv,
@@ -276,6 +277,7 @@ void Lcurve::light_curve_comp(const Lcurve::Model& mdl,
                                       mdl.spin1, mdl.spin2, mdl.velocity_scale,
                                       mdl.glens1, rlens1, gint, star1f, star2f,
                                       star1c, star2c, disc, edge, spot) + mdl.third;
+
       }
   }
 

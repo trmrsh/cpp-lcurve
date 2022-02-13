@@ -106,7 +106,7 @@ double Lcurve::comp_light(double iangle, const LDC& ldc1, const LDC& ldc2,
             }
         }
         ssum *= gint.scale1(phi);
-
+	
         // Star 2.
         ssum2 = 0.;
 

@@ -83,51 +83,67 @@ Lcurve::Model::Model(const std::string& file) {
     // 11 = star 1, spot 1
     // 21 = star 2, spot 1
     //
-    names["stsp11_long"]    = false;
-    names["stsp11_lat"]     = false;
-    names["stsp11_fwhm"]    = false;
-    names["stsp11_tcen"]    = false;
+    names["stsp11_long"] = false;
+    names["stsp11_lat"] = false;
+    names["stsp11_fwhm"] = false;
+    names["stsp11_tcen"] = false;
 
-    names["stsp21_long"]    = false;
-    names["stsp21_lat"]     = false;
-    names["stsp21_fwhm"]    = false;
-    names["stsp21_tcen"]    = false;
+    names["stsp12_long"] = false;
+    names["stsp12_lat"] = false;
+    names["stsp12_fwhm"] = false;
+    names["stsp12_tcen"] = false;
+
+    names["stsp13_long"] = false;
+    names["stsp13_lat"] = false;
+    names["stsp13_fwhm"] = false;
+    names["stsp13_tcen"] = false;
+
+    names["stsp21_long"] = false;
+    names["stsp21_lat"] = false;
+    names["stsp21_fwhm"] = false;
+    names["stsp21_tcen"] = false;
+
+    names["uesp_long1"] = false;
+    names["uesp_long2"] = false;
+    names["uesp_lathw"] = false;
+    names["uesp_taper"] = false;
+    names["uesp_temp"] = false;
 
     // Computational
-    names["delta_phase"]    = false;
-    names["nlat1f"]         = false;
-    names["nlat2f"]         = false;
-    names["nlat1c"]         = false;
-    names["nlat2c"]         = false;
-    names["npole"]          = false;
-    names["nlatfill"]       = false;
-    names["nlngfill"]       = false;
-    names["lfudge"]         = false;
-    names["llo"]            = false;
-    names["lhi"]            = false;
-    names["phase1"]         = false;
-    names["phase2"]         = false;
-    names["wavelength"]     = false;
-    names["roche1"]         = false;
-    names["roche2"]         = false;
-    names["eclipse1"]       = false;
-    names["eclipse2"]       = false;
-    names["glens1"]         = false;
-    names["use_radii"]      = false;
-    names["tperiod"]        = false;
-    names["gdark_bolom1"]   = false;
-    names["gdark_bolom2"]   = false;
-    names["mucrit1"]        = false;
-    names["mucrit2"]        = false;
-    names["limb1"]          = false;
-    names["limb2"]          = false;
-    names["mirror"]         = false;
-    names["add_disc"]       = false;
-    names["nrad"]           = false;
-    names["opaque"]         = false;
-    names["add_spot"]       = false;
-    names["nspot"]          = false;
-    names["iscale"]         = false;
+    names["delta_phase"] = false;
+    names["nlat1f"] = false;
+    names["nlat2f"] = false;
+    names["nlat1c"] = false;
+    names["nlat2c"] = false;
+    names["npole"] = false;
+    names["nlatfill"] = false;
+    names["nlngfill"] = false;
+    names["lfudge"] = false;
+    names["llo"] = false;
+    names["lhi"] = false;
+    names["phase1"] = false;
+    names["phase2"] = false;
+    names["wavelength"] = false;
+    names["roche1"] = false;
+    names["roche2"] = false;
+    names["eclipse1"] = false;
+    names["eclipse2"] = false;
+    names["glens1"] = false;
+    names["use_radii"] = false;
+    names["tperiod"] = false;
+    names["gdark_bolom1"] = false;
+    names["gdark_bolom2"] = false;
+    names["mucrit1"] = false;
+    names["mucrit2"] = false;
+    names["limb1"] = false;
+    names["limb2"] = false;
+    names["mirror"] = false;
+    names["add_disc"] = false;
+    names["nrad"] = false;
+    names["opaque"] = false;
+    names["add_spot"] = false;
+    names["nspot"] = false;
+    names["iscale"] = false;
 
     // Parameter value pairs
     std::map<std::string, std::string> pv;
@@ -204,7 +220,7 @@ Lcurve::Model::Model(const std::string& file) {
                 std::cerr << nit->first
                           << " was not defined; will be set = 0" << std::endl;
                 pv[nit->first] = "0 1.e-10 1.e-10 0 0";
-            }else if(nit->first.substr(0,4) != "stsp"){
+            }else if(nit->first.substr(0,4) != "stsp" && nit->first.substr(0,4) != "uesp"){
                 std::cerr << nit->first << " was not defined " << std::endl;
                 ok = false;
             }
@@ -270,6 +286,7 @@ Lcurve::Model::Model(const std::string& file) {
     // if one of a group has, then all of them should be
     if(names["stsp11_long"] || names["stsp11_lat"] ||
        names["stsp11_fwhm"] || names["stsp11_tcen"]){
+
         if(!(names["stsp11_long"] && names["stsp11_lat"] &&
              names["stsp11_fwhm"] && names["stsp11_tcen"]))
             throw Lcurve_Error("One or more of the star spot 11 parameters were not initialised");
@@ -279,15 +296,51 @@ Lcurve::Model::Model(const std::string& file) {
         stsp11_tcen = Pparam(pv["stsp11_tcen"]);
     }
 
+    if(names["stsp12_long"] || names["stsp12_lat"] ||
+       names["stsp12_fwhm"] || names["stsp12_tcen"]){
+
+        if(!(names["stsp12_long"] && names["stsp12_lat"] &&
+             names["stsp12_fwhm"] && names["stsp12_tcen"]))
+            throw Lcurve_Error("One or more of the star spot 12 parameters were not initialised");
+        stsp12_long = Pparam(pv["stsp12_long"]);
+        stsp12_lat  = Pparam(pv["stsp12_lat"]);
+        stsp12_fwhm = Pparam(pv["stsp12_fwhm"]);
+        stsp12_tcen = Pparam(pv["stsp12_tcen"]);
+    }
+
+    if(names["stsp13_long"] || names["stsp13_lat"] ||
+       names["stsp13_fwhm"] || names["stsp13_tcen"]){
+
+        if(!(names["stsp13_long"] && names["stsp13_lat"] &&
+             names["stsp13_fwhm"] && names["stsp13_tcen"]))
+            throw Lcurve_Error("One or more of the star spot 13 parameters were not initialised");
+        stsp13_long = Pparam(pv["stsp13_long"]);
+        stsp13_lat  = Pparam(pv["stsp13_lat"]);
+        stsp13_fwhm = Pparam(pv["stsp13_fwhm"]);
+        stsp13_tcen = Pparam(pv["stsp13_tcen"]);
+    }
+
     if(names["stsp21_long"] || names["stsp21_lat"] ||
        names["stsp21_fwhm"] || names["stsp21_tcen"]){
         if(!(names["stsp21_long"] && names["stsp21_lat"] &&
              names["stsp21_fwhm"] && names["stsp21_tcen"]))
-            throw Lcurve_Error("One or more of the star spot 11 parameters were not initialised");
+            throw Lcurve_Error("One or more of the star spot 21 parameters were not initialised");
         stsp21_long = Pparam(pv["stsp21_long"]);
         stsp21_lat  = Pparam(pv["stsp21_lat"]);
         stsp21_fwhm = Pparam(pv["stsp21_fwhm"]);
         stsp21_tcen = Pparam(pv["stsp21_tcen"]);
+    }
+
+    if(names["uesp_long1"] || names["uesp_long2"] ||
+       names["uesp_lathw"] || names["uesp_taper"] || names["uesp_temp"]){
+      if(!(names["uesp_long1"] && names["uesp_long2"] &&
+	   names["uesp_lathw"] && names["uesp_taper"] && names["uesp_temp"]))
+	throw Lcurve_Error("One or more of uniform equatorial spot parameters were not initialised");
+      uesp_long1 = Pparam(pv["uesp_long1"]);
+      uesp_long2 = Pparam(pv["uesp_long2"]);
+      uesp_lathw = Pparam(pv["uesp_lathw"]);
+      uesp_taper = Pparam(pv["uesp_taper"]);
+      uesp_temp = Pparam(pv["uesp_temp"]);
     }
 
     delta_phase = Subs::string_to_double(pv["delta_phase"]);
@@ -415,14 +468,31 @@ int Lcurve::Model::nvary() const {
     }
 
     if(stsp11_long.defined && stsp11_long.vary) n++;
-    if(stsp11_lat.defined  && stsp11_lat.vary)  n++;
+    if(stsp11_lat.defined  && stsp11_lat.vary) n++;
     if(stsp11_fwhm.defined && stsp11_fwhm.vary) n++;
     if(stsp11_tcen.defined && stsp11_tcen.vary) n++;
 
+    if(stsp12_long.defined && stsp12_long.vary) n++;
+    if(stsp12_lat.defined  && stsp12_lat.vary) n++;
+    if(stsp12_fwhm.defined && stsp12_fwhm.vary) n++;
+    if(stsp12_tcen.defined && stsp12_tcen.vary) n++;
+
+    if(stsp13_long.defined && stsp13_long.vary) n++;
+    if(stsp13_lat.defined  && stsp13_lat.vary) n++;
+    if(stsp13_fwhm.defined && stsp13_fwhm.vary) n++;
+    if(stsp13_tcen.defined && stsp13_tcen.vary) n++;
+
     if(stsp21_long.defined && stsp21_long.vary) n++;
-    if(stsp21_lat.defined  && stsp21_lat.vary)  n++;
+    if(stsp21_lat.defined  && stsp21_lat.vary) n++;
     if(stsp21_fwhm.defined && stsp21_fwhm.vary) n++;
     if(stsp21_tcen.defined && stsp21_tcen.vary) n++;
+
+    if(uesp_long1.defined && uesp_long1.vary) n++;
+    if(uesp_long2.defined && uesp_long2.vary) n++;
+    if(uesp_lathw.defined && uesp_lathw.vary) n++;
+    if(uesp_taper.defined && uesp_taper.vary) n++;
+    if(uesp_temp.defined && uesp_temp.vary) n++;
+    
     return n;
 }
 
@@ -493,15 +563,32 @@ void Lcurve::Model::set_param(const Subs::Array1D<double>& vpar) {
         if(tilt_spot.vary) tilt_spot.value           = vpar[n++];
         if(cfrac_spot.vary) cfrac_spot.value         = vpar[n++];
     }
+
     if(stsp11_long.defined && stsp11_long.vary) stsp11_long.value = vpar[n++];
-    if(stsp11_lat.defined  && stsp11_lat.vary)  stsp11_lat.value  = vpar[n++];
+    if(stsp11_lat.defined  && stsp11_lat.vary) stsp11_lat.value = vpar[n++];
     if(stsp11_fwhm.defined && stsp11_fwhm.vary) stsp11_fwhm.value = vpar[n++];
     if(stsp11_tcen.defined && stsp11_tcen.vary) stsp11_tcen.value = vpar[n++];
 
+    if(stsp12_long.defined && stsp12_long.vary) stsp12_long.value = vpar[n++];
+    if(stsp12_lat.defined  && stsp12_lat.vary) stsp12_lat.value = vpar[n++];
+    if(stsp12_fwhm.defined && stsp12_fwhm.vary) stsp12_fwhm.value = vpar[n++];
+    if(stsp12_tcen.defined && stsp12_tcen.vary) stsp12_tcen.value = vpar[n++];
+
+    if(stsp13_long.defined && stsp13_long.vary) stsp13_long.value = vpar[n++];
+    if(stsp13_lat.defined  && stsp13_lat.vary) stsp13_lat.value = vpar[n++];
+    if(stsp13_fwhm.defined && stsp13_fwhm.vary) stsp13_fwhm.value = vpar[n++];
+    if(stsp13_tcen.defined && stsp13_tcen.vary) stsp13_tcen.value = vpar[n++];
+
     if(stsp21_long.defined && stsp21_long.vary) stsp21_long.value = vpar[n++];
-    if(stsp21_lat.defined  && stsp21_lat.vary)  stsp21_lat.value  = vpar[n++];
+    if(stsp21_lat.defined  && stsp21_lat.vary) stsp21_lat.value = vpar[n++];
     if(stsp21_fwhm.defined && stsp21_fwhm.vary) stsp21_fwhm.value = vpar[n++];
     if(stsp21_tcen.defined && stsp21_tcen.vary) stsp21_tcen.value = vpar[n++];
+
+    if(uesp_long1.defined && uesp_long1.vary) uesp_long1.value = vpar[n++];
+    if(uesp_long2.defined && uesp_long2.vary) uesp_long2.value = vpar[n++];
+    if(uesp_lathw.defined && uesp_lathw.vary) uesp_lathw.value = vpar[n++];
+    if(uesp_taper.defined && uesp_taper.vary) uesp_taper.value = vpar[n++];
+    if(uesp_temp.defined && uesp_temp.vary) uesp_temp.value = vpar[n++];
 }
 
 std::string Lcurve::Model::get_name(int i) const {
@@ -682,6 +769,24 @@ std::string Lcurve::Model::get_name(int i) const {
     if(stsp11_tcen.defined && stsp11_tcen.vary) n++;
     if(n == i) return "stsp11_tcen";
 
+    if(stsp12_long.defined && stsp12_long.vary) n++;
+    if(n == i) return "stsp12_long";
+    if(stsp12_lat.defined  && stsp12_lat.vary) n++;
+    if(n == i) return "stsp12_lat";
+    if(stsp12_fwhm.defined && stsp12_fwhm.vary) n++;
+    if(n == i) return "stsp12_fwhm";
+    if(stsp12_tcen.defined && stsp12_tcen.vary) n++;
+    if(n == i) return "stsp12_tcen";
+
+    if(stsp13_long.defined && stsp13_long.vary) n++;
+    if(n == i) return "stsp13_long";
+    if(stsp13_lat.defined  && stsp13_lat.vary) n++;
+    if(n == i) return "stsp13_lat";
+    if(stsp13_fwhm.defined && stsp13_fwhm.vary) n++;
+    if(n == i) return "stsp13_fwhm";
+    if(stsp13_tcen.defined && stsp13_tcen.vary) n++;
+    if(n == i) return "stsp13_tcen";
+
     if(stsp21_long.defined && stsp21_long.vary) n++;
     if(n == i) return "stsp21_long";
     if(stsp21_lat.defined  && stsp21_lat.vary) n++;
@@ -690,6 +795,17 @@ std::string Lcurve::Model::get_name(int i) const {
     if(n == i) return "stsp21_fwhm";
     if(stsp21_tcen.defined && stsp21_tcen.vary) n++;
     if(n == i) return "stsp21_tcen";
+
+    if(uesp_long1.defined && uesp_long1.vary) n++;
+    if(n == i) return "uesp_long1";
+    if(uesp_long2.defined && uesp_long2.vary) n++;
+    if(n == i) return "uesp_long2";
+    if(uesp_lathw.defined && uesp_lathw.vary) n++;
+    if(n == i) return "uesp_lathw";
+    if(uesp_taper.defined && uesp_taper.vary) n++;
+    if(n == i) return "uesp_taper";
+    if(uesp_temp.defined && uesp_temp.vary) n++;
+    if(n == i) return "uesp_temp";
 
     return "UNKNOWN";
 }
@@ -977,6 +1093,40 @@ bool Lcurve::Model::is_not_legal(const Subs::Array1D<double>& vpar) const {
         n++;
     }
 
+    if(stsp12_long.defined && stsp12_long.vary){
+        if(vpar[n] < -400. || vpar[n] > 400.) return true;
+        n++;
+    }
+    if(stsp12_lat.defined && stsp12_lat.vary){
+        if(vpar[n] < -90. || vpar[n] > 90.) return true;
+        n++;
+    }
+    if(stsp12_fwhm.defined  && stsp12_fwhm.vary){
+        if(vpar[n] <= 0. || vpar[n] > 180.) return true;
+        n++;
+    }
+    if(stsp12_tcen.defined  && stsp12_tcen.vary){
+        if(vpar[n] <= 0.) return true;
+        n++;
+    }
+
+    if(stsp13_long.defined && stsp13_long.vary){
+        if(vpar[n] < -400. || vpar[n] > 400.) return true;
+        n++;
+    }
+    if(stsp13_lat.defined && stsp13_lat.vary){
+        if(vpar[n] < -90. || vpar[n] > 90.) return true;
+        n++;
+    }
+    if(stsp13_fwhm.defined  && stsp13_fwhm.vary){
+        if(vpar[n] <= 0. || vpar[n] > 180.) return true;
+        n++;
+    }
+    if(stsp13_tcen.defined  && stsp13_tcen.vary){
+        if(vpar[n] <= 0.) return true;
+        n++;
+    }
+    
     if(stsp21_long.defined && stsp21_long.vary){
         if(vpar[n] < -400. || vpar[n] > 400.) return true;
         n++;
@@ -994,6 +1144,31 @@ bool Lcurve::Model::is_not_legal(const Subs::Array1D<double>& vpar) const {
         n++;
     }
 
+    if(uesp_long1.defined && uesp_long1.vary) {
+      if(vpar[n] < -360. || vpar[n] > 360.) return true;
+      n++;
+    }
+
+    if(uesp_long2.defined && uesp_long2.vary) {
+      if(vpar[n] < -360. || vpar[n] > 720.) return true;
+      n++;
+    }
+
+    if(uesp_lathw.defined && uesp_lathw.vary) {
+      if(vpar[n] <= 0. || vpar[n] > 80.) return true;
+      n++;
+    }
+    
+    if(uesp_taper.defined && uesp_taper.vary) {
+      if(vpar[n] <= 0.) return true;
+      n++;
+    }
+    
+    if(uesp_temp.defined && uesp_temp.vary) {
+      if(vpar[n] <= 0.) return true;
+      n++;
+    }
+    
     return false;
 
 }
@@ -1080,6 +1255,24 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
     if(stsp11_tcen.defined && stsp11_tcen.vary)
         temp.push_back(stsp11_tcen.value);
 
+    if(stsp12_long.defined && stsp12_long.vary)
+        temp.push_back(stsp12_long.value);
+    if(stsp12_lat.defined && stsp12_lat.vary)
+        temp.push_back(stsp12_lat.value);
+    if(stsp12_fwhm.defined && stsp12_fwhm.vary)
+        temp.push_back(stsp12_fwhm.value);
+    if(stsp12_tcen.defined && stsp12_tcen.vary)
+        temp.push_back(stsp12_tcen.value);
+
+    if(stsp13_long.defined && stsp13_long.vary)
+        temp.push_back(stsp13_long.value);
+    if(stsp13_lat.defined && stsp13_lat.vary)
+        temp.push_back(stsp13_lat.value);
+    if(stsp13_fwhm.defined && stsp13_fwhm.vary)
+        temp.push_back(stsp13_fwhm.value);
+    if(stsp13_tcen.defined && stsp13_tcen.vary)
+        temp.push_back(stsp13_tcen.value);
+    
     if(stsp21_long.defined && stsp21_long.vary)
         temp.push_back(stsp21_long.value);
     if(stsp21_lat.defined && stsp21_lat.vary)
@@ -1088,6 +1281,17 @@ Subs::Array1D<double> Lcurve::Model::get_param() const {
         temp.push_back(stsp21_fwhm.value);
     if(stsp21_tcen.defined && stsp21_tcen.vary)
         temp.push_back(stsp21_tcen.value);
+
+    if(uesp_long1.defined && uesp_long1.vary)
+      temp.push_back(uesp_long1.value);
+    if(uesp_long2.defined && uesp_long2.vary) 
+      temp.push_back(uesp_long2.value);
+    if(uesp_lathw.defined && uesp_lathw.vary) 
+      temp.push_back(uesp_lathw.value);
+    if(uesp_taper.defined && uesp_taper.vary) 
+      temp.push_back(uesp_taper.value);
+    if(uesp_temp.defined && uesp_temp.vary) 
+      temp.push_back(uesp_temp.value);
 
     return temp;
 }
@@ -1105,16 +1309,16 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
     if(q.vary) temp.push_back(q.range);
     if(iangle.vary) temp.push_back(iangle.range);
     if(use_radii){
-        if(r1.vary)     temp.push_back(r1.range);
-        if(r2.vary)     temp.push_back(r2.range);
+        if(r1.vary) temp.push_back(r1.range);
+        if(r2.vary) temp.push_back(r2.range);
     }else{
-        if(cphi3.vary)  temp.push_back(cphi3.range);
-        if(cphi4.vary)  temp.push_back(cphi4.range);
+        if(cphi3.vary) temp.push_back(cphi3.range);
+        if(cphi4.vary) temp.push_back(cphi4.range);
     }
-    if(spin1.vary)  temp.push_back(spin1.range);
-    if(spin2.vary)  temp.push_back(spin2.range);
-    if(t1.vary)     temp.push_back(t1.range);
-    if(t2.vary)     temp.push_back(t2.range);
+    if(spin1.vary) temp.push_back(spin1.range);
+    if(spin2.vary) temp.push_back(spin2.range);
+    if(t1.vary) temp.push_back(t1.range);
+    if(t2.vary) temp.push_back(t2.range);
     if(ldc1_1.vary) temp.push_back(ldc1_1.range);
     if(ldc1_2.vary) temp.push_back(ldc1_2.range);
     if(ldc1_3.vary) temp.push_back(ldc1_3.range);
@@ -1174,6 +1378,24 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
     if(stsp11_tcen.defined && stsp11_tcen.vary)
         temp.push_back(stsp11_tcen.range);
 
+    if(stsp12_long.defined && stsp12_long.vary)
+        temp.push_back(stsp12_long.range);
+    if(stsp12_lat.defined && stsp12_lat.vary)
+        temp.push_back(stsp12_lat.range);
+    if(stsp12_fwhm.defined && stsp12_fwhm.vary)
+        temp.push_back(stsp12_fwhm.range);
+    if(stsp12_tcen.defined && stsp12_tcen.vary)
+        temp.push_back(stsp12_tcen.range);
+
+    if(stsp13_long.defined && stsp13_long.vary)
+        temp.push_back(stsp13_long.range);
+    if(stsp13_lat.defined && stsp13_lat.vary)
+        temp.push_back(stsp13_lat.range);
+    if(stsp13_fwhm.defined && stsp13_fwhm.vary)
+        temp.push_back(stsp13_fwhm.range);
+    if(stsp13_tcen.defined && stsp13_tcen.vary)
+        temp.push_back(stsp13_tcen.range);
+
     if(stsp21_long.defined && stsp21_long.vary)
         temp.push_back(stsp21_long.range);
     if(stsp21_lat.defined && stsp21_lat.vary)
@@ -1182,6 +1404,17 @@ Subs::Array1D<double> Lcurve::Model::get_range() const {
         temp.push_back(stsp21_fwhm.range);
     if(stsp21_tcen.defined && stsp21_tcen.vary)
         temp.push_back(stsp21_tcen.range);
+
+    if(uesp_long1.defined && uesp_long1.vary)
+      temp.push_back(uesp_long1.range);
+    if(uesp_long2.defined && uesp_long2.vary) 
+      temp.push_back(uesp_long2.range);
+    if(uesp_lathw.defined && uesp_lathw.vary) 
+      temp.push_back(uesp_lathw.range);
+    if(uesp_taper.defined && uesp_taper.vary) 
+      temp.push_back(uesp_taper.range);
+    if(uesp_temp.defined && uesp_temp.vary) 
+      temp.push_back(uesp_temp.range);
 
     return temp;
 }
@@ -1202,13 +1435,13 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
         if(r1.vary)     temp.push_back(r1.dstep);
         if(r2.vary)     temp.push_back(r2.dstep);
     }else{
-        if(cphi3.vary)  temp.push_back(cphi3.dstep);
-        if(cphi4.vary)  temp.push_back(cphi4.dstep);
+        if(cphi3.vary) temp.push_back(cphi3.dstep);
+        if(cphi4.vary) temp.push_back(cphi4.dstep);
     }
-    if(spin1.vary)  temp.push_back(spin1.dstep);
-    if(spin2.vary)  temp.push_back(spin2.dstep);
-    if(t1.vary)     temp.push_back(t1.dstep);
-    if(t2.vary)     temp.push_back(t2.dstep);
+    if(spin1.vary) temp.push_back(spin1.dstep);
+    if(spin2.vary) temp.push_back(spin2.dstep);
+    if(t1.vary) temp.push_back(t1.dstep);
+    if(t2.vary) temp.push_back(t2.dstep);
     if(ldc1_1.vary) temp.push_back(ldc1_1.dstep);
     if(ldc1_2.vary) temp.push_back(ldc1_2.dstep);
     if(ldc1_3.vary) temp.push_back(ldc1_3.dstep);
@@ -1250,13 +1483,13 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
         if(radius_spot.vary) temp.push_back(radius_spot.dstep);
         if(length_spot.vary) temp.push_back(length_spot.dstep);
         if(height_spot.vary) temp.push_back(height_spot.dstep);
-        if(expon_spot.vary)  temp.push_back(expon_spot.dstep);
-        if(epow_spot.vary)   temp.push_back(epow_spot.dstep);
-        if(angle_spot.vary)  temp.push_back(angle_spot.dstep);
-        if(yaw_spot.vary)    temp.push_back(yaw_spot.dstep);
-        if(temp_spot.vary)   temp.push_back(temp_spot.dstep);
-        if(tilt_spot.vary)   temp.push_back(tilt_spot.dstep);
-        if(cfrac_spot.vary)  temp.push_back(cfrac_spot.dstep);
+        if(expon_spot.vary) temp.push_back(expon_spot.dstep);
+        if(epow_spot.vary) temp.push_back(epow_spot.dstep);
+        if(angle_spot.vary) temp.push_back(angle_spot.dstep);
+        if(yaw_spot.vary) temp.push_back(yaw_spot.dstep);
+        if(temp_spot.vary) temp.push_back(temp_spot.dstep);
+        if(tilt_spot.vary) temp.push_back(tilt_spot.dstep);
+        if(cfrac_spot.vary) temp.push_back(cfrac_spot.dstep);
     }
 
     if(stsp11_long.defined && stsp11_long.vary)
@@ -1268,6 +1501,24 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
     if(stsp11_tcen.defined && stsp11_tcen.vary)
         temp.push_back(stsp11_tcen.dstep);
 
+    if(stsp12_long.defined && stsp12_long.vary)
+        temp.push_back(stsp12_long.dstep);
+    if(stsp12_lat.defined && stsp12_lat.vary)
+        temp.push_back(stsp12_lat.dstep);
+    if(stsp12_fwhm.defined && stsp12_fwhm.vary)
+        temp.push_back(stsp12_fwhm.dstep);
+    if(stsp12_tcen.defined && stsp12_tcen.vary)
+        temp.push_back(stsp12_tcen.dstep);
+
+    if(stsp13_long.defined && stsp13_long.vary)
+        temp.push_back(stsp13_long.dstep);
+    if(stsp13_lat.defined && stsp13_lat.vary)
+        temp.push_back(stsp13_lat.dstep);
+    if(stsp13_fwhm.defined && stsp13_fwhm.vary)
+        temp.push_back(stsp13_fwhm.dstep);
+    if(stsp13_tcen.defined && stsp13_tcen.vary)
+        temp.push_back(stsp13_tcen.dstep);
+    
     if(stsp21_long.defined && stsp21_long.vary)
         temp.push_back(stsp21_long.dstep);
     if(stsp21_lat.defined && stsp21_lat.vary)
@@ -1277,6 +1528,17 @@ Subs::Array1D<double> Lcurve::Model::get_dstep() const {
     if(stsp21_tcen.defined && stsp21_tcen.vary)
         temp.push_back(stsp21_tcen.dstep);
 
+    if(uesp_long1.defined && uesp_long1.vary)
+      temp.push_back(uesp_long1.dstep);
+    if(uesp_long2.defined && uesp_long2.vary) 
+      temp.push_back(uesp_long2.dstep);
+    if(uesp_lathw.defined && uesp_lathw.vary) 
+      temp.push_back(uesp_lathw.dstep);
+    if(uesp_taper.defined && uesp_taper.vary) 
+      temp.push_back(uesp_taper.dstep);
+    if(uesp_temp.defined && uesp_temp.vary) 
+      temp.push_back(uesp_temp.dstep);
+    
     return temp;
 }
 
@@ -1343,10 +1605,26 @@ std::ostream& Lcurve::operator<<(std::ostream& s, const Model& model){
     s << "stsp11_fwhm    = " << model.stsp11_fwhm    << "\n";
     s << "stsp11_tcen    = " << model.stsp11_tcen    << "\n\n";
 
+    s << "stsp12_long    = " << model.stsp12_long    << "\n";
+    s << "stsp12_lat     = " << model.stsp12_lat     << "\n";
+    s << "stsp12_fwhm    = " << model.stsp12_fwhm    << "\n";
+    s << "stsp12_tcen    = " << model.stsp12_tcen    << "\n\n";
+
+    s << "stsp13_long    = " << model.stsp13_long    << "\n";
+    s << "stsp13_lat     = " << model.stsp13_lat     << "\n";
+    s << "stsp13_fwhm    = " << model.stsp13_fwhm    << "\n";
+    s << "stsp13_tcen    = " << model.stsp13_tcen    << "\n\n";
+    
     s << "stsp21_long    = " << model.stsp21_long    << "\n";
     s << "stsp21_lat     = " << model.stsp21_lat     << "\n";
     s << "stsp21_fwhm    = " << model.stsp21_fwhm    << "\n";
     s << "stsp21_tcen    = " << model.stsp21_tcen    << "\n\n";
+
+    s << "uesp_long1     = " << model.uesp_long1   << "\n";
+    s << "uesp_long2     = " << model.uesp_long2   << "\n";
+    s << "uesp_lathw     = " << model.uesp_lathw   << "\n";
+    s << "uesp_taper     = " << model.uesp_taper   << "\n";
+    s << "uesp_temp      = " << model.uesp_temp    << "\n\n";
 
     s << "delta_phase    = " << model.delta_phase    << "\n";
     s << "nlat1f         = " << model.nlat1f         << "\n";

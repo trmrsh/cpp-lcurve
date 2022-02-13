@@ -57,35 +57,115 @@ void Lcurve::set_star_continuum(const Model& mdl,
 
     int nelem1 = star1.size();
 
-    // compute direction of star spot 11
-    Subs::Vec3 spot11;
+    // compute direction of star spot 11, 12, 13, and the uespot
+    Subs::Vec3 spot11, spot12, spot13, uespot;
     bool is_spot11 = mdl.stsp11_long.defined && mdl.stsp11_lat.defined &&
         mdl.stsp11_fwhm.defined && mdl.stsp11_tcen.defined;
+    bool is_spot12 = mdl.stsp12_long.defined && mdl.stsp12_lat.defined &&
+      mdl.stsp12_fwhm.defined && mdl.stsp12_tcen.defined;
+    bool is_spot13 = mdl.stsp13_long.defined && mdl.stsp13_lat.defined &&
+        mdl.stsp13_fwhm.defined && mdl.stsp13_tcen.defined;
+    bool is_uespot = mdl.uesp_long1.defined && mdl.uesp_long2.defined &&
+      mdl.uesp_lathw.defined && mdl.uesp_taper.defined && mdl.uesp_temp.defined;
+    
     double clong11=0., slong11=0., clat11=0., slat11=0.;
+    double clong12=0., slong12=0., clat12=0., slat12=0.;
+    double clong13=0., slong13=0., clat13=0., slat13=0.;
     if(is_spot11){
         clong11 = std::cos(Subs::deg2rad(mdl.stsp11_long.value));
         slong11 = std::sin(Subs::deg2rad(mdl.stsp11_long.value));
-        clat11  = std::cos(Subs::deg2rad(mdl.stsp11_lat.value));
-        slat11  = std::sin(Subs::deg2rad(mdl.stsp11_lat.value));
+        clat11 = std::cos(Subs::deg2rad(mdl.stsp11_lat.value));
+        slat11 = std::sin(Subs::deg2rad(mdl.stsp11_lat.value));
+	spot11 = Subs::Vec3(clat11*clong11, clat11*slong11, slat11);
     }
-    spot11 = Subs::Vec3(clat11*clong11, clat11*slong11, slat11);
 
+    if(is_spot12){
+        clong12 = std::cos(Subs::deg2rad(mdl.stsp12_long.value));
+        slong12 = std::sin(Subs::deg2rad(mdl.stsp12_long.value));
+        clat12  = std::cos(Subs::deg2rad(mdl.stsp12_lat.value));
+        slat12  = std::sin(Subs::deg2rad(mdl.stsp12_lat.value));
+	spot12 = Subs::Vec3(clat12*clong12, clat12*slong12, slat12);
+    }
+
+    if(is_spot13){
+        clong13 = std::cos(Subs::deg2rad(mdl.stsp13_long.value));
+        slong13 = std::sin(Subs::deg2rad(mdl.stsp13_long.value));
+        clat13  = std::cos(Subs::deg2rad(mdl.stsp13_lat.value));
+        slat13  = std::sin(Subs::deg2rad(mdl.stsp13_lat.value));
+	spot13 = Subs::Vec3(clat13*clong13, clat13*slong13, slat13);
+    }
+
+    double longhw=0.;
+    if(is_uespot){
+      longhw = (mdl.uesp_long2.value - mdl.uesp_long1.value)/2.;
+      double lcen = Subs::deg2rad( (mdl.uesp_long1.value + mdl.uesp_long2.value)/2. );
+      double clong = std::cos(lcen);
+      double slong = std::sin(lcen);
+      uespot = Subs::Vec3(clong, slong, 0.);
+    }
+    
     for(int i=0; i<nelem1; i++){
         vec = cofm2 - star1[i].posn;
-        r   = vec.length();
-        mu  = Subs::dot(star1[i].dirn, vec)/r;
+        r = vec.length();
+        mu = Subs::dot(star1[i].dirn, vec)/r;
 
         // compute unirradiated temperature allowing for
         // offset from spot centre
         double t1 = mdl.t1;
+
         if(is_spot11){
-            double dist =
-                Subs::rad2deg(std::acos(Subs::dot(star1[i].posn, spot11)/
-                                        star1[i].posn.length()));
-            t1 += (mdl.stsp11_tcen-mdl.t1)*
-                std::exp(-Subs::sqr(dist/(mdl.stsp11_fwhm/Constants::EFAC))/2.);
+	  double dist =
+	    Subs::rad2deg(std::acos(Subs::dot(star1[i].posn, spot11)/
+				    star1[i].posn.length()));
+	  t1 += (mdl.stsp11_tcen-mdl.t1)*
+	    std::exp(-Subs::sqr(dist/(mdl.stsp11_fwhm/Constants::EFAC))/2.);
+        }
+	
+	if(is_spot12){
+	  double dist =
+	    Subs::rad2deg(std::acos(Subs::dot(star1[i].posn, spot12)/
+				    star1[i].posn.length()));
+	  t1 += (mdl.stsp12_tcen-mdl.t1)*
+	    std::exp(-Subs::sqr(dist/(mdl.stsp12_fwhm/Constants::EFAC))/2.);
+        }
+	
+	if(is_spot13){
+	  double dist =
+	    Subs::rad2deg(std::acos(Subs::dot(star1[i].posn, spot13)/
+				    star1[i].posn.length()));
+	  t1 += (mdl.stsp13_tcen-mdl.t1)*
+	    std::exp(-Subs::sqr(dist/(mdl.stsp13_fwhm/Constants::EFAC))/2.);
         }
 
+        if(is_uespot){
+	  // equatorial spot
+	  Subs::Vec3 evec(star1[i].posn.x(),star1[i].posn.y(),0);
+	  double evecl = evec.length();
+	  if(evecl > 0.){
+
+	    // compute latitude and longitude offset
+	    double rd = star1[i].posn.length();
+	    double clat = Subs::dot(star1[i].posn, evec) / evecl / rd;
+	    clat = std::min(1.0, std::max(-1., clat));
+	    double dlat = Subs::rad2deg(std::acos(clat));
+	    
+	    double clong = Subs::dot(uespot, evec)/evecl;
+	    clong = std::min(1.0, std::max(-1., clong));
+	    double dlong = Subs::rad2deg(std::acos(clong));
+	    if(dlat <= mdl.uesp_lathw && dlong <= longhw){
+	      t1 = mdl.uesp_temp;
+	    }else if(dlat <= mdl.uesp_lathw){
+	      t1 += (mdl.uesp_temp-mdl.t1)*std::exp(-(dlong-longhw)/mdl.uesp_taper);
+	    }else if(dlong <= longhw){
+	      t1 += (mdl.uesp_temp-mdl.t1)*std::exp(-(dlat-mdl.uesp_lathw)/mdl.uesp_taper);
+	    }else{
+	      t1 += (mdl.uesp_temp-mdl.t1)*
+                std::exp(-(dlat-mdl.uesp_lathw)/mdl.uesp_taper)*
+                std::exp(-(dlong-longhw)/mdl.uesp_taper);
+	    }
+	  }
+	}
+	
         if(mu >= r2){
 
             // Full tilt irradiation

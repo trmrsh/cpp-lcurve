@@ -446,6 +446,30 @@ namespace Lcurve {
     Pparam stsp11_tcen;
 
     //! longitude (in direction of orbit relative to other star) of spot
+    Pparam stsp12_long;
+
+    //! latitude of spot (degrees)
+    Pparam stsp12_lat;
+
+    //! fwhm of spot (degrees)
+    Pparam stsp12_fwhm;
+
+    //! central temperature of spot
+    Pparam stsp12_tcen;
+
+    //! longitude (in direction of orbit relative to other star) of spot
+    Pparam stsp13_long;
+
+    //! latitude of spot (degrees)
+    Pparam stsp13_lat;
+
+    //! fwhm of spot (degrees)
+    Pparam stsp13_fwhm;
+
+    //! central temperature of spot
+    Pparam stsp13_tcen;
+    
+    //! longitude (in direction of orbit relative to other star) of spot
     Pparam stsp21_long;
 
     //! latitude of spot (degrees)
@@ -456,6 +480,21 @@ namespace Lcurve {
 
     //! central temperature of spot
     Pparam stsp21_tcen;
+
+    //! start longitude of UE spot
+    Pparam uesp_long1;
+
+    //! end longitude of UE spot
+    Pparam uesp_long2;
+
+    //! half width latitude of UE spot
+    Pparam uesp_lathw;
+
+    //! exponential taper width degrees
+    Pparam uesp_taper;
+
+    //! temperature of UE spot
+    Pparam uesp_temp;
 
     // Computational ones
 
