@@ -214,18 +214,31 @@ void Lcurve::set_star_continuum(const Model& mdl,
     int nelem2 = star2.size();
 
     // compute direction of star spot 21
-    Subs::Vec3 spot21;
+    Subs::Vec3 spot21, spot22;
+    
     bool is_spot21 = mdl.stsp21_long.defined && mdl.stsp21_lat.defined &&
         mdl.stsp21_fwhm.defined && mdl.stsp21_tcen.defined;
+    bool is_spot22 = mdl.stsp22_long.defined && mdl.stsp22_lat.defined &&
+      mdl.stsp22_fwhm.defined && mdl.stsp22_tcen.defined;
+    
     double clong21=0., slong21=0., clat21=0., slat21=0.;
+    double clong22=0., slong22=0., clat22=0., slat22=0.;
     if(is_spot21){
         clong21 = std::cos(Subs::deg2rad(mdl.stsp21_long.value));
         slong21 = std::sin(Subs::deg2rad(mdl.stsp21_long.value));
         clat21  = std::cos(Subs::deg2rad(mdl.stsp21_lat.value));
         slat21  = std::sin(Subs::deg2rad(mdl.stsp21_lat.value));
+	spot21 = Subs::Vec3(clat21*clong21, clat21*slong21, slat21);
     }
-    spot21 = Subs::Vec3(clat21*clong21, clat21*slong21, slat21);
 
+    if(is_spot22){
+        clong22 = std::cos(Subs::deg2rad(mdl.stsp22_long.value));
+        slong22 = std::sin(Subs::deg2rad(mdl.stsp22_long.value));
+        clat22  = std::cos(Subs::deg2rad(mdl.stsp22_lat.value));
+        slat22  = std::sin(Subs::deg2rad(mdl.stsp22_lat.value));
+	spot22 = Subs::Vec3(clat22*clong22, clat22*slong22, slat22);
+    }
+	
     for(int i=0; i<nelem2; i++){
         vec = cofm1 - star2[i].posn;
         r   = vec.length();
@@ -241,6 +254,15 @@ void Lcurve::set_star_continuum(const Model& mdl,
                                         off.length()));
             t2 += (mdl.stsp21_tcen-t2)*
                 std::exp(-Subs::sqr(dist/(mdl.stsp21_fwhm/Constants::EFAC))/2.);
+        }
+
+	if(is_spot22){
+            Subs::Vec3 off = star2[i].posn-cofm2;
+            double dist =
+                Subs::rad2deg(std::acos(Subs::dot(off, spot22)/
+                                        off.length()));
+            t2 += (mdl.stsp22_tcen-t2)*
+                std::exp(-Subs::sqr(dist/(mdl.stsp22_fwhm/Constants::EFAC))/2.);
         }
 
         if(mu >= r1){

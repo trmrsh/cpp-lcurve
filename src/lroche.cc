@@ -206,6 +206,13 @@ meridian defined by line of centres}
 of mass. Spot has gaussian distribution of temperature.}
 !!arg{stsp21_tcen}{Central temp (K) of spot 1 on star 2}
 
+!!arg{stsp22_long}{Longitude (degrees) of spot 2 on star 2, relative to
+meridian defined by line of centres}
+!!arg{stsp22_lat}{Latitude (degrees) of spot 2 on star 2}
+!!arg{stsp22_lat}{FWHM (degrees) of spot 2 on star 2, as seen from its centre
+of mass. Spot has gaussian distribution of temperature.}
+!!arg{stsp22_tcen}{Central temp (K) of spot 2 on star 2}
+
 !!arg{uesp_long1}{Start longitude (degrees) of uniform equatorial
 spot on star 1, relative to meridian defined by line of centres}
 !!arg{uesp_long2}{End longitude (degrees) of uniform equatorial
