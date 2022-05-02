@@ -481,6 +481,18 @@ namespace Lcurve {
     //! central temperature of spot
     Pparam stsp21_tcen;
 
+    //! longitude (in direction of orbit relative to other star) of spot
+    Pparam stsp22_long;
+
+    //! latitude of spot (degrees)
+    Pparam stsp22_lat;
+
+    //! fwhm of spot (degrees)
+    Pparam stsp22_fwhm;
+
+    //! central temperature of spot
+    Pparam stsp22_tcen;
+
     //! start longitude of UE spot
     Pparam uesp_long1;
 
