@@ -417,6 +417,273 @@ Lcurve::Model::Model(const std::string& file) {
 
 }
 
+
+
+
+/* Constructor from parameters added by lijiao
+ */
+Lcurve::Model::Model(//Binary and stars
+                     double q_value, double q_range, double q_dstep, bool q_vary, bool q_defined,
+                     double iangle_value, double iangle_range, double iangle_dstep, bool iangle_vary, bool iangle_defined, 
+                     double r1_value, double r1_range, double r1_dstep, bool r1_vary, bool r1_defined, 
+                     double r2_value, double r2_range, double r2_dstep, bool r2_vary, bool r2_defined, 
+                     double cphi3_value, double cphi3_range, double cphi3_dstep, bool cphi3_vary, bool cphi3_defined, 
+                     double cphi4_value, double cphi4_range, double cphi4_dstep, bool cphi4_vary, bool cphi4_defined, 
+                     double spin1_value, double spin1_range, double spin1_dstep, bool spin1_vary, bool spin1_defined, 
+                     double spin2_value, double spin2_range, double spin2_dstep, bool spin2_vary, bool spin2_defined, 
+                     double t1_value, double t1_range, double t1_dstep, bool t1_vary, bool t1_defined, 
+                     double t2_value, double t2_range, double t2_dstep, bool t2_vary, bool t2_defined, 
+                     double ldc1_1_value, double ldc1_1_range, double ldc1_1_dstep, bool ldc1_1_vary, bool ldc1_1_defined, 
+                     double ldc1_2_value, double ldc1_2_range, double ldc1_2_dstep, bool ldc1_2_vary, bool ldc1_2_defined, 
+                     double ldc1_3_value, double ldc1_3_range, double ldc1_3_dstep, bool ldc1_3_vary, bool ldc1_3_defined, 
+                     double ldc1_4_value, double ldc1_4_range, double ldc1_4_dstep, bool ldc1_4_vary, bool ldc1_4_defined, 
+                     double ldc2_1_value, double ldc2_1_range, double ldc2_1_dstep, bool ldc2_1_vary, bool ldc2_1_defined, 
+                     double ldc2_2_value, double ldc2_2_range, double ldc2_2_dstep, bool ldc2_2_vary, bool ldc2_2_defined, 
+                     double ldc2_3_value, double ldc2_3_range, double ldc2_3_dstep, bool ldc2_3_vary, bool ldc2_3_defined, 
+                     double ldc2_4_value, double ldc2_4_range, double ldc2_4_dstep, bool ldc2_4_vary, bool ldc2_4_defined, 
+                     double velocity_scale_value, double velocity_scale_range, double velocity_scale_dstep, bool velocity_scale_vary, bool velocity_scale_defined, 
+                     double beam_factor1_value, double beam_factor1_range, double beam_factor1_dstep, bool beam_factor1_vary, bool beam_factor1_defined, 
+                     double beam_factor2_value, double beam_factor2_range, double beam_factor2_dstep, bool beam_factor2_vary, bool beam_factor2_defined, 
+                     //General
+                     double t0_value, double t0_range, double t0_dstep, bool t0_vary, bool t0_defined, 
+                     double period_value, double period_range, double period_dstep, bool period_vary, bool period_defined, 
+                     double pdot_value, double pdot_range, double pdot_dstep, bool pdot_vary, bool pdot_defined, 
+                     double deltat_value, double deltat_range, double deltat_dstep, bool deltat_vary, bool deltat_defined, 
+                     double gravity_dark1_value, double gravity_dark1_range, double gravity_dark1_dstep, bool gravity_dark1_vary, bool gravity_dark1_defined, 
+                     double gravity_dark2_value, double gravity_dark2_range, double gravity_dark2_dstep, bool gravity_dark2_vary, bool gravity_dark2_defined, 
+                     double absorb_value, double absorb_range, double absorb_dstep, bool absorb_vary, bool absorb_defined, 
+                     double slope_value, double slope_range, double slope_dstep, bool slope_vary, bool slope_defined, 
+                     double quad_value, double quad_range, double quad_dstep, bool quad_vary, bool quad_defined, 
+                     double cube_value, double cube_range, double cube_dstep, bool cube_vary, bool cube_defined, 
+                     double third_value, double third_range, double third_dstep, bool third_vary, bool third_defined, 
+                     // Star spots
+                     double stsp11_long_value, double stsp11_long_range, double stsp11_long_dstep, bool stsp11_long_vary, bool stsp11_long_defined, 
+                     double stsp11_lat_value, double stsp11_lat_range, double stsp11_lat_dstep, bool stsp11_lat_vary, bool stsp11_lat_defined, 
+                     double stsp11_fwhm_value, double stsp11_fwhm_range, double stsp11_fwhm_dstep, bool stsp11_fwhm_vary, bool stsp11_fwhm_defined, 
+                     double stsp11_tcen_value, double stsp11_tcen_range, double stsp11_tcen_dstep, bool stsp11_tcen_vary, bool stsp11_tcen_defined, 
+                     double stsp12_long_value, double stsp12_long_range, double stsp12_long_dstep, bool stsp12_long_vary, bool stsp12_long_defined, 
+                     double stsp12_lat_value, double stsp12_lat_range, double stsp12_lat_dstep, bool stsp12_lat_vary, bool stsp12_lat_defined, 
+                     double stsp12_fwhm_value, double stsp12_fwhm_range, double stsp12_fwhm_dstep, bool stsp12_fwhm_vary, bool stsp12_fwhm_defined, 
+                     double stsp12_tcen_value, double stsp12_tcen_range, double stsp12_tcen_dstep, bool stsp12_tcen_vary, bool stsp12_tcen_defined, 
+                     double stsp13_long_value, double stsp13_long_range, double stsp13_long_dstep, bool stsp13_long_vary, bool stsp13_long_defined, 
+                     double stsp13_lat_value, double stsp13_lat_range, double stsp13_lat_dstep, bool stsp13_lat_vary, bool stsp13_lat_defined, 
+                     double stsp13_fwhm_value, double stsp13_fwhm_range, double stsp13_fwhm_dstep, bool stsp13_fwhm_vary, bool stsp13_fwhm_defined, 
+                     double stsp13_tcen_value, double stsp13_tcen_range, double stsp13_tcen_dstep, bool stsp13_tcen_vary, bool stsp13_tcen_defined, 
+                     double stsp21_long_value, double stsp21_long_range, double stsp21_long_dstep, bool stsp21_long_vary, bool stsp21_long_defined, 
+                     double stsp21_lat_value, double stsp21_lat_range, double stsp21_lat_dstep, bool stsp21_lat_vary, bool stsp21_lat_defined, 
+                     double stsp21_fwhm_value, double stsp21_fwhm_range, double stsp21_fwhm_dstep, bool stsp21_fwhm_vary, bool stsp21_fwhm_defined, 
+                     double stsp21_tcen_value, double stsp21_tcen_range, double stsp21_tcen_dstep, bool stsp21_tcen_vary, bool stsp21_tcen_defined, 
+                     double stsp22_long_value, double stsp22_long_range, double stsp22_long_dstep, bool stsp22_long_vary, bool stsp22_long_defined, 
+                     double stsp22_lat_value, double stsp22_lat_range, double stsp22_lat_dstep, bool stsp22_lat_vary, bool stsp22_lat_defined, 
+                     double stsp22_fwhm_value, double stsp22_fwhm_range, double stsp22_fwhm_dstep, bool stsp22_fwhm_vary, bool stsp22_fwhm_defined, 
+                     double stsp22_tcen_value, double stsp22_tcen_range, double stsp22_tcen_dstep, bool stsp22_tcen_vary, bool stsp22_tcen_defined, 
+                     double uesp_long1_value, double uesp_long1_range, double uesp_long1_dstep, bool uesp_long1_vary, bool uesp_long1_defined,
+                     double uesp_long2_value, double uesp_long2_range, double uesp_long2_dstep, bool uesp_long2_vary, bool uesp_long2_defined,
+                     double uesp_lathw_value, double uesp_lathw_range, double uesp_lathw_dstep, bool uesp_lathw_vary, bool uesp_lathw_defined,
+                     double uesp_taper_value, double uesp_taper_range, double uesp_taper_dstep, bool uesp_taper_vary, bool uesp_taper_defined,
+                     double uesp_temp_value, double uesp_temp_range, double uesp_temp_dstep, bool uesp_temp_vary, bool uesp_temp_defined,
+                     // disc
+                     double rdisc1_value, double rdisc1_range, double rdisc1_dstep, bool rdisc1_vary, bool rdisc1_defined, //disc
+                     double rdisc2_value, double rdisc2_range, double rdisc2_dstep, bool rdisc2_vary, bool rdisc2_defined, 
+                     double height_disc_value, double height_disc_range, double height_disc_dstep, bool height_disc_vary, bool height_disc_defined, 
+                     double beta_disc_value, double beta_disc_range, double beta_disc_dstep, bool beta_disc_vary, bool beta_disc_defined, 
+                     double temp_disc_value, double temp_disc_range, double temp_disc_dstep, bool temp_disc_vary, bool temp_disc_defined, 
+                     double texp_disc_value, double texp_disc_range, double texp_disc_dstep, bool texp_disc_vary, bool texp_disc_defined, 
+                     double lin_limb_disc_value, double lin_limb_disc_range, double lin_limb_disc_dstep, bool lin_limb_disc_vary, bool lin_limb_disc_defined, 
+                     double quad_limb_disc_value, double quad_limb_disc_range, double quad_limb_disc_dstep, bool quad_limb_disc_vary, bool quad_limb_disc_defined, 
+                     double temp_edge_value, double temp_edge_range, double temp_edge_dstep, bool temp_edge_vary, bool temp_edge_defined,
+                     double absorb_edge_value, double absorb_edge_range, double absorb_edge_dstep, bool absorb_edge_vary, bool absorb_edge_defined, 
+                     //Bright-spot
+                     double radius_spot_value, double radius_spot_range, double radius_spot_dstep, bool radius_spot_vary, bool radius_spot_defined, //Bright-spot
+                     double length_spot_value, double length_spot_range, double length_spot_dstep, bool length_spot_vary, bool length_spot_defined, 
+                     double height_spot_value, double height_spot_range, double height_spot_dstep, bool height_spot_vary, bool height_spot_defined, 
+                     double expon_spot_value, double expon_spot_range, double expon_spot_dstep, bool expon_spot_vary, bool expon_spot_defined, 
+                     double epow_spot_value, double epow_spot_range, double epow_spot_dstep, bool epow_spot_vary, bool epow_spot_defined, 
+                     double angle_spot_value, double angle_spot_range, double angle_spot_dstep, bool angle_spot_vary, bool angle_spot_defined, 
+                     double yaw_spot_value, double yaw_spot_range, double yaw_spot_dstep, bool yaw_spot_vary, bool yaw_spot_defined, 
+                     double temp_spot_value, double temp_spot_range, double temp_spot_dstep, bool temp_spot_vary, bool temp_spot_defined, 
+                     double tilt_spot_value, double tilt_spot_range, double tilt_spot_dstep, bool tilt_spot_vary, bool tilt_spot_defined, 
+                     double cfrac_spot_value, double cfrac_spot_range, double cfrac_spot_dstep, bool cfrac_spot_vary, bool cfrac_spot_defined,
+                     // Computational parameters
+                     double delta_phase, int nlat1f, int nlat2f, int nlat1c, int nlat2c, bool npole, 
+                     int nlatfill, int nlngfill, double lfudge, double llo, double lhi, double phase1, double phase2, int nrad, double wavelength,
+                     bool roche1, bool roche2, bool eclipse1, bool eclipse2, bool glens1, bool use_radii,
+                     double tperiod, double gdark_bolom1, double gdark_bolom2, double mucrit1, double mucrit2, 
+                     const char* pslimb1, const char* pslimb2, bool mirror, bool add_disc, bool opaque, bool add_spot, int nspot, bool iscale
+                    ) {
+
+
+    // Star spots:
+    //
+    // 11 = star 1, spot 1
+    // 21 = star 2, spot 1
+    //
+
+    // Computational
+
+    // Parameter value pairs
+    // Initialise physical parameters
+    q                = Pparam(q_value, q_range, q_dstep, q_vary, q_defined);
+    // std::cout << "lijiao trm_lroche.cc:  q2): " << q.value << std::endl; 
+    iangle           = Pparam(iangle_value, iangle_range, iangle_dstep, iangle_vary, iangle_defined);
+    r1               = Pparam(r1_value, r1_range, r1_dstep, r1_vary, r1_defined);
+    r2               = Pparam(r2_value, r2_range, r2_dstep, r2_vary, r2_defined);
+    cphi3            = Pparam(cphi3_value, cphi3_range, cphi3_dstep, cphi3_vary, cphi3_defined);
+    cphi4            = Pparam(cphi4_value, cphi4_range, cphi4_dstep, cphi4_vary, cphi4_defined);
+    spin1            = Pparam(spin1_value, spin1_range, spin1_dstep, spin1_vary, spin1_defined);
+    spin2            = Pparam(spin2_value, spin2_range, spin2_dstep, spin2_vary, spin2_defined);
+    t1               = Pparam(t1_value, t1_range, t1_dstep, t1_vary, t1_defined);
+    t2               = Pparam(t2_value, t2_range, t2_dstep, t2_vary, t2_defined);
+    ldc1_1           = Pparam(ldc1_1_value, ldc1_1_range, ldc1_1_dstep, ldc1_1_vary, ldc1_1_defined);
+    ldc1_2           = Pparam(ldc1_2_value, ldc1_2_range, ldc1_2_dstep, ldc1_2_vary, ldc1_2_defined);
+    ldc1_3           = Pparam(ldc1_3_value, ldc1_3_range, ldc1_3_dstep, ldc1_3_vary, ldc1_3_defined);
+    ldc1_4           = Pparam(ldc1_4_value, ldc1_4_range, ldc1_4_dstep, ldc1_4_vary, ldc1_4_defined);
+    ldc2_1           = Pparam(ldc2_1_value, ldc2_1_range, ldc2_1_dstep, ldc2_1_vary, ldc2_1_defined);
+    ldc2_2           = Pparam(ldc2_2_value, ldc2_2_range, ldc2_2_dstep, ldc2_2_vary, ldc2_2_defined);
+    ldc2_3           = Pparam(ldc2_3_value, ldc2_3_range, ldc2_3_dstep, ldc2_3_vary, ldc2_3_defined);
+    ldc2_4           = Pparam(ldc2_4_value, ldc2_4_range, ldc2_4_dstep, ldc2_4_vary, ldc2_4_defined);
+    velocity_scale   = Pparam(velocity_scale_value, velocity_scale_range, velocity_scale_dstep, velocity_scale_vary, velocity_scale_defined);
+    beam_factor1     = Pparam(beam_factor1_value, beam_factor1_range, beam_factor1_dstep, beam_factor1_vary, beam_factor1_defined);
+    beam_factor2     = Pparam(beam_factor2_value, beam_factor2_range, beam_factor2_dstep, beam_factor2_vary, beam_factor2_defined);
+    t0               = Pparam(t0_value, t0_range, t0_dstep, t0_vary, t0_defined);
+    period           = Pparam(period_value, period_range, period_dstep, period_vary, period_defined);
+    pdot             = Pparam(pdot_value, pdot_range, pdot_dstep, pdot_vary, pdot_defined);
+    deltat           = Pparam(deltat_value, deltat_range, deltat_dstep, deltat_vary, deltat_defined);
+    gravity_dark1    = Pparam(gravity_dark1_value, gravity_dark1_range, gravity_dark1_dstep, gravity_dark1_vary, gravity_dark1_defined);
+    gravity_dark2    = Pparam(gravity_dark2_value, gravity_dark2_range, gravity_dark2_dstep, gravity_dark2_vary, gravity_dark2_defined);
+    absorb           = Pparam(absorb_value, absorb_range, absorb_dstep, absorb_vary, absorb_defined);
+    slope            = Pparam(slope_value, slope_range, slope_dstep, slope_vary, slope_defined);
+    quad             = Pparam(quad_value, quad_range, quad_dstep, quad_vary, quad_defined);
+    cube             = Pparam(cube_value, cube_range, cube_dstep, cube_vary, cube_defined);
+    third            = Pparam(third_value, third_range, third_dstep, third_vary, third_defined);
+    rdisc1           = Pparam(rdisc1_value, rdisc1_range, rdisc1_dstep, rdisc1_vary, rdisc1_defined);
+    rdisc2           = Pparam(rdisc2_value, rdisc2_range, rdisc2_dstep, rdisc2_vary, rdisc2_defined);
+    height_disc      = Pparam(height_disc_value, height_disc_range, height_disc_dstep, height_disc_vary, height_disc_defined);
+    beta_disc        = Pparam(beta_disc_value, beta_disc_range, beta_disc_dstep, beta_disc_vary, beta_disc_defined);
+    temp_disc        = Pparam(temp_disc_value, temp_disc_range, temp_disc_dstep, temp_disc_vary, temp_disc_defined);
+    texp_disc        = Pparam(texp_disc_value, texp_disc_range, texp_disc_dstep, texp_disc_vary, texp_disc_defined);
+    lin_limb_disc    = Pparam(lin_limb_disc_value, lin_limb_disc_range, lin_limb_disc_dstep, lin_limb_disc_vary, lin_limb_disc_defined);
+    quad_limb_disc   = Pparam(quad_limb_disc_value, quad_limb_disc_range, quad_limb_disc_dstep, quad_limb_disc_vary, quad_limb_disc_defined);
+    temp_edge        = Pparam(temp_edge_value, temp_edge_range, temp_edge_dstep, temp_edge_vary, temp_edge_defined);
+    absorb_edge      = Pparam(absorb_edge_value, absorb_edge_range, absorb_edge_dstep, absorb_edge_vary, absorb_edge_defined);
+    radius_spot      = Pparam(radius_spot_value, radius_spot_range, radius_spot_dstep, radius_spot_vary, radius_spot_defined);
+    length_spot      = Pparam(length_spot_value, length_spot_range, length_spot_dstep, length_spot_vary, length_spot_defined);
+    height_spot      = Pparam(height_spot_value, height_spot_range, height_spot_dstep, height_spot_vary, height_spot_defined);
+    expon_spot       = Pparam(expon_spot_value, expon_spot_range, expon_spot_dstep, expon_spot_vary, expon_spot_defined);
+    epow_spot        = Pparam(epow_spot_value, epow_spot_range, epow_spot_dstep, epow_spot_vary, epow_spot_defined);
+    angle_spot       = Pparam(angle_spot_value, angle_spot_range, angle_spot_dstep, angle_spot_vary, angle_spot_defined);
+    yaw_spot         = Pparam(yaw_spot_value, yaw_spot_range, yaw_spot_dstep, yaw_spot_vary, yaw_spot_defined);
+    temp_spot        = Pparam(temp_spot_value, temp_spot_range, temp_spot_dstep, temp_spot_vary, temp_spot_defined);
+    tilt_spot        = Pparam(tilt_spot_value, tilt_spot_range, tilt_spot_dstep, tilt_spot_vary, tilt_spot_defined);
+    cfrac_spot       = Pparam(cfrac_spot_value, cfrac_spot_range, cfrac_spot_dstep, cfrac_spot_vary, cfrac_spot_defined);
+
+    // star-spot parameters need not have been defined, but
+    // if one of a group has, then all of them should be
+    if(stsp11_long_defined || stsp11_lat_defined ||
+        stsp11_fwhm_defined || stsp11_tcen_defined){
+        if(!(stsp11_long_defined && stsp11_lat_defined &&
+             stsp11_fwhm_defined && stsp11_tcen_defined))
+            throw Lcurve_Error("One or more of the star spot 11 parameters were not initialised");
+        stsp11_long      = Pparam(stsp11_long_value, stsp11_long_range, stsp11_long_dstep, stsp11_long_vary, stsp11_long_defined);
+        stsp11_lat       = Pparam(stsp11_lat_value, stsp11_lat_range, stsp11_lat_dstep, stsp11_lat_vary, stsp11_lat_defined);
+        stsp11_fwhm      = Pparam(stsp11_fwhm_value, stsp11_fwhm_range, stsp11_fwhm_dstep, stsp11_fwhm_vary, stsp11_fwhm_defined);
+        stsp11_tcen      = Pparam(stsp11_tcen_value, stsp11_tcen_range, stsp11_tcen_dstep, stsp11_tcen_vary, stsp11_tcen_defined);
+       }
+
+    if(stsp12_long_defined || stsp12_lat_defined ||
+        stsp12_fwhm_defined || stsp12_tcen_defined){
+        if(!(stsp12_long_defined && stsp12_lat_defined &&
+             stsp12_fwhm_defined && stsp12_tcen_defined))
+            throw Lcurve_Error("One or more of the star spot 12 parameters were not initialised");
+        stsp12_long      = Pparam(stsp12_long_value, stsp12_long_range, stsp12_long_dstep, stsp12_long_vary, stsp12_long_defined);
+        stsp12_lat       = Pparam(stsp12_lat_value, stsp12_lat_range, stsp12_lat_dstep, stsp12_lat_vary, stsp12_lat_defined);
+        stsp12_fwhm      = Pparam(stsp12_fwhm_value, stsp12_fwhm_range, stsp12_fwhm_dstep, stsp12_fwhm_vary, stsp12_fwhm_defined);
+        stsp12_tcen      = Pparam(stsp12_tcen_value, stsp12_tcen_range, stsp12_tcen_dstep, stsp12_tcen_vary, stsp12_tcen_defined);
+       }
+
+    if(stsp13_long_defined || stsp13_lat_defined ||
+        stsp13_fwhm_defined || stsp13_tcen_defined){
+        if(!(stsp13_long_defined && stsp13_lat_defined &&
+             stsp13_fwhm_defined && stsp13_tcen_defined))
+            throw Lcurve_Error("One or more of the star spot 13 parameters were not initialised");
+        stsp13_long      = Pparam(stsp13_long_value, stsp13_long_range, stsp13_long_dstep, stsp13_long_vary, stsp13_long_defined);
+        stsp13_lat       = Pparam(stsp13_lat_value, stsp13_lat_range, stsp13_lat_dstep, stsp13_lat_vary, stsp13_lat_defined);
+        stsp13_fwhm      = Pparam(stsp13_fwhm_value, stsp13_fwhm_range, stsp13_fwhm_dstep, stsp13_fwhm_vary, stsp13_fwhm_defined);
+        stsp13_tcen      = Pparam(stsp13_tcen_value, stsp13_tcen_range, stsp13_tcen_dstep, stsp13_tcen_vary, stsp13_tcen_defined);
+       }
+
+    if(stsp21_long_defined || stsp21_lat_defined ||
+        stsp21_fwhm_defined || stsp21_tcen_defined){
+        if(!(stsp21_long_defined && stsp21_lat_defined &&
+             stsp21_fwhm_defined && stsp21_tcen_defined))
+            throw Lcurve_Error("One or more of the star spot 21 parameters were not initialised");
+        stsp21_long      = Pparam(stsp21_long_value, stsp21_long_range, stsp21_long_dstep, stsp21_long_vary, stsp21_long_defined);
+        stsp21_lat       = Pparam(stsp21_lat_value, stsp21_lat_range, stsp21_lat_dstep, stsp21_lat_vary, stsp21_lat_defined);
+        stsp21_fwhm      = Pparam(stsp21_fwhm_value, stsp21_fwhm_range, stsp21_fwhm_dstep, stsp21_fwhm_vary, stsp21_fwhm_defined);
+        stsp21_tcen      = Pparam(stsp21_tcen_value, stsp21_tcen_range, stsp21_tcen_dstep, stsp21_tcen_vary, stsp21_tcen_defined);
+         }
+
+    if(stsp22_long_defined || stsp22_lat_defined ||
+        stsp22_fwhm_defined || stsp22_tcen_defined){
+        if(!(stsp22_long_defined && stsp22_lat_defined &&
+             stsp22_fwhm_defined && stsp22_tcen_defined))
+            throw Lcurve_Error("One or more of the star spot 22 parameters were not initialised");
+        stsp22_long      = Pparam(stsp22_long_value, stsp22_long_range, stsp22_long_dstep, stsp22_long_vary, stsp22_long_defined);
+        stsp22_lat       = Pparam(stsp22_lat_value, stsp22_lat_range, stsp22_lat_dstep, stsp22_lat_vary, stsp22_lat_defined);
+        stsp22_fwhm      = Pparam(stsp22_fwhm_value, stsp22_fwhm_range, stsp22_fwhm_dstep, stsp22_fwhm_vary, stsp22_fwhm_defined);
+        stsp22_tcen      = Pparam(stsp22_tcen_value, stsp22_tcen_range, stsp22_tcen_dstep, stsp22_tcen_vary, stsp22_tcen_defined);
+       }
+
+    if(uesp_long1_defined || uesp_long2_defined ||
+        uesp_lathw_defined || uesp_taper_defined || uesp_temp_defined){
+        if(!(uesp_long1_defined && uesp_long2_defined &&
+             uesp_lathw_defined && uesp_taper_defined && uesp_temp_defined))
+         throw Lcurve_Error("One or more of uniform equatorial spot parameters were not initialised");
+        uesp_long1 = Pparam(uesp_long1_value, uesp_long1_range, uesp_long1_dstep, uesp_long1_vary, uesp_long1_defined);
+        uesp_long2 = Pparam(uesp_long2_value, uesp_long2_range, uesp_long2_dstep, uesp_long2_vary, uesp_long2_defined);
+        uesp_lathw = Pparam(uesp_lathw_value, uesp_lathw_range, uesp_lathw_dstep, uesp_lathw_vary, uesp_lathw_defined);
+        uesp_taper = Pparam(uesp_taper_value, uesp_taper_range, uesp_taper_dstep, uesp_taper_vary, uesp_taper_defined);
+        uesp_temp = Pparam(uesp_temp_value, uesp_temp_range, uesp_temp_dstep, uesp_temp_vary, uesp_temp_defined);
+      }
+
+    this->delta_phase = delta_phase;
+    this->nlat1f = nlat1f, this->nlat2f = nlat2f, this->nlat1c = nlat1c, this->nlat2c = nlat2c;
+    this->npole = npole; this->nlatfill = nlatfill, this->nlngfill = nlngfill;
+    this->lfudge = lfudge, this->llo = llo, this->lhi = lhi;
+    this->phase1 = phase1, this->phase2 = phase2, this->nrad = nrad;
+    this->wavelength = wavelength;
+    this->roche1 = roche1, this->roche2 = roche2, this->eclipse1 = eclipse1, this->eclipse2 = eclipse2;
+    this->glens1 = glens1, this->use_radii = use_radii;
+    this->tperiod = tperiod, this->gdark_bolom1 = gdark_bolom1, this->gdark_bolom2 = gdark_bolom2;
+    this->mucrit1 = mucrit1, this->mucrit2 = mucrit2;
+    this->mirror = mirror, this->add_disc = add_disc, this->opaque = opaque, this->add_spot = add_spot, this->nspot = nspot;
+    this->iscale = iscale;
+    if(glens1 && roche1)
+      throw Lcurve_Error("For reasons of simplicity, glens1 = 1 and roche1 = 1 are not simultaneously allowed");
+    std::string slimb1 = pslimb1;
+    std::string slimb2 = pslimb2;
+    //if(strcmp(pslimb1, "Poly") == 0){
+    if(slimb1 == "Poly"){
+        limb1 = LDC::POLY;
+    }else if(slimb1 ==  "Claret"){
+        limb1 = LDC::CLARET;
+    }else{
+        throw Lcurve_Error("Could not recognize the value of slimb1 = " +
+                           slimb1 + "; should be 'Poly' or 'Claret'");
+    }
+    if(slimb2 == "Poly"){
+        limb2 = LDC::POLY;
+    }else if(slimb2 == "Claret"){
+        limb2 = LDC::CLARET;
+    }else{
+        throw Lcurve_Error("Could not recognize the value of slimb2 = " +
+                           slimb2 + "; should be 'Poly' or 'Claret'");
+    }
+
+}
+
+
+
 /** Works out the number of variable physical parameters */
 int Lcurve::Model::nvary() const {
     int n = 0;
