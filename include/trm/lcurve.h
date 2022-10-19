@@ -169,6 +169,15 @@ namespace Lcurve {
       if(!istr) defined = true;
     }
 
+    //! Constructor from arguments added by lijiao
+    Pparam(double value, double range, double dstep, bool vary, bool defined){
+      this->value = value;
+      this->range = range;
+      this->dstep = dstep;
+      this->vary = vary;
+      this->defined = defined;
+    }
+
     //! Implicit conversion to a double by just returning the value
     operator double () const { return value; }
 
@@ -250,6 +259,97 @@ namespace Lcurve {
 
     //! Constructor from a file
     Model(const std::string& file);
+    //! Constructor from arguments added by lijiao
+    Model(//Binary and stars
+           double q_value, double q_range, double q_dstep, bool q_vary, bool q_defined,
+           double iangle_value, double iangle_range, double iangle_dstep, bool iangle_vary, bool iangle_defined, 
+           double r1_value, double r1_range, double r1_dstep, bool r1_vary, bool r1_defined, 
+           double r2_value, double r2_range, double r2_dstep, bool r2_vary, bool r2_defined, 
+           double cphi3_value, double cphi3_range, double cphi3_dstep, bool cphi3_vary, bool cphi3_defined, 
+           double cphi4_value, double cphi4_range, double cphi4_dstep, bool cphi4_vary, bool cphi4_defined, 
+           double spin1_value, double spin1_range, double spin1_dstep, bool spin1_vary, bool spin1_defined, 
+           double spin2_value, double spin2_range, double spin2_dstep, bool spin2_vary, bool spin2_defined, 
+           double t1_value, double t1_range, double t1_dstep, bool t1_vary, bool t1_defined, 
+           double t2_value, double t2_range, double t2_dstep, bool t2_vary, bool t2_defined, 
+           double ldc1_1_value, double ldc1_1_range, double ldc1_1_dstep, bool ldc1_1_vary, bool ldc1_1_defined, 
+           double ldc1_2_value, double ldc1_2_range, double ldc1_2_dstep, bool ldc1_2_vary, bool ldc1_2_defined, 
+           double ldc1_3_value, double ldc1_3_range, double ldc1_3_dstep, bool ldc1_3_vary, bool ldc1_3_defined, 
+           double ldc1_4_value, double ldc1_4_range, double ldc1_4_dstep, bool ldc1_4_vary, bool ldc1_4_defined, 
+           double ldc2_1_value, double ldc2_1_range, double ldc2_1_dstep, bool ldc2_1_vary, bool ldc2_1_defined, 
+           double ldc2_2_value, double ldc2_2_range, double ldc2_2_dstep, bool ldc2_2_vary, bool ldc2_2_defined, 
+           double ldc2_3_value, double ldc2_3_range, double ldc2_3_dstep, bool ldc2_3_vary, bool ldc2_3_defined, 
+           double ldc2_4_value, double ldc2_4_range, double ldc2_4_dstep, bool ldc2_4_vary, bool ldc2_4_defined, 
+           double velocity_scale_value, double velocity_scale_range, double velocity_scale_dstep, bool velocity_scale_vary, bool velocity_scale_defined, 
+           double beam_factor1_value, double beam_factor1_range, double beam_factor1_dstep, bool beam_factor1_vary, bool beam_factor1_defined, 
+           double beam_factor2_value, double beam_factor2_range, double beam_factor2_dstep, bool beam_factor2_vary, bool beam_factor2_defined, 
+           //General
+           double t0_value, double t0_range, double t0_dstep, bool t0_vary, bool t0_defined, 
+           double period_value, double period_range, double period_dstep, bool period_vary, bool period_defined, 
+           double pdot_value, double pdot_range, double pdot_dstep, bool pdot_vary, bool pdot_defined, 
+           double deltat_value, double deltat_range, double deltat_dstep, bool deltat_vary, bool deltat_defined, 
+           double gravity_dark1_value, double gravity_dark1_range, double gravity_dark1_dstep, bool gravity_dark1_vary, bool gravity_dark1_defined, 
+           double gravity_dark2_value, double gravity_dark2_range, double gravity_dark2_dstep, bool gravity_dark2_vary, bool gravity_dark2_defined, 
+           double absorb_value, double absorb_range, double absorb_dstep, bool absorb_vary, bool absorb_defined, 
+           double slope_value, double slope_range, double slope_dstep, bool slope_vary, bool slope_defined, 
+           double quad_value, double quad_range, double quad_dstep, bool quad_vary, bool quad_defined, 
+           double cube_value, double cube_range, double cube_dstep, bool cube_vary, bool cube_defined, 
+           double third_value, double third_range, double third_dstep, bool third_vary, bool third_defined, 
+           // Star spots
+           double stsp11_long_value, double stsp11_long_range, double stsp11_long_dstep, bool stsp11_long_vary, bool stsp11_long_defined, 
+           double stsp11_lat_value, double stsp11_lat_range, double stsp11_lat_dstep, bool stsp11_lat_vary, bool stsp11_lat_defined, 
+           double stsp11_fwhm_value, double stsp11_fwhm_range, double stsp11_fwhm_dstep, bool stsp11_fwhm_vary, bool stsp11_fwhm_defined, 
+           double stsp11_tcen_value, double stsp11_tcen_range, double stsp11_tcen_dstep, bool stsp11_tcen_vary, bool stsp11_tcen_defined, 
+           double stsp12_long_value, double stsp12_long_range, double stsp12_long_dstep, bool stsp12_long_vary, bool stsp12_long_defined, 
+           double stsp12_lat_value, double stsp12_lat_range, double stsp12_lat_dstep, bool stsp12_lat_vary, bool stsp12_lat_defined, 
+           double stsp12_fwhm_value, double stsp12_fwhm_range, double stsp12_fwhm_dstep, bool stsp12_fwhm_vary, bool stsp12_fwhm_defined, 
+           double stsp12_tcen_value, double stsp12_tcen_range, double stsp12_tcen_dstep, bool stsp12_tcen_vary, bool stsp12_tcen_defined, 
+           double stsp13_long_value, double stsp13_long_range, double stsp13_long_dstep, bool stsp13_long_vary, bool stsp13_long_defined, 
+           double stsp13_lat_value, double stsp13_lat_range, double stsp13_lat_dstep, bool stsp13_lat_vary, bool stsp13_lat_defined, 
+           double stsp13_fwhm_value, double stsp13_fwhm_range, double stsp13_fwhm_dstep, bool stsp13_fwhm_vary, bool stsp13_fwhm_defined, 
+           double stsp13_tcen_value, double stsp13_tcen_range, double stsp13_tcen_dstep, bool stsp13_tcen_vary, bool stsp13_tcen_defined, 
+           double stsp21_long_value, double stsp21_long_range, double stsp21_long_dstep, bool stsp21_long_vary, bool stsp21_long_defined, 
+           double stsp21_lat_value, double stsp21_lat_range, double stsp21_lat_dstep, bool stsp21_lat_vary, bool stsp21_lat_defined, 
+           double stsp21_fwhm_value, double stsp21_fwhm_range, double stsp21_fwhm_dstep, bool stsp21_fwhm_vary, bool stsp21_fwhm_defined, 
+           double stsp21_tcen_value, double stsp21_tcen_range, double stsp21_tcen_dstep, bool stsp21_tcen_vary, bool stsp21_tcen_defined, 
+           double stsp22_long_value, double stsp22_long_range, double stsp22_long_dstep, bool stsp22_long_vary, bool stsp22_long_defined, 
+           double stsp22_lat_value, double stsp22_lat_range, double stsp22_lat_dstep, bool stsp22_lat_vary, bool stsp22_lat_defined, 
+           double stsp22_fwhm_value, double stsp22_fwhm_range, double stsp22_fwhm_dstep, bool stsp22_fwhm_vary, bool stsp22_fwhm_defined, 
+           double stsp22_tcen_value, double stsp22_tcen_range, double stsp22_tcen_dstep, bool stsp22_tcen_vary, bool stsp22_tcen_defined, 
+           double uesp_long1_value, double uesp_long1_range, double uesp_long1_dstep, bool uesp_long1_vary, bool uesp_long1_defined,
+           double uesp_long2_value, double uesp_long2_range, double uesp_long2_dstep, bool uesp_long2_vary, bool uesp_long2_defined,
+           double uesp_lathw_value, double uesp_lathw_range, double uesp_lathw_dstep, bool uesp_lathw_vary, bool uesp_lathw_defined,
+           double uesp_taper_value, double uesp_taper_range, double uesp_taper_dstep, bool uesp_taper_vary, bool uesp_taper_defined,
+           double uesp_temp_value, double uesp_temp_range, double uesp_temp_dstep, bool uesp_temp_vary, bool uesp_temp_defined,
+           // disc
+           double rdisc1_value, double rdisc1_range, double rdisc1_dstep, bool rdisc1_vary, bool rdisc1_defined, //disc
+           double rdisc2_value, double rdisc2_range, double rdisc2_dstep, bool rdisc2_vary, bool rdisc2_defined, 
+           double height_disc_value, double height_disc_range, double height_disc_dstep, bool height_disc_vary, bool height_disc_defined, 
+           double beta_disc_value, double beta_disc_range, double beta_disc_dstep, bool beta_disc_vary, bool beta_disc_defined, 
+           double temp_disc_value, double temp_disc_range, double temp_disc_dstep, bool temp_disc_vary, bool temp_disc_defined, 
+           double texp_disc_value, double texp_disc_range, double texp_disc_dstep, bool texp_disc_vary, bool texp_disc_defined, 
+           double lin_limb_disc_value, double lin_limb_disc_range, double lin_limb_disc_dstep, bool lin_limb_disc_vary, bool lin_limb_disc_defined, 
+           double quad_limb_disc_value, double quad_limb_disc_range, double quad_limb_disc_dstep, bool quad_limb_disc_vary, bool quad_limb_disc_defined, 
+           double temp_edge_value, double temp_edge_range, double temp_edge_dstep, bool temp_edge_vary, bool temp_edge_defined,
+           double absorb_edge_value, double absorb_edge_range, double absorb_edge_dstep, bool absorb_edge_vary, bool absorb_edge_defined, 
+           //Bright-spot
+           double radius_spot_value, double radius_spot_range, double radius_spot_dstep, bool radius_spot_vary, bool radius_spot_defined, //Bright-spot
+           double length_spot_value, double length_spot_range, double length_spot_dstep, bool length_spot_vary, bool length_spot_defined, 
+           double height_spot_value, double height_spot_range, double height_spot_dstep, bool height_spot_vary, bool height_spot_defined, 
+           double expon_spot_value, double expon_spot_range, double expon_spot_dstep, bool expon_spot_vary, bool expon_spot_defined, 
+           double epow_spot_value, double epow_spot_range, double epow_spot_dstep, bool epow_spot_vary, bool epow_spot_defined, 
+           double angle_spot_value, double angle_spot_range, double angle_spot_dstep, bool angle_spot_vary, bool angle_spot_defined, 
+           double yaw_spot_value, double yaw_spot_range, double yaw_spot_dstep, bool yaw_spot_vary, bool yaw_spot_defined, 
+           double temp_spot_value, double temp_spot_range, double temp_spot_dstep, bool temp_spot_vary, bool temp_spot_defined, 
+           double tilt_spot_value, double tilt_spot_range, double tilt_spot_dstep, bool tilt_spot_vary, bool tilt_spot_defined, 
+           double cfrac_spot_value, double cfrac_spot_range, double cfrac_spot_dstep, bool cfrac_spot_vary, bool cfrac_spot_defined,
+           // Computational parameters
+           double delta_phase, int nlat1f, int nlat2f, int nlat1c, int nlat2c, bool npole, 
+           int nlatfill, int nlngfill, double lfudge, double llo, double lhi, double phase1, double phase2, int nrad, double wavelength,
+           bool roche1, bool roche2, bool eclipse1, bool eclipse2, bool glens1, bool use_radii,
+           double tperiod, double gdark_bolom1, double gdark_bolom2, double mucrit1, double mucrit2, 
+           const char* pslimb1, const char* pslimb2, bool mirror, bool add_disc, bool opaque, bool add_spot, int nspot, bool iscale
+                    );
+
 
     //! Number of variable parameters
     int nvary() const;
@@ -856,6 +956,15 @@ namespace Lcurve {
                         Subs::Array1D<double>& calc, double& wdwarf,
                         double& chisq, double& wnok,
                         double& logg1, double& logg2, double& rv1, double& rv2);
+
+  //! Computes an entire light curve corresponding to a given time for python added by lijiao.
+  void pylight_curve_comp(const Lcurve::Model& mdl,
+                              double *time, double *expose, int *ndiv, int Tsize,
+                              bool info,
+                              double *calc, double *lcstar1, double *lcdisc,
+                              double *lcedge, double *lcspot, double *lcstar2,
+                              double& wdwarf,
+                              double& logg1, double& logg2, double& rv1, double& rv2, int parallel_threshold);
 
   //! Re-scales a fit to minimise chi**2
   double re_scale(const Lcurve::Data& data, Subs::Array1D<double>& fit,
