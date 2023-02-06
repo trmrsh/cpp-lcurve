@@ -15,4 +15,3 @@ a better job of it I am afraid. For details, please see:
 This version allows python to call function in DLLs or shared libraries ([ctypes.CDLL](https://docs.python.org/3/library/ctypes.html)). 
 The python wrapper of lcurve is [pylcurve](https://github.com/lidihei/pylcurve), which is written by Jiao Li (lijiao@bao.ac.cn).
 
-

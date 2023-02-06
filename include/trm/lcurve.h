@@ -346,7 +346,7 @@ namespace Lcurve {
            double delta_phase, int nlat1f, int nlat2f, int nlat1c, int nlat2c, bool npole, 
            int nlatfill, int nlngfill, double lfudge, double llo, double lhi, double phase1, double phase2, int nrad, double wavelength,
            bool roche1, bool roche2, bool eclipse1, bool eclipse2, bool glens1, bool use_radii,
-           double tperiod, double gdark_bolom1, double gdark_bolom2, double mucrit1, double mucrit2, 
+           double tperiod, bool gdark_bolom1, bool gdark_bolom2, double mucrit1, double mucrit2, 
            const char* pslimb1, const char* pslimb2, bool mirror, bool add_disc, bool opaque, bool add_spot, int nspot, bool iscale
                     );
 
