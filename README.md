@@ -1,3 +1,13 @@
+This is a modified version for pyclurve 
+
+- major modification:
+- - trm/lcurve.h add Pparam(double value, double range, double dstep, bool vary, bool defined) and
+    Constructor from arguments added by lijiao
+    Model(//Binary and stars
+           double q_value, double q_range, double q_dstep, bool q_vary, bool q_defined,...
+- - src/Makefile.am add lib_LTLIBRARIES = libpylcurve.la ...
+- - src/trm_lcurve.cc  add Lcurve::Model::Model(//Binary and stars...
+- - add libpylcurve.cc and pylight_curve_comp.cc
 
 'lcurve' is for modelling of light curves.
 
