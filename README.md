@@ -1,6 +1,6 @@
-This is a modified version for pyclurve 
+This is a modified version of lcurve for the python wrapper [pyclurve](https://github.com/lidihei/pylcurve) 
 
-- major modification:
+- major modifications:
 - - trm/lcurve.h add Pparam(double value, double range, double dstep, bool vary, bool defined) and
     Constructor from arguments added by lijiao
     Model(//Binary and stars
