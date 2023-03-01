@@ -54,7 +54,7 @@ void Lcurve::set_star_continuum(const Model& mdl,
     // used to give the desired behaviour of flux with gravity.
     const double GDCBOL1 = mdl.gdark_bolom1 ? mdl.gravity_dark1 :
         mdl.gravity_dark1 / Subs::dlpdlt(mdl.wavelength, mdl.t1);
-
+    //std::cout<< "lijiao check GDCBOL1 = " <<  GDCBOL1 << std::endl;
     int nelem1 = star1.size();
 
     // compute direction of star spot 11, 12, 13, and the uespot

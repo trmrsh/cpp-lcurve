@@ -1,0 +1,8 @@
+#!/bin/sh -v
+#
+#install the code for python wrapper of pylcurve (https://github.com/lidihei/pylcurve)
+
+autoreconf -f -i -s
+
+./configure --prefix=$TRM_SOFTWARE
+make install
